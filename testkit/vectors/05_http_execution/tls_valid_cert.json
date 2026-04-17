@@ -1,0 +1,40 @@
+{
+  "id": "tls_valid_cert",
+  "description": "HTTPS call against the bundled mock server serving a cert signed by our test CA. The cert chain is not in the client's trust store; with rejectInvalidCerts: false the call still succeeds and the response is returned normally (spec \u00a73.2, \u00a715.5).",
+  "spec_refs": ["lace-spec.md §3.2", "lace-spec.md §15.5"],
+  "type": "execute",
+  "input": {
+    "source": "get(\"https://127.0.0.1:{port}/ok\", { security: { rejectInvalidCerts: false } }).expect(status: 200)\n",
+    "variables": {},
+    "tls_scenario": "valid",
+    "http_mock": [
+      { "callIndex": 0, "outcome": "response", "status": 200, "headers": {}, "body": "" }
+    ]
+  },
+  "expected": {
+    "result": {
+      "outcome": "success",
+      "startedAt": "1970-01-01T00:00:00Z", "endedAt": "1970-01-01T00:00:00Z",
+      "runVars": {},
+      "calls": [
+        {
+          "index": 0, "outcome": "success",
+          "startedAt": "1970-01-01T00:00:00Z", "endedAt": "1970-01-01T00:00:00Z",
+          "request": "IGNORED", "response": "IGNORED",
+          "redirects": [],
+          "assertions": [
+            { "method": "expect", "scope": "status", "op": "eq", "outcome": "passed", "actual": 200, "expected": 200, "options": null }
+          ],
+          "config": {}, "warnings": "IGNORED", "error": null
+        }
+      ],
+      "actions": {}
+    },
+    "ignore": [
+      "startedAt", "endedAt",
+      "calls[*].startedAt", "calls[*].endedAt",
+      "calls[*].request", "calls[*].response",
+      "calls[*].config"
+    ]
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "id": "unknown_function",
+  "description": "Calling an unknown function (not json/form/schema and not in an extension context) is a validation error per spec \u00a78.",
+  "spec_refs": [
+    "lace-spec.md \u00a78",
+    "lace-spec.md \u00a712"
+  ],
+  "type": "validate",
+  "input": {
+    "source": "get(\"$x\").assert({ expect: [random() gt 5] })\n",
+    "variables": [
+      "x"
+    ],
+    "context": {
+      "maxRedirects": 10,
+      "maxTimeoutMs": 300000
+    }
+  },
+  "expected": {
+    "errors": [
+      {
+        "code": "UNKNOWN_FUNCTION",
+        "callIndex": 0,
+        "chainMethod": "assert"
+      }
+    ],
+    "warnings": []
+  }
+}

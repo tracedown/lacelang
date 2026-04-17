@@ -1,0 +1,15 @@
+get("$BASE_URL/api/search", {
+  headers: { Authorization: "Bearer $api_key" }
+})
+.expect(
+  status: 200,
+  ttfb: { value: 300 },
+  bodySize: "128kb"
+)
+.check(
+  totalDelayMs: { value: 1200 },
+  dns:        { value: 80 },
+  connect:    { value: 150 },
+  tls:        { value: 200 },
+  transfer:   { value: 400 }
+)

@@ -1,0 +1,21 @@
+#!/usr/bin/make -f
+# Debian packaging rules for lacelang-testkit.
+
+%:
+	dh $@
+
+override_dh_auto_build:
+	$(MAKE) -C src EMBED_VECTORS=1 WITH_TLS=1
+
+override_dh_auto_install:
+	# Binary
+	install -D -m 0755 src/build/lace-conformance \
+	    debian/lacelang-testkit/usr/bin/lace-conformance
+	# Cert generator + target directory (populated at postinst time)
+	install -D -m 0755 certs/generate-certs.sh \
+	    debian/lacelang-testkit/usr/share/lacelang-testkit/generate-certs.sh
+	install -d -m 0755 \
+	    debian/lacelang-testkit/usr/share/lacelang-testkit/certs
+
+override_dh_auto_clean:
+	$(MAKE) -C src clean

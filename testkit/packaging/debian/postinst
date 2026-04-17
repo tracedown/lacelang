@@ -1,0 +1,32 @@
+#!/bin/sh
+# Debian post-install hook for lacelang-testkit.
+#
+# Runs the bundled cert generator so the HTTPS mock is usable out of the
+# box. Gracefully degrades when openssl isn't installed — prints a warning
+# and leaves the certs dir empty. The harness detects this and skips TLS
+# vectors with a clear reason.
+
+set -e
+
+CERTS_DIR="/usr/share/lacelang-testkit/certs"
+GEN_SCRIPT="/usr/share/lacelang-testkit/generate-certs.sh"
+
+case "$1" in
+    configure)
+        if [ -x "$GEN_SCRIPT" ]; then
+            if command -v openssl >/dev/null 2>&1; then
+                "$GEN_SCRIPT" "$CERTS_DIR" || true
+            else
+                echo "lacelang-testkit: openssl not installed — skipping TLS cert generation." >&2
+                echo "                  HTTPS-requiring vectors will be reported as skipped." >&2
+                echo "                  To enable: apt install openssl && lace-conformance --generate-certs" >&2
+            fi
+        fi
+        ;;
+    abort-upgrade|abort-remove|abort-deconfigure)
+        ;;
+esac
+
+#DEBHELPER#
+
+exit 0

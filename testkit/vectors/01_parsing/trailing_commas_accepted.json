@@ -1,0 +1,52 @@
+{
+  "id": "trailing_commas_accepted",
+  "description": "Trailing commas are accepted in call config, scope list, object literal, and store block (spec \u00a72.1).",
+  "spec_refs": [
+    "lace-spec.md \u00a72.1"
+  ],
+  "type": "parse",
+  "input": {
+    "source": "get(\"$u\", { headers: { a: \"1\", },  }).expect(status: 200, ).store({ \"$$x\": 1, })\n"
+  },
+  "expected": {
+    "ast": {
+      "version": "0.9.0",
+      "calls": [
+        {
+          "method": "get",
+          "url": "$u",
+          "config": {
+            "headers": {
+              "a": {
+                "kind": "literal",
+                "valueType": "string",
+                "value": "1"
+              }
+            }
+          },
+          "chain": {
+            "expect": {
+              "status": {
+                "value": {
+                  "kind": "literal",
+                  "valueType": "int",
+                  "value": 200
+                }
+              }
+            },
+            "store": {
+              "$$x": {
+                "scope": "run",
+                "value": {
+                  "kind": "literal",
+                  "valueType": "int",
+                  "value": 1
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "id": "timeout_fail_action",
+  "description": "timeout.action: \"fail\" hard-fails on timeout (spec \u00a73.2, \u00a77). Result outcome is \"timeout\", call outcome is \"timeout\", response is null.",
+  "spec_refs": [
+    "lace-spec.md \u00a73.2",
+    "lace-spec.md \u00a715.5"
+  ],
+  "type": "execute",
+  "input": {
+    "source": "get(\"http://127.0.0.1:{port}/slow\", { timeout: { ms: 100, action: \"fail\" } }).expect(status: 200)\n",
+    "variables": {},
+    "http_mock": [
+      {
+        "callIndex": 0,
+        "outcome": "timeout"
+      }
+    ]
+  },
+  "expected": {
+    "result": {
+      "outcome": "timeout",
+      "startedAt": "1970-01-01T00:00:00Z",
+      "endedAt": "1970-01-01T00:00:00Z",
+      "runVars": {},
+      "calls": [
+        {
+          "index": 0,
+          "outcome": "timeout",
+          "startedAt": "1970-01-01T00:00:00Z",
+          "endedAt": "1970-01-01T00:00:00Z",
+          "request": {
+            "url": "http://127.0.0.1:{port}/slow",
+            "method": "get",
+            "headers": {},
+            "bodyPath": null
+          },
+          "response": null,
+          "redirects": [],
+          "assertions": [],
+          "config": {},
+          "warnings": [],
+          "error": "IGNORED"
+        }
+      ],
+      "actions": {}
+    },
+    "ignore": [
+      "startedAt",
+      "endedAt",
+      "calls[*].startedAt",
+      "calls[*].endedAt",
+      "calls[*].request.bodyPath",
+      "calls[*].config",
+      "calls[*].error"
+    ]
+  }
+}

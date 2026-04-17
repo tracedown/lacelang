@@ -1,0 +1,34 @@
+{
+  "id": "multi_error_all_reported",
+  "description": "The validator reports every independent error it discovers, not just the first \u2014 here CHAIN_DUPLICATE and VARIABLE_UNKNOWN both fire on the same call (spec \u00a715.2).",
+  "spec_refs": [
+    "lace-spec.md \u00a712",
+    "lace-spec.md \u00a715.2"
+  ],
+  "type": "validate",
+  "input": {
+    "source": "get(\"$u\").expect(status: 200).expect(status: 201).assert({ expect: [$missing eq 1] })\n",
+    "variables": [
+      "u"
+    ],
+    "context": {
+      "maxRedirects": 10,
+      "maxTimeoutMs": 300000
+    }
+  },
+  "expected": {
+    "errors": [
+      {
+        "code": "CHAIN_DUPLICATE",
+        "callIndex": 0
+      },
+      {
+        "code": "VARIABLE_UNKNOWN",
+        "callIndex": 0,
+        "chainMethod": "assert",
+        "field": "missing"
+      }
+    ],
+    "warnings": []
+  }
+}

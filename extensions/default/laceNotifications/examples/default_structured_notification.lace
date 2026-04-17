@@ -1,0 +1,10 @@
+// laceNotifications example: default structured notification on failure.
+// When no custom notification option is set, laceNotifications emits a
+// structured() notification with machine-readable failure details.
+//
+// Run: lacelang-executor run default_structured_notification.lace \
+//        --enable-extension laceNotifications --pretty
+
+get("https://httpbin.org/status/503")
+.expect(status: 200)
+.check(totalDelayMs: { value: 1, options: { silentOnRepeat: false } })

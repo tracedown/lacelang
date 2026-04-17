@@ -1,0 +1,79 @@
+{
+  "id": "binary_operators_and_unary_not",
+  "description": "Precedence sanity: `not $a and $b eq $c + $d * $e` parses per the spec precedence table (spec \u00a72.1, \u00a75).",
+  "spec_refs": [
+    "lace-spec.md \u00a72.1"
+  ],
+  "type": "parse",
+  "input": {
+    "source": "get(\"$u\").expect(status: 200).assert({ expect: [not $a and $b eq $c + $d * $e] })\n"
+  },
+  "expected": {
+    "ast": {
+      "version": "0.9.0",
+      "calls": [
+        {
+          "method": "get",
+          "url": "$u",
+          "chain": {
+            "expect": {
+              "status": {
+                "value": {
+                  "kind": "literal",
+                  "valueType": "int",
+                  "value": 200
+                }
+              }
+            },
+            "assert": {
+              "expect": [
+                {
+                  "condition": {
+                    "kind": "binary",
+                    "op": "and",
+                    "left": {
+                      "kind": "unary",
+                      "op": "not",
+                      "operand": {
+                        "kind": "scriptVar",
+                        "name": "a"
+                      }
+                    },
+                    "right": {
+                      "kind": "binary",
+                      "op": "eq",
+                      "left": {
+                        "kind": "scriptVar",
+                        "name": "b"
+                      },
+                      "right": {
+                        "kind": "binary",
+                        "op": "+",
+                        "left": {
+                          "kind": "scriptVar",
+                          "name": "c"
+                        },
+                        "right": {
+                          "kind": "binary",
+                          "op": "*",
+                          "left": {
+                            "kind": "scriptVar",
+                            "name": "d"
+                          },
+                          "right": {
+                            "kind": "scriptVar",
+                            "name": "e"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  }
+}

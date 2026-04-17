@@ -1,0 +1,14 @@
+{
+  "id": "head_method_rejected",
+  "description": "HEAD is not a Lace HTTP method; parser must reject.",
+  "spec_refs": ["lace-spec.md §3.1"],
+  "type": "parse",
+  "input": {
+    "source": "head(\"$x\").expect(status: 200)\n"
+  },
+  "expected": {
+    "errors": [
+      { "code": "PARSE_ERROR", "line": 1 }
+    ]
+  }
+}

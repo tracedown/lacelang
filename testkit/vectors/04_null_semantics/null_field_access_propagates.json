@@ -1,0 +1,57 @@
+{
+  "id": "null_field_access_propagates",
+  "description": "Chained field access on a null script var propagates to null (spec \u00a75.4, \u00a715.4: any field access on null returns null, no exception). $missing is absent from the injected map so $missing.foo.bar is null; null == null passes.",
+  "spec_refs": [
+    "lace-spec.md \u00a75.4",
+    "lace-spec.md \u00a715.4",
+    "lace-spec.md \u00a72.1"
+  ],
+  "type": "execute",
+  "input": {
+    "source": "get(\"http://127.0.0.1:{port}/x\").expect(status: 200).assert({ expect: [$missing.foo.bar eq null] })\n",
+    "variables": {},
+    "http_mock": [
+      {
+        "callIndex": 0,
+        "outcome": "response",
+        "status": 200,
+        "headers": {},
+        "body": ""
+      }
+    ]
+  },
+  "expected": {
+    "result": {
+      "outcome": "success",
+      "startedAt": "1970-01-01T00:00:00Z",
+      "endedAt": "1970-01-01T00:00:00Z",
+      "runVars": {},
+      "calls": [
+        {
+          "index": 0,
+          "outcome": "success",
+          "startedAt": "1970-01-01T00:00:00Z",
+          "endedAt": "1970-01-01T00:00:00Z",
+          "request": "IGNORED",
+          "response": "IGNORED",
+          "redirects": [],
+          "assertions": "IGNORED",
+          "config": {},
+          "warnings": [],
+          "error": null
+        }
+      ],
+      "actions": {}
+    },
+    "ignore": [
+      "startedAt",
+      "endedAt",
+      "calls[*].startedAt",
+      "calls[*].endedAt",
+      "calls[*].request",
+      "calls[*].response",
+      "calls[*].assertions",
+      "calls[*].config"
+    ]
+  }
+}

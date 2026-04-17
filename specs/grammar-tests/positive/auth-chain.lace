@@ -1,0 +1,23 @@
+post("$BASE_URL/admin/login", {
+  body:      json({ email: "$admin_email", password: "$admin_pass" }),
+  cookieJar: "named:admin",
+  timeout:   { ms: 3000, action: "fail" }
+})
+.expect(status: 200)
+.store({ "$$admin_token": this.body.token })
+
+get("$BASE_URL/admin/dashboard", {
+  headers:   { Authorization: "Bearer $$admin_token" },
+  cookieJar: "named:admin"
+})
+.expect(
+  status: 200,
+  body:   schema($dashboard_schema)
+)
+.check(totalDelayMs: { value: 500 })
+
+delete("$BASE_URL/admin/resources/$$resource_id", {
+  headers:   { Authorization: "Bearer $$admin_token" },
+  cookieJar: "named:admin"
+})
+.expect(status: 200)

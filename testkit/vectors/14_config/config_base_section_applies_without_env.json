@@ -1,0 +1,85 @@
+{
+  "id": "config_base_section_applies_without_env",
+  "description": "When the config has both a base [executor] section and a [lace.config.production] override, but LACE_ENV is NOT set and --env is NOT passed, the BASE section's values apply. Base maxRedirects = 10; production would set it to 1; but without env selection, a 2-hop redirect chain succeeds (under the base limit of 10). This is the negative control for config_section_lace_env_selects_production. (spec \u00a711, \u00a715.13)",
+  "spec_refs": [
+    "lace-spec.md \u00a711",
+    "lace-spec.md \u00a715.13"
+  ],
+  "type": "execute",
+  "input": {
+    "source": "get(\"http://127.0.0.1:{port}/hop0\", { redirects: { follow: true } }).expect(status: 200)\n",
+    "variables": {},
+    "lace_config": "[executor]\nmaxRedirects = 10\n\n[lace.config.production]\nexecutor.maxRedirects = 1\n",
+    "http_mock": [
+      {
+        "callIndex": 0,
+        "outcome": "response",
+        "status": 302,
+        "headers": {
+          "location": "http://127.0.0.1:{port}/hop1"
+        },
+        "body": ""
+      },
+      {
+        "callIndex": 1,
+        "outcome": "response",
+        "status": 302,
+        "headers": {
+          "location": "http://127.0.0.1:{port}/dest"
+        },
+        "body": ""
+      },
+      {
+        "callIndex": 2,
+        "outcome": "response",
+        "status": 200,
+        "headers": {},
+        "body": "ok"
+      }
+    ]
+  },
+  "expected": {
+    "result": {
+      "outcome": "success",
+      "startedAt": "1970-01-01T00:00:00Z",
+      "endedAt": "1970-01-01T00:00:00Z",
+      "runVars": {},
+      "calls": [
+        {
+          "index": 0,
+          "outcome": "success",
+          "startedAt": "1970-01-01T00:00:00Z",
+          "endedAt": "1970-01-01T00:00:00Z",
+          "request": "IGNORED",
+          "response": "IGNORED",
+          "redirects": "IGNORED",
+          "assertions": [
+            {
+              "method": "expect",
+              "scope": "status",
+              "op": "eq",
+              "outcome": "passed",
+              "actual": 200,
+              "expected": 200,
+              "options": null
+            }
+          ],
+          "config": {},
+          "warnings": [],
+          "error": null
+        }
+      ],
+      "actions": {}
+    },
+    "ignore": [
+      "startedAt",
+      "endedAt",
+      "calls[*].startedAt",
+      "calls[*].endedAt",
+      "calls[*].request",
+      "calls[*].response",
+      "calls[*].redirects",
+      "calls[*].config"
+    ]
+  }
+}

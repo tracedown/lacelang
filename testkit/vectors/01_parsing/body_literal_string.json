@@ -1,0 +1,33 @@
+{
+  "id": "body_literal_string",
+  "description": "body matcher bound to a literal string parses to a scope value whose value is a string literal (spec \u00a74.5).",
+  "spec_refs": [
+    "lace-spec.md \u00a74.5"
+  ],
+  "type": "parse",
+  "input": {
+    "source": "get(\"$u\").expect(body: \"ok\")\n"
+  },
+  "expected": {
+    "ast": {
+      "version": "0.9.0",
+      "calls": [
+        {
+          "method": "get",
+          "url": "$u",
+          "chain": {
+            "expect": {
+              "body": {
+                "value": {
+                  "kind": "literal",
+                  "valueType": "string",
+                  "value": "ok"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

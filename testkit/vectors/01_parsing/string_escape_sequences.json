@@ -1,0 +1,33 @@
+{
+  "id": "string_escape_sequences",
+  "description": "String literals decode backslash escapes: \\n \\t \\r \\\\ \\\" and \\$ per spec \u00a72.2.",
+  "spec_refs": [
+    "lace-spec.md \u00a72.2"
+  ],
+  "type": "parse",
+  "input": {
+    "source": "get(\"$u\").expect(body: \"line1\\nline2\\t\\\\done\\\"\")\n"
+  },
+  "expected": {
+    "ast": {
+      "version": "0.9.0",
+      "calls": [
+        {
+          "method": "get",
+          "url": "$u",
+          "chain": {
+            "expect": {
+              "body": {
+                "value": {
+                  "kind": "literal",
+                  "valueType": "string",
+                  "value": "line1\nline2\t\\done\""
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

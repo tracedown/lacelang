@@ -1,0 +1,231 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://lacelang.dev/schemas/laceext/0.9.0",
+  "title": "Lace extension file (.laceext)",
+  "description": "TOML structure for Lace extensions. Conforms to lace-extensions.md. The TOML is parsed into JSON; this schema validates the resulting JSON shape. Rule body and function body content is opaque at this level — the extension processor parses those strings against the rule body grammar in lace-extensions.md §5.",
+
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["extension"],
+  "properties": {
+    "extension": { "$ref": "#/definitions/ExtensionMeta" },
+    "schema":    { "$ref": "#/definitions/SchemaSection" },
+    "result":    { "$ref": "#/definitions/ResultSection" },
+    "types":     { "$ref": "#/definitions/TypesSection" },
+    "functions": { "$ref": "#/definitions/FunctionsSection" },
+    "rules":     { "$ref": "#/definitions/RulesSection" }
+  },
+
+  "definitions": {
+
+    "ExtensionMeta": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "version"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[a-z][A-Za-z0-9]*$",
+          "description": "Extension namespace prefix used in runVars and emit targets (extensions §9). camelCase identifier (no hyphens, underscores, or other punctuation) so qualified function calls `extName.fnName(...)` parse as a single IDENT on each side of the dot."
+        },
+        "version": {
+          "type": "string",
+          "description": "Extension version (semver recommended but not enforced)."
+        },
+        "require": {
+          "type": "array",
+          "items": { "type": "string", "pattern": "^[a-z][A-Za-z0-9]*$" },
+          "default": [],
+          "description": "Names of other extensions this one depends on (extensions §2.2). Presence is enforced at startup; load order doesn't matter. The depending extension gains read access to the required extensions' runVars via the `require[\"name\"]` base in rule bodies (§9.1), and its rules default-order after required extensions at shared hooks (§8.1.1)."
+        }
+      }
+    },
+
+    "SchemaSection": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Schema additions per registration target (extensions §3.1).",
+      "properties": {
+        "scope_options":     { "$ref": "#/definitions/FieldDefMap" },
+        "condition_options": { "$ref": "#/definitions/FieldDefMap" },
+        "timeout":           { "$ref": "#/definitions/FieldDefMap" },
+        "redirects":         { "$ref": "#/definitions/FieldDefMap" },
+        "security":          { "$ref": "#/definitions/FieldDefMap" },
+        "call":              { "$ref": "#/definitions/FieldDefMap" }
+      }
+    },
+
+    "FieldDefMap": {
+      "type": "object",
+      "description": "Map of field name → field definition. Field name must be IDENT-shaped (parser enforces non-keyword via grammar, see notes/grammar.md).",
+      "additionalProperties": { "$ref": "#/definitions/FieldDef" }
+    },
+
+    "FieldDef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "Built-in type name or custom type name from [types]. Built-ins: string, int, float, bool, null, any, string?, array<T>, map<K, V>."
+        },
+        "default": {
+          "type": "string",
+          "description": "Default value as a string (TOML stores defaults as strings; coerced to declared type at use)."
+        },
+        "required": {
+          "type": "boolean",
+          "default": false,
+          "description": "If true, validator emits error when field is absent and extension is active."
+        }
+      }
+    },
+
+    "ResultSection": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Result additions (extensions §4).",
+      "properties": {
+        "actions": { "$ref": "#/definitions/ResultActionsMap" },
+        "types":   { "$ref": "#/definitions/ResultTypesMap" }
+      }
+    },
+
+    "ResultActionsMap": {
+      "type": "object",
+      "description": "Map of action key → declared type. The key (e.g. 'notifications') is appended to result.actions.",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["type"],
+        "properties": {
+          "type": { "type": "string" }
+        }
+      }
+    },
+
+    "ResultTypesMap": {
+      "type": "object",
+      "description": "Custom result type declarations referenced by [result.actions.*].type.",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["fields"],
+        "properties": {
+          "fields": {
+            "type": "object",
+            "additionalProperties": { "type": "string" },
+            "description": "Field name → type name."
+          }
+        }
+      }
+    },
+
+    "TypesSection": {
+      "type": "object",
+      "description": "Custom type definitions usable in schema and result type references (extensions §3.2).",
+      "additionalProperties": { "$ref": "#/definitions/TypeDef" }
+    },
+
+    "TypeDef": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type"],
+          "properties": {
+            "type": { "type": "string" }
+          },
+          "description": "Type alias. e.g. { type = 'string' }."
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["one_of"],
+          "properties": {
+            "one_of": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["tag", "fields"],
+                "properties": {
+                  "tag": { "type": "string" },
+                  "fields": {
+                    "type": "object",
+                    "additionalProperties": { "type": "string" }
+                  }
+                }
+              }
+            }
+          },
+          "description": "Tagged union with a `tag` discriminator field per variant."
+        }
+      ]
+    },
+
+    "FunctionsSection": {
+      "type": "object",
+      "additionalProperties": { "$ref": "#/definitions/FunctionDef" }
+    },
+
+    "FunctionDef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["params", "body"],
+      "properties": {
+        "params": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$"
+          },
+          "description": "Parameter names (without leading $; the interpreter prefixes)."
+        },
+        "body": {
+          "type": "string",
+          "description": "Function body in the rule body language (extensions §5). Opaque at this schema level; parsed by the extension processor."
+        }
+      }
+    },
+
+    "RulesSection": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "rule": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/RuleDef" },
+          "description": "Array of rule definitions (TOML [[rules.rule]] sections)."
+        }
+      }
+    },
+
+    "RuleDef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "on", "body"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$",
+          "description": "Rule name (used for diagnostics; not addressable by other rules)."
+        },
+        "on": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "pattern": "^(before script|script|before call|call|before expect|expect|before check|check|before assert|assert|before store|store)( (after|before) [a-z][A-Za-z0-9]*)*$"
+          },
+          "description": "Hook points the rule registers for (extensions §8). Each entry may carry ordering qualifiers of the form `(after|before) <extName>`. Example: 'check after laceNotifications before laceMetrics'. Grammar: <hook> (' ' ('after' | 'before') ' ' <ext-name>)*. Extension names are camelCase IDENTs. See §8.1.1."
+        },
+        "body": {
+          "type": "string",
+          "description": "Rule body in the rule body language (extensions §5). Opaque at this schema level."
+        }
+      }
+    }
+  }
+}

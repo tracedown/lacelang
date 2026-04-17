@@ -1,0 +1,62 @@
+{
+  "id": "deep_nested_parens_precedence",
+  "description": "Nested parentheses in an .assert condition force the intended grouping: `((1 + 2) * 3) == 9` parses with + below * below == (spec \u00a72.1).",
+  "spec_refs": [
+    "lace-spec.md \u00a72.1"
+  ],
+  "type": "parse",
+  "input": {
+    "source": "get(\"$u\").assert({ expect: [((1 + 2) * 3) eq 9] })\n"
+  },
+  "expected": {
+    "ast": {
+      "version": "0.9.0",
+      "calls": [
+        {
+          "method": "get",
+          "url": "$u",
+          "chain": {
+            "assert": {
+              "expect": [
+                {
+                  "condition": {
+                    "kind": "binary",
+                    "op": "eq",
+                    "left": {
+                      "kind": "binary",
+                      "op": "*",
+                      "left": {
+                        "kind": "binary",
+                        "op": "+",
+                        "left": {
+                          "kind": "literal",
+                          "valueType": "int",
+                          "value": 1
+                        },
+                        "right": {
+                          "kind": "literal",
+                          "valueType": "int",
+                          "value": 2
+                        }
+                      },
+                      "right": {
+                        "kind": "literal",
+                        "valueType": "int",
+                        "value": 3
+                      }
+                    },
+                    "right": {
+                      "kind": "literal",
+                      "valueType": "int",
+                      "value": 9
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  }
+}

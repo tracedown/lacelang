@@ -1,0 +1,28 @@
+{
+  "id": "empty_store_block",
+  "description": ".store({}) with zero entries is EMPTY_STORE_BLOCK (spec \u00a712).",
+  "spec_refs": [
+    "lace-spec.md \u00a712"
+  ],
+  "type": "validate",
+  "input": {
+    "source": "get(\"$u\").expect(status: 200).store({})\n",
+    "variables": [
+      "u"
+    ],
+    "context": {
+      "maxRedirects": 10,
+      "maxTimeoutMs": 300000
+    }
+  },
+  "expected": {
+    "errors": [
+      {
+        "code": "EMPTY_STORE_BLOCK",
+        "callIndex": 0,
+        "chainMethod": "store"
+      }
+    ],
+    "warnings": []
+  }
+}

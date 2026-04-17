@@ -1,0 +1,184 @@
+{
+  "outcome": "success",
+  "startedAt": "1970-01-01T00:00:00.000Z",
+  "endedAt": "1970-01-01T00:00:00.000Z",
+  "elapsedMs": 1181,
+  "runVars": {
+    "origin": "203.0.113.1"
+  },
+  "calls": [
+    {
+      "index": 0,
+      "outcome": "success",
+      "startedAt": "1970-01-01T00:00:00.000Z",
+      "endedAt": "1970-01-01T00:00:00.000Z",
+      "request": {
+        "url": "https://httpbin.org/post",
+        "method": "post",
+        "headers": {
+          "Content-Type": "application/json",
+          "User-Agent": "lace-probe/0.1.0 (lacelang-python)"
+        },
+        "bodyPath": "bodies/call_0_request.json"
+      },
+      "response": {
+        "status": 200,
+        "statusText": "OK",
+        "headers": {
+          "date": "Thu, 01 Jan 1970 00:00:00 GMT",
+          "content-type": "application/json",
+          "content-length": "539",
+          "connection": "keep-alive",
+          "server": "gunicorn/19.9.0",
+          "access-control-allow-origin": "*",
+          "access-control-allow-credentials": "true"
+        },
+        "bodyPath": "bodies/call_0_response.json",
+        "responseTimeMs": 659,
+        "dnsMs": 16,
+        "connectMs": 114,
+        "tlsMs": 240,
+        "ttfbMs": 637,
+        "transferMs": 0,
+        "sizeBytes": 539,
+        "dns": {
+          "resolvedIps": [
+            "203.0.113.1",
+            "203.0.113.2"
+          ],
+          "resolvedIp": "203.0.113.1"
+        },
+        "tls": {
+          "protocol": "TLSv1.2",
+          "cipher": "ECDHE-RSA-AES128-GCM-SHA256",
+          "alpn": "http/1.1",
+          "certificate": {
+            "subject": {
+              "cn": "httpbin.org"
+            },
+            "subjectAltNames": [
+              "DNS:httpbin.org",
+              "DNS:*.httpbin.org"
+            ],
+            "issuer": {
+              "cn": "Amazon RSA 2048 M03"
+            },
+            "notBefore": "1970-01-01T00:00:00.000Z",
+            "notAfter": "1970-01-01T00:00:00.000Z"
+          }
+        }
+      },
+      "redirects": [],
+      "assertions": [
+        {
+          "method": "expect",
+          "scope": "status",
+          "op": "eq",
+          "outcome": "passed",
+          "actual": 200,
+          "expected": 200,
+          "options": null
+        }
+      ],
+      "config": {
+        "body": {
+          "type": "json",
+          "value": "{email: \"user@example.com\", action: \"login\"}"
+        }
+      },
+      "warnings": [],
+      "error": null
+    },
+    {
+      "index": 1,
+      "outcome": "success",
+      "startedAt": "1970-01-01T00:00:00.000Z",
+      "endedAt": "1970-01-01T00:00:00.000Z",
+      "request": {
+        "url": "https://httpbin.org/get",
+        "method": "get",
+        "headers": {
+          "Origin": "203.0.113.1",
+          "User-Agent": "lace-probe/0.1.0 (lacelang-python)"
+        },
+        "bodyPath": null
+      },
+      "response": {
+        "status": 200,
+        "statusText": "OK",
+        "headers": {
+          "date": "Thu, 01 Jan 1970 00:00:00 GMT",
+          "content-type": "application/json",
+          "content-length": "324",
+          "connection": "keep-alive",
+          "server": "gunicorn/19.9.0",
+          "access-control-allow-origin": "203.0.113.1",
+          "access-control-allow-credentials": "true"
+        },
+        "bodyPath": "bodies/call_1_response.json",
+        "responseTimeMs": 507,
+        "dnsMs": 0,
+        "connectMs": 117,
+        "tlsMs": 245,
+        "ttfbMs": 491,
+        "transferMs": 0,
+        "sizeBytes": 324,
+        "dns": {
+          "resolvedIps": [
+            "203.0.113.1",
+            "203.0.113.2"
+          ],
+          "resolvedIp": "203.0.113.1"
+        },
+        "tls": {
+          "protocol": "TLSv1.2",
+          "cipher": "ECDHE-RSA-AES128-GCM-SHA256",
+          "alpn": "http/1.1",
+          "certificate": {
+            "subject": {
+              "cn": "httpbin.org"
+            },
+            "subjectAltNames": [
+              "DNS:httpbin.org",
+              "DNS:*.httpbin.org"
+            ],
+            "issuer": {
+              "cn": "Amazon RSA 2048 M03"
+            },
+            "notBefore": "1970-01-01T00:00:00.000Z",
+            "notAfter": "1970-01-01T00:00:00.000Z"
+          }
+        }
+      },
+      "redirects": [],
+      "assertions": [
+        {
+          "method": "expect",
+          "scope": "status",
+          "op": "eq",
+          "outcome": "passed",
+          "actual": 200,
+          "expected": 200,
+          "options": null
+        },
+        {
+          "method": "check",
+          "scope": "totalDelayMs",
+          "op": "lt",
+          "outcome": "passed",
+          "actual": 507,
+          "expected": 1000,
+          "options": null
+        }
+      ],
+      "config": {
+        "headers": {
+          "Origin": "$$origin"
+        }
+      },
+      "warnings": [],
+      "error": null
+    }
+  ],
+  "actions": {}
+}

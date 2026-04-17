@@ -1,0 +1,18 @@
+{
+  "name": "lacelang-spec-tools",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Validation utilities for the lacelang spec — JSON Schema compilation, .laceext linting, vector format checks. Not published; used only by the lacelang repo's CI and local make targets.",
+  "type": "commonjs",
+  "scripts": {
+    "check-schemas":   "node check-schemas.js",
+    "check-laceext":   "node check-laceext.js",
+    "check-vectors":   "node check-vectors.js",
+    "check-all":       "npm run check-schemas && npm run check-laceext && npm run check-vectors"
+  },
+  "dependencies": {
+    "@iarna/toml": "^2.2.5",
+    "ajv": "^8.17.1",
+    "ajv-formats": "^3.0.1"
+  }
+}

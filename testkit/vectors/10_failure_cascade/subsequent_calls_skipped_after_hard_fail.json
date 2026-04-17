@@ -1,0 +1,89 @@
+{
+  "id": "subsequent_calls_skipped_after_hard_fail",
+  "description": "Hard fail on call 0 marks all subsequent calls as \"skipped\" \u2014 no HTTP request sent, response null, assertions empty (spec \u00a77, \u00a715.10).",
+  "spec_refs": [
+    "lace-spec.md \u00a77",
+    "lace-spec.md \u00a715.10"
+  ],
+  "type": "execute",
+  "input": {
+    "source": "get(\"http://127.0.0.1:{port}/a\").expect(status: 200)\nget(\"http://127.0.0.1:{port}/b\").expect(status: 200)\nget(\"http://127.0.0.1:{port}/c\").expect(status: 200)\n",
+    "variables": {},
+    "http_mock": [
+      {
+        "callIndex": 0,
+        "outcome": "response",
+        "status": 500,
+        "headers": {},
+        "body": ""
+      }
+    ]
+  },
+  "expected": {
+    "result": {
+      "outcome": "failure",
+      "startedAt": "1970-01-01T00:00:00Z",
+      "endedAt": "1970-01-01T00:00:00Z",
+      "runVars": {},
+      "calls": [
+        {
+          "index": 0,
+          "outcome": "failure",
+          "startedAt": "1970-01-01T00:00:00Z",
+          "endedAt": "1970-01-01T00:00:00Z",
+          "request": "IGNORED",
+          "response": "IGNORED",
+          "redirects": [],
+          "assertions": [
+            {
+              "method": "expect",
+              "scope": "status",
+              "op": "eq",
+              "outcome": "failed",
+              "actual": 500,
+              "expected": 200,
+              "options": null
+            }
+          ],
+          "config": {},
+          "warnings": [],
+          "error": null
+        },
+        {
+          "index": 1,
+          "outcome": "skipped",
+          "startedAt": null,
+          "endedAt": null,
+          "request": null,
+          "response": null,
+          "assertions": [],
+          "config": {},
+          "warnings": [],
+          "error": null
+        },
+        {
+          "index": 2,
+          "outcome": "skipped",
+          "startedAt": null,
+          "endedAt": null,
+          "request": null,
+          "response": null,
+          "assertions": [],
+          "config": {},
+          "warnings": [],
+          "error": null
+        }
+      ],
+      "actions": {}
+    },
+    "ignore": [
+      "startedAt",
+      "endedAt",
+      "calls[0].startedAt",
+      "calls[0].endedAt",
+      "calls[0].request",
+      "calls[0].response",
+      "calls[*].config"
+    ]
+  }
+}

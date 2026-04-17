@@ -1,0 +1,14 @@
+get("https://www.google.com/", {
+  headers: { Accept: "text/html" }
+})
+.expect(
+  status: 200,
+  totalDelayMs: { value: 3000 }
+)
+.check(
+  dns:      { value: 80 },
+  connect:  { value: 150 },
+  tls:      { value: 200 },
+  ttfb:     { value: 500 },
+  transfer: { value: 400 }
+)

@@ -1,0 +1,17 @@
+{
+  "id": "run_var_reassigned",
+  "description": "A $$var assigned in two different .store() blocks across calls is a write-once violation.",
+  "spec_refs": ["lace-spec.md §5.3", "lace-spec.md §12"],
+  "type": "validate",
+  "input": {
+    "source": "get(\"$x\").store({ \"$$token\": this.body.t })\nget(\"$x\").store({ \"$$token\": this.body.t })\n",
+    "variables": ["x"],
+    "context": { "maxRedirects": 10, "maxTimeoutMs": 300000 }
+  },
+  "expected": {
+    "errors": [
+      { "code": "RUN_VAR_REASSIGNED", "callIndex": 1, "chainMethod": "store" }
+    ],
+    "warnings": []
+  }
+}

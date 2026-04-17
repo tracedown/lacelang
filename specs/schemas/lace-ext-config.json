@@ -1,0 +1,32 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://lacelang.dev/schemas/lace-ext-config/0.9.0",
+  "title": "Lace extension config defaults (.config)",
+  "description": "TOML structure for extension config files. Each extension may ship a `{extName}.config` alongside its `.laceext` file, declaring default values for config fields accessible via the `config` base in rule bodies. See lace-extensions.md §2.3.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["extension"],
+  "properties": {
+    "extension": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "version"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[a-z][A-Za-z0-9]*$",
+          "description": "Extension name — must match the `[extension].name` in the corresponding `.laceext` file."
+        },
+        "version": {
+          "type": "string",
+          "description": "Extension version — must match the `[extension].version` in the corresponding `.laceext` file."
+        }
+      }
+    },
+    "config": {
+      "type": "object",
+      "additionalProperties": true,
+      "description": "Default values for extension config fields. Keys are field names accessible via `config.{key}` in rule bodies. Values may be any TOML-expressible type (string, integer, float, boolean, array, table). Omitted keys default to null when accessed in rule bodies."
+    }
+  }
+}

@@ -1,0 +1,83 @@
+{
+  "id": "wait_between_calls",
+  "description": ".wait(ms) sleeps between calls on success and both calls complete (spec \u00a74.8).",
+  "spec_refs": [
+    "lace-spec.md \u00a74.8"
+  ],
+  "type": "execute",
+  "input": {
+    "source": "get(\"http://127.0.0.1:{port}/a\").expect(status: 200).wait(50)\nget(\"http://127.0.0.1:{port}/b\").expect(status: 200)\n",
+    "variables": {},
+    "http_mock": [
+      {
+        "callIndex": 0,
+        "outcome": "response",
+        "status": 200,
+        "headers": {},
+        "body": ""
+      },
+      {
+        "callIndex": 1,
+        "outcome": "response",
+        "status": 200,
+        "headers": {},
+        "body": ""
+      }
+    ]
+  },
+  "expected": {
+    "result": {
+      "outcome": "success",
+      "startedAt": "1970-01-01T00:00:00Z",
+      "endedAt": "1970-01-01T00:00:00Z",
+      "runVars": {},
+      "calls": [
+        {
+          "index": 0,
+          "outcome": "success",
+          "startedAt": "1970-01-01T00:00:00Z",
+          "endedAt": "1970-01-01T00:00:00Z",
+          "request": "IGNORED",
+          "response": "IGNORED",
+          "redirects": [],
+          "assertions": "IGNORED",
+          "config": {},
+          "warnings": [],
+          "error": null
+        },
+        {
+          "index": 1,
+          "outcome": "success",
+          "startedAt": "1970-01-01T00:00:00Z",
+          "endedAt": "1970-01-01T00:00:00Z",
+          "request": "IGNORED",
+          "response": "IGNORED",
+          "redirects": [],
+          "assertions": "IGNORED",
+          "config": {},
+          "warnings": [],
+          "error": null
+        }
+      ],
+      "actions": {}
+    },
+    "ignore": [
+      "startedAt",
+      "endedAt",
+      "calls[*].startedAt",
+      "calls[*].endedAt",
+      "calls[*].request.bodyPath",
+      "calls[*].response.bodyPath",
+      "calls[*].response.responseTimeMs",
+      "calls[*].response.dnsMs",
+      "calls[*].response.connectMs",
+      "calls[*].response.tlsMs",
+      "calls[*].response.ttfbMs",
+      "calls[*].response.transferMs",
+      "calls[*].config",
+      "calls[*].request",
+      "calls[*].response",
+      "calls[*].assertions"
+    ]
+  }
+}

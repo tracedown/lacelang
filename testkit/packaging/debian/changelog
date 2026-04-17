@@ -1,0 +1,9 @@
+lacelang-testkit (0.1.0-1) unstable; urgency=low
+
+  * Initial release.
+  * Bundles conformance vectors and reference mock HTTP server.
+  * Supports both `-c <cmd>` direct invocation and `-m <manifest.toml>`
+    templated invocation for executors with complex command shapes.
+  * Reporter formats: text, TAP, JUnit XML.
+
+ -- lacelang contributors <maintainers@lacelang.dev>  Wed, 15 Apr 2026 00:00:00 +0000

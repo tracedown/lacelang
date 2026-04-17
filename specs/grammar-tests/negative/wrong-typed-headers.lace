@@ -1,0 +1,1 @@
+get("$x", { headers: "this should be an object" }).expect(status: 200)

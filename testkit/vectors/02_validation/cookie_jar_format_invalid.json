@@ -1,0 +1,28 @@
+{
+  "id": "cookie_jar_format_invalid",
+  "description": "cookieJar value must match inherit | fresh | selective_clear | named:X | X:selective_clear (spec \u00a73.3).",
+  "spec_refs": [
+    "lace-spec.md \u00a712"
+  ],
+  "type": "validate",
+  "input": {
+    "source": "get(\"$u\", { cookieJar: \"arbitrary_mode\" }).expect(status: 200)\n",
+    "variables": [
+      "u"
+    ],
+    "context": {
+      "maxRedirects": 10,
+      "maxTimeoutMs": 300000
+    }
+  },
+  "expected": {
+    "errors": [
+      {
+        "code": "COOKIE_JAR_FORMAT",
+        "callIndex": 0,
+        "field": "cookieJar"
+      }
+    ],
+    "warnings": []
+  }
+}

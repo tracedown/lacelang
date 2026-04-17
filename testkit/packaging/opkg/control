@@ -1,0 +1,11 @@
+Package: lacelang-testkit
+Version: 0.1.0
+Architecture: all
+Maintainer: lacelang contributors <maintainers@lacelang.dev>
+Section: devel
+Priority: optional
+Homepage: https://github.com/lacelang/lacelang
+Description: Canonical conformance test harness for Lace executors.
+ lace-conformance drives an executor under test through every vector in
+ the Lace conformance suite and diffs captured output against expected
+ results. Binary ships self-contained with embedded vectors.

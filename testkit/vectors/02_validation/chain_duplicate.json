@@ -1,0 +1,27 @@
+{
+  "id": "chain_duplicate",
+  "description": "A chain method appearing more than once on the same call is CHAIN_DUPLICATE (spec \u00a72.3).",
+  "spec_refs": [
+    "lace-spec.md \u00a712"
+  ],
+  "type": "validate",
+  "input": {
+    "source": "get(\"$u\").expect(status: 200).expect(status: 201)\n",
+    "variables": [
+      "u"
+    ],
+    "context": {
+      "maxRedirects": 10,
+      "maxTimeoutMs": 300000
+    }
+  },
+  "expected": {
+    "errors": [
+      {
+        "code": "CHAIN_DUPLICATE",
+        "callIndex": 0
+      }
+    ],
+    "warnings": []
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "id": "schema_missing_var_rejected",
+  "description": "`schema($var)` where $var is not in the declared variable registry is SCHEMA_VAR_UNKNOWN (spec \u00a712).",
+  "spec_refs": [
+    "lace-spec.md \u00a712"
+  ],
+  "type": "validate",
+  "input": {
+    "source": "get(\"$u\").expect(body: schema($missing))\n",
+    "variables": [
+      "u"
+    ],
+    "context": {
+      "maxRedirects": 10,
+      "maxTimeoutMs": 300000
+    }
+  },
+  "expected": {
+    "errors": [
+      {
+        "code": "SCHEMA_VAR_UNKNOWN",
+        "callIndex": 0,
+        "chainMethod": "expect",
+        "field": "missing"
+      },
+      {
+        "code": "VARIABLE_UNKNOWN",
+        "callIndex": 0,
+        "chainMethod": "expect",
+        "field": "missing"
+      }
+    ],
+    "warnings": []
+  }
+}

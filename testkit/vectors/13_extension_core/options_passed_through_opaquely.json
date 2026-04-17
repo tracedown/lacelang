@@ -1,0 +1,70 @@
+{
+  "id": "options_passed_through_opaquely",
+  "description": "With no extensions active, the core executor must pass unknown fields inside scope `options {}` through to assertions[].options opaquely \u2014 not interpret them, not strip them (spec \u00a710, \u00a715.14).",
+  "spec_refs": [
+    "lace-spec.md \u00a710",
+    "lace-spec.md \u00a715.14"
+  ],
+  "type": "execute",
+  "input": {
+    "source": "get(\"http://127.0.0.1:{port}/x\").expect(status: { value: 200, options: { custom_key: \"hello\", nested: { inner: 42 } } })\n",
+    "variables": {},
+    "http_mock": [
+      {
+        "callIndex": 0,
+        "outcome": "response",
+        "status": 200,
+        "headers": {},
+        "body": ""
+      }
+    ]
+  },
+  "expected": {
+    "result": {
+      "outcome": "success",
+      "startedAt": "1970-01-01T00:00:00Z",
+      "endedAt": "1970-01-01T00:00:00Z",
+      "runVars": {},
+      "calls": [
+        {
+          "index": 0,
+          "outcome": "success",
+          "startedAt": "1970-01-01T00:00:00Z",
+          "endedAt": "1970-01-01T00:00:00Z",
+          "request": "IGNORED",
+          "response": "IGNORED",
+          "redirects": [],
+          "assertions": [
+            {
+              "method": "expect",
+              "scope": "status",
+              "op": "eq",
+              "outcome": "passed",
+              "actual": 200,
+              "expected": 200,
+              "options": {
+                "custom_key": "hello",
+                "nested": {
+                  "inner": 42
+                }
+              }
+            }
+          ],
+          "config": {},
+          "warnings": [],
+          "error": null
+        }
+      ],
+      "actions": {}
+    },
+    "ignore": [
+      "startedAt",
+      "endedAt",
+      "calls[*].startedAt",
+      "calls[*].endedAt",
+      "calls[*].request",
+      "calls[*].response",
+      "calls[*].config"
+    ]
+  }
+}

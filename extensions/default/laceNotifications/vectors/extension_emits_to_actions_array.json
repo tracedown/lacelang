@@ -1,0 +1,77 @@
+{
+  "id": "extension_emits_to_actions_array",
+  "description": "With laceNotifications active, a failing .check() scope with options.notification: text(\"...\") emits one entry into actions.notifications (spec \u00a710, lace-extensions.md \u00a78, \u00a712).",
+  "spec_refs": [
+    "lace-spec.md \u00a710",
+    "lace-extensions.md \u00a78",
+    "lace-extensions.md \u00a712"
+  ],
+  "type": "extension",
+  "requires": [
+    "extensions",
+    "actions"
+  ],
+  "input": {
+    "source": "get(\"http://127.0.0.1:{port}/x\").check(status: { value: 200, op: \"eq\", options: { notification: text(\"wrong status\") } })\n",
+    "variables": {},
+    "extensions": [
+      "laceNotifications"
+    ],
+    "http_mock": [
+      {
+        "callIndex": 0,
+        "outcome": "response",
+        "status": 500,
+        "headers": {},
+        "body": ""
+      }
+    ]
+  },
+  "expected": {
+    "result": {
+      "outcome": "success",
+      "startedAt": "1970-01-01T00:00:00Z",
+      "endedAt": "1970-01-01T00:00:00Z",
+      "runVars": {},
+      "calls": [
+        {
+          "index": 0,
+          "outcome": "success",
+          "startedAt": "1970-01-01T00:00:00Z",
+          "endedAt": "1970-01-01T00:00:00Z",
+          "request": "IGNORED",
+          "response": "IGNORED",
+          "redirects": [],
+          "assertions": "IGNORED",
+          "config": {},
+          "warnings": [],
+          "error": null
+        }
+      ],
+      "actions": {
+        "notifications": [
+          {
+            "callIndex": 0,
+            "conditionIndex": -1,
+            "trigger": "check",
+            "scope": "status",
+            "notification": {
+              "tag": "text",
+              "value": "wrong status"
+            }
+          }
+        ]
+      }
+    },
+    "ignore": [
+      "startedAt",
+      "endedAt",
+      "calls[*].startedAt",
+      "calls[*].endedAt",
+      "calls[*].request",
+      "calls[*].response",
+      "calls[*].assertions",
+      "calls[*].config"
+    ]
+  }
+}

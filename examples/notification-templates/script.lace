@@ -1,0 +1,15 @@
+get("$BASE_URL/api/orders")
+.expect(
+  status: {
+    value: 200,
+    options: {
+      notification: op_map({
+        "404": template("not_found_alert"),
+        "500": template("server_error_alert"),
+        "502": template("gateway_error_alert"),
+        "503": template("service_unavailable_alert"),
+        "default": template("unexpected_status_alert")
+      })
+    }
+  }
+)

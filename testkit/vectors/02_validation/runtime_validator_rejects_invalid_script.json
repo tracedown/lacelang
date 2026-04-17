@@ -1,0 +1,37 @@
+{
+  "id": "runtime_validator_rejects_invalid_script",
+  "description": "Per spec \u00a715.2, the executor must invoke the validator before running. A script that violates a \u00a712 rule (here: a chain method appears twice) is rejected at startup with a failure-shaped result containing `validation failed: <CODE>` in `error`. The script is NOT executed, so calls/runVars/actions are empty.",
+  "spec_refs": [
+    "lace-spec.md \u00a712",
+    "lace-spec.md \u00a715.2"
+  ],
+  "type": "execute",
+  "input": {
+    "source": "get(\"http://127.0.0.1:{port}/x\").expect(status: 200).expect(status: 201)\n",
+    "variables": {},
+    "http_mock": [
+      {
+        "callIndex": 0,
+        "outcome": "response",
+        "status": 200,
+        "headers": {},
+        "body": ""
+      }
+    ]
+  },
+  "expected": {
+    "result": {
+      "outcome": "failure",
+      "startedAt": "1970-01-01T00:00:00Z",
+      "endedAt": "1970-01-01T00:00:00Z",
+      "runVars": {},
+      "calls": [],
+      "actions": {},
+      "error": "NON_NULL"
+    },
+    "ignore": [
+      "startedAt",
+      "endedAt"
+    ]
+  }
+}

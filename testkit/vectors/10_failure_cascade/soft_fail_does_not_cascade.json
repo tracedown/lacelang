@@ -1,0 +1,106 @@
+{
+  "id": "soft_fail_does_not_cascade",
+  "description": "A .check() failure is soft \u2014 execution continues to the next call (spec \u00a77, \u00a715.10). Call 0 fails .check() but run outcome is \"success\" because no hard fails occurred.",
+  "spec_refs": [
+    "lace-spec.md \u00a77",
+    "lace-spec.md \u00a715.10"
+  ],
+  "type": "execute",
+  "input": {
+    "source": "get(\"http://127.0.0.1:{port}/a\").expect(status: 200).check(totalDelayMs: 1)\nget(\"http://127.0.0.1:{port}/b\").expect(status: 200)\n",
+    "variables": {},
+    "http_mock": [
+      {
+        "callIndex": 0,
+        "outcome": "response",
+        "status": 200,
+        "headers": {},
+        "body": "",
+        "delay_ms": 50
+      },
+      {
+        "callIndex": 1,
+        "outcome": "response",
+        "status": 200,
+        "headers": {},
+        "body": ""
+      }
+    ]
+  },
+  "expected": {
+    "result": {
+      "outcome": "success",
+      "startedAt": "1970-01-01T00:00:00Z",
+      "endedAt": "1970-01-01T00:00:00Z",
+      "runVars": {},
+      "calls": [
+        {
+          "index": 0,
+          "outcome": "success",
+          "startedAt": "1970-01-01T00:00:00Z",
+          "endedAt": "1970-01-01T00:00:00Z",
+          "request": "IGNORED",
+          "response": "IGNORED",
+          "redirects": [],
+          "assertions": [
+            {
+              "method": "expect",
+              "scope": "status",
+              "op": "eq",
+              "outcome": "passed",
+              "actual": 200,
+              "expected": 200,
+              "options": null
+            },
+            {
+              "method": "check",
+              "scope": "totalDelayMs",
+              "op": "lt",
+              "outcome": "failed",
+              "actual": "IGNORED",
+              "expected": 1,
+              "options": null
+            }
+          ],
+          "config": {},
+          "warnings": [],
+          "error": null
+        },
+        {
+          "index": 1,
+          "outcome": "success",
+          "startedAt": "1970-01-01T00:00:00Z",
+          "endedAt": "1970-01-01T00:00:00Z",
+          "request": "IGNORED",
+          "response": "IGNORED",
+          "redirects": [],
+          "assertions": [
+            {
+              "method": "expect",
+              "scope": "status",
+              "op": "eq",
+              "outcome": "passed",
+              "actual": 200,
+              "expected": 200,
+              "options": null
+            }
+          ],
+          "config": {},
+          "warnings": [],
+          "error": null
+        }
+      ],
+      "actions": {}
+    },
+    "ignore": [
+      "startedAt",
+      "endedAt",
+      "calls[*].startedAt",
+      "calls[*].endedAt",
+      "calls[*].request",
+      "calls[*].response",
+      "calls[*].config",
+      "calls[0].assertions[1].actual"
+    ]
+  }
+}

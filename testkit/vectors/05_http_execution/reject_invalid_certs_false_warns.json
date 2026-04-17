@@ -1,0 +1,66 @@
+{
+  "id": "reject_invalid_certs_false_warns",
+  "description": "HTTPS call against an expired cert with `security: { rejectInvalidCerts: false }` completes as a soft fail: the response is still returned and the chain runs, but the call record carries a TLS warning in `calls[0].warnings` (spec \u00a73.2, \u00a715.5).",
+  "spec_refs": [
+    "lace-spec.md \u00a73.2",
+    "lace-spec.md \u00a715.5"
+  ],
+  "type": "execute",
+  "input": {
+    "source": "get(\"https://127.0.0.1:{port}/x\", { security: { rejectInvalidCerts: false } }).expect(status: 200)\n",
+    "variables": {},
+    "tls_scenario": "expired",
+    "http_mock": [
+      {
+        "callIndex": 0,
+        "outcome": "response",
+        "status": 200,
+        "headers": {},
+        "body": ""
+      }
+    ]
+  },
+  "expected": {
+    "result": {
+      "outcome": "success",
+      "startedAt": "1970-01-01T00:00:00Z",
+      "endedAt": "1970-01-01T00:00:00Z",
+      "runVars": {},
+      "calls": [
+        {
+          "index": 0,
+          "outcome": "success",
+          "startedAt": "1970-01-01T00:00:00Z",
+          "endedAt": "1970-01-01T00:00:00Z",
+          "request": "IGNORED",
+          "response": "IGNORED",
+          "redirects": [],
+          "assertions": [
+            {
+              "method": "expect",
+              "scope": "status",
+              "op": "eq",
+              "outcome": "passed",
+              "actual": 200,
+              "expected": 200,
+              "options": null
+            }
+          ],
+          "config": {},
+          "warnings": ["IGNORED"],
+          "error": null
+        }
+      ],
+      "actions": {}
+    },
+    "ignore": [
+      "startedAt",
+      "endedAt",
+      "calls[*].startedAt",
+      "calls[*].endedAt",
+      "calls[*].request",
+      "calls[*].response",
+      "calls[*].config"
+    ]
+  }
+}

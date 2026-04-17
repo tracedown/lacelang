@@ -1,0 +1,63 @@
+{
+  "id": "request_url_resolved",
+  "description": "Spec \u00a715.11: calls[].request.url in the result is the fully-resolved URL string after variable interpolation, not the template.",
+  "spec_refs": [
+    "lace-spec.md \u00a715.11"
+  ],
+  "type": "execute",
+  "input": {
+    "source": "get(\"http://127.0.0.1:{port}$path\").expect(status: 200)\n",
+    "variables": {
+      "path": "/hello"
+    },
+    "http_mock": [
+      {
+        "callIndex": 0,
+        "outcome": "response",
+        "status": 200,
+        "headers": {},
+        "body": ""
+      }
+    ]
+  },
+  "expected": {
+    "result": {
+      "outcome": "success",
+      "startedAt": "1970-01-01T00:00:00Z",
+      "endedAt": "1970-01-01T00:00:00Z",
+      "runVars": {},
+      "calls": [
+        {
+          "index": 0,
+          "outcome": "success",
+          "startedAt": "1970-01-01T00:00:00Z",
+          "endedAt": "1970-01-01T00:00:00Z",
+          "request": {
+            "url": "http://127.0.0.1:{port}/hello",
+            "method": "get",
+            "headers": {},
+            "bodyPath": null
+          },
+          "response": "IGNORED",
+          "redirects": [],
+          "assertions": "IGNORED",
+          "config": {},
+          "warnings": [],
+          "error": null
+        }
+      ],
+      "actions": {}
+    },
+    "ignore": [
+      "startedAt",
+      "endedAt",
+      "calls[*].startedAt",
+      "calls[*].endedAt",
+      "calls[*].request.bodyPath",
+      "calls[*].request.headers",
+      "calls[*].response",
+      "calls[*].assertions",
+      "calls[*].config"
+    ]
+  }
+}

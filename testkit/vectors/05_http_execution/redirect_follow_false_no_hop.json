@@ -1,0 +1,77 @@
+{
+  "id": "redirect_follow_false_no_hop",
+  "description": "redirects.follow = false means the executor reports the redirect as-is; redirects[] stays empty (spec \u00a73.2).",
+  "spec_refs": [
+    "lace-spec.md \u00a73.2"
+  ],
+  "type": "execute",
+  "input": {
+    "source": "get(\"http://127.0.0.1:{port}/hop\", { redirects: { follow: false } }).expect(status: [301, 302])\n",
+    "variables": {},
+    "http_mock": [
+      {
+        "callIndex": 0,
+        "outcome": "response",
+        "status": 302,
+        "headers": {
+          "location": "/hop1"
+        },
+        "body": ""
+      }
+    ]
+  },
+  "expected": {
+    "result": {
+      "outcome": "success",
+      "startedAt": "1970-01-01T00:00:00Z",
+      "endedAt": "1970-01-01T00:00:00Z",
+      "runVars": {},
+      "calls": [
+        {
+          "index": 0,
+          "outcome": "success",
+          "startedAt": "1970-01-01T00:00:00Z",
+          "endedAt": "1970-01-01T00:00:00Z",
+          "request": "IGNORED",
+          "response": "IGNORED",
+          "redirects": [],
+          "assertions": [
+            {
+              "method": "expect",
+              "scope": "status",
+              "op": "eq",
+              "outcome": "passed",
+              "actual": 302,
+              "expected": [
+                301,
+                302
+              ],
+              "options": null
+            }
+          ],
+          "config": {},
+          "warnings": [],
+          "error": null
+        }
+      ],
+      "actions": {}
+    },
+    "ignore": [
+      "startedAt",
+      "endedAt",
+      "calls[*].startedAt",
+      "calls[*].endedAt",
+      "calls[*].request.bodyPath",
+      "calls[*].response.bodyPath",
+      "calls[*].response.responseTimeMs",
+      "calls[*].response.dnsMs",
+      "calls[*].response.connectMs",
+      "calls[*].response.tlsMs",
+      "calls[*].response.ttfbMs",
+      "calls[*].response.transferMs",
+      "calls[*].config",
+      "calls[*].request",
+      "calls[*].response"
+    ]
+  }
+}

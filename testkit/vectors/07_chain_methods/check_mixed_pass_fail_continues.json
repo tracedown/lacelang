@@ -1,0 +1,75 @@
+{
+  "id": "check_mixed_pass_fail_continues",
+  "description": "Spec \u00a715.7: .check() evaluates all scopes and records every outcome but does not hard-fail. With status=200 matching and bodySize<1B failing on a non-empty body, both assertion entries appear; the call outcome remains \"success\" because .check() is soft-fail.",
+  "spec_refs": [
+    "lace-spec.md \u00a715.7"
+  ],
+  "type": "execute",
+  "input": {
+    "source": "get(\"http://127.0.0.1:{port}/x\").check(status: 200, bodySize: \"1\")\n",
+    "variables": {},
+    "http_mock": [
+      {
+        "callIndex": 0,
+        "outcome": "response",
+        "status": 200,
+        "headers": {
+          "content-type": "text/plain"
+        },
+        "body": "hello"
+      }
+    ]
+  },
+  "expected": {
+    "result": {
+      "outcome": "success",
+      "startedAt": "1970-01-01T00:00:00Z",
+      "endedAt": "1970-01-01T00:00:00Z",
+      "runVars": {},
+      "calls": [
+        {
+          "index": 0,
+          "outcome": "success",
+          "startedAt": "1970-01-01T00:00:00Z",
+          "endedAt": "1970-01-01T00:00:00Z",
+          "request": "IGNORED",
+          "response": "IGNORED",
+          "redirects": [],
+          "assertions": [
+            {
+              "method": "check",
+              "scope": "status",
+              "op": "eq",
+              "outcome": "passed",
+              "actual": 200,
+              "expected": 200,
+              "options": null
+            },
+            {
+              "method": "check",
+              "scope": "bodySize",
+              "op": "lt",
+              "outcome": "failed",
+              "actual": "IGNORED",
+              "expected": "IGNORED",
+              "options": null
+            }
+          ],
+          "config": {},
+          "warnings": [],
+          "error": null
+        }
+      ],
+      "actions": {}
+    },
+    "ignore": [
+      "startedAt",
+      "endedAt",
+      "calls[*].startedAt",
+      "calls[*].endedAt",
+      "calls[*].request",
+      "calls[*].response",
+      "calls[*].config"
+    ]
+  }
+}

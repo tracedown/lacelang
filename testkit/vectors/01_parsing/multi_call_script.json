@@ -1,0 +1,63 @@
+{
+  "id": "multi_call_script",
+  "description": "A script with three calls parses to a top-level `calls` array of length 3 in source order (spec \u00a72.1).",
+  "spec_refs": [
+    "lace-spec.md \u00a72.1"
+  ],
+  "type": "parse",
+  "input": {
+    "source": "get(\"/a\").expect(status: 200)\npost(\"/b\").expect(status: 201)\ndelete(\"/c\").expect(status: 204)\n"
+  },
+  "expected": {
+    "ast": {
+      "version": "0.9.0",
+      "calls": [
+        {
+          "method": "get",
+          "url": "/a",
+          "chain": {
+            "expect": {
+              "status": {
+                "value": {
+                  "kind": "literal",
+                  "valueType": "int",
+                  "value": 200
+                }
+              }
+            }
+          }
+        },
+        {
+          "method": "post",
+          "url": "/b",
+          "chain": {
+            "expect": {
+              "status": {
+                "value": {
+                  "kind": "literal",
+                  "valueType": "int",
+                  "value": 201
+                }
+              }
+            }
+          }
+        },
+        {
+          "method": "delete",
+          "url": "/c",
+          "chain": {
+            "expect": {
+              "status": {
+                "value": {
+                  "kind": "literal",
+                  "valueType": "int",
+                  "value": 204
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

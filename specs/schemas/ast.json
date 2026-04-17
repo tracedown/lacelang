@@ -1,0 +1,490 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://lacelang.dev/schemas/ast/0.9.0",
+  "title": "Lace internal AST",
+  "description": "Canonical in-memory representation produced by parsers from `.lace` source text. Conforms to lace-spec.md and the lacelang.g4 grammar. Although the spec calls the AST 'an implementation detail and never stored or transmitted', this schema is the canonical wire format used by the testkit's `parse` conformance tests — every executor's `parse` subcommand must serialise its internal AST to this shape for the testkit to compare against expected outputs.",
+
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "calls"],
+  "properties": {
+    "version": {
+      "type": "string",
+      "const": "0.9.0",
+      "description": "AST schema version. Bumped on breaking changes to this schema."
+    },
+    "calls": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/definitions/Call" },
+      "description": "Ordered HTTP calls. Validator enforces minimum 1 call (spec §2.3)."
+    }
+  },
+
+  "definitions": {
+
+    "Call": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["method", "url", "chain"],
+      "properties": {
+        "method": {
+          "type": "string",
+          "enum": ["get", "post", "put", "patch", "delete"],
+          "description": "HTTP method (spec §3.1)."
+        },
+        "url": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Request URL with optional variable interpolation (spec §3.5)."
+        },
+        "config": { "$ref": "#/definitions/CallConfig" },
+        "chain": { "$ref": "#/definitions/Chain" }
+      }
+    },
+
+    "CallConfig": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Resolved request config. All fields optional (spec §3.2). Extension-registered fields go in `extensions`.",
+      "properties": {
+        "headers": {
+          "type": "object",
+          "additionalProperties": { "$ref": "#/definitions/Expr" },
+          "description": "Header name → value expression. Names are case-sensitive in source; HTTP execution is case-insensitive."
+        },
+        "body": { "$ref": "#/definitions/BodyValue" },
+        "cookies": {
+          "type": "object",
+          "additionalProperties": { "$ref": "#/definitions/Expr" }
+        },
+        "cookieJar": {
+          "type": "string",
+          "description": "Cookie jar mode (spec §3.3). Validator enforces format: `inherit` | `fresh` | `selective_clear` | `named:<name>` | `<name>:selective_clear`."
+        },
+        "clearCookies": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Cookie names to clear. Valid only when cookieJar is a selective_clear variant."
+        },
+        "redirects": { "$ref": "#/definitions/Redirects" },
+        "security":  { "$ref": "#/definitions/Security" },
+        "timeout":   { "$ref": "#/definitions/Timeout" },
+        "extensions": {
+          "type": "object",
+          "additionalProperties": { "$ref": "#/definitions/Expr" },
+          "description": "Extension-registered call config fields (spec §10, extension target `call`)."
+        }
+      }
+    },
+
+    "BodyValue": {
+      "description": "Request body — typed discriminated union (spec §3.2 body_value).",
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type", "value"],
+          "properties": {
+            "type":  { "const": "json" },
+            "value": { "$ref": "#/definitions/ObjectLitExpr" }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type", "value"],
+          "properties": {
+            "type":  { "const": "form" },
+            "value": { "$ref": "#/definitions/ObjectLitExpr" }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type", "value"],
+          "properties": {
+            "type":  { "const": "raw" },
+            "value": { "type": "string" }
+          }
+        }
+      ]
+    },
+
+    "Redirects": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "follow":     { "type": "boolean" },
+        "max":        { "type": "integer", "minimum": 0, "maximum": 10 },
+        "extensions": {
+          "type": "object",
+          "additionalProperties": { "$ref": "#/definitions/Expr" }
+        }
+      }
+    },
+
+    "Security": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "rejectInvalidCerts": { "type": "boolean" },
+        "extensions": {
+          "type": "object",
+          "additionalProperties": { "$ref": "#/definitions/Expr" }
+        }
+      }
+    },
+
+    "Timeout": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "ms":      { "type": "integer", "minimum": 1 },
+        "action":  { "type": "string", "enum": ["fail", "warn", "retry"] },
+        "retries": { "type": "integer", "minimum": 0 },
+        "extensions": {
+          "type": "object",
+          "additionalProperties": { "$ref": "#/definitions/Expr" }
+        }
+      }
+    },
+
+    "Chain": {
+      "type": "object",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "description": "Chain methods. At least one must be present (spec §2.3). Fixed order is enforced by the parser per spec §2.3: `.expect → .check → .assert → .store → .wait`. Each method appears at most once.",
+      "properties": {
+        "expect": { "$ref": "#/definitions/ScopeBlock" },
+        "check":  { "$ref": "#/definitions/ScopeBlock" },
+        "assert": { "$ref": "#/definitions/AssertBlock" },
+        "store":  { "$ref": "#/definitions/StoreBlock" },
+        "wait":   { "type": "integer", "minimum": 0 }
+      }
+    },
+
+    "ScopeBlock": {
+      "type": "object",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "description": "A `.expect()` or `.check()` block. Keys are scope names; each appears at most once. Validator enforces non-empty (spec §12).",
+      "properties": {
+        "status":       { "$ref": "#/definitions/ScopeValue" },
+        "body":         { "$ref": "#/definitions/ScopeValue" },
+        "headers":      { "$ref": "#/definitions/ScopeValue" },
+        "bodySize":     { "$ref": "#/definitions/ScopeValue" },
+        "totalDelayMs": { "$ref": "#/definitions/ScopeValue" },
+        "dns":          { "$ref": "#/definitions/ScopeValue" },
+        "connect":      { "$ref": "#/definitions/ScopeValue" },
+        "tls":          { "$ref": "#/definitions/ScopeValue" },
+        "ttfb":         { "$ref": "#/definitions/ScopeValue" },
+        "transfer":     { "$ref": "#/definitions/ScopeValue" },
+        "size":         { "$ref": "#/definitions/ScopeValue" },
+        "redirects":    { "$ref": "#/definitions/ScopeValue" }
+      }
+    },
+
+    "ScopeValue": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["value"],
+      "description": "A scope's resolved value, op, and options. Even shorthand source like `status: 200` produces this wrapped form, with `op` omitted (executor applies default per spec §4.4).",
+      "properties": {
+        "value": { "$ref": "#/definitions/Expr" },
+        "op": {
+          "type": "string",
+          "enum": ["lt", "lte", "eq", "neq", "gte", "gt"],
+          "description": "Comparison operator. When omitted, executor applies the scope's default op (spec §4.4)."
+        },
+        "match": {
+          "type": "string",
+          "enum": ["first", "last", "any"],
+          "description": "Valid only on the `redirects` scope (spec §4.3). Selects which redirect URL is compared to `value`. Default `any` when omitted."
+        },
+        "mode": {
+          "type": "string",
+          "enum": ["strict", "loose"],
+          "description": "Valid only on `body` scopes whose value is a schema(...) call (spec §4.5.1). `strict` = no extra fields; `loose` = extras allowed. Default `loose`."
+        },
+        "options": {
+          "type": "object",
+          "additionalProperties": { "$ref": "#/definitions/Expr" },
+          "description": "Extension-defined option fields (spec §10). Pass-through; core executor does not interpret."
+        }
+      }
+    },
+
+    "AssertBlock": {
+      "type": "object",
+      "additionalProperties": false,
+      "anyOf": [
+        { "required": ["expect"] },
+        { "required": ["check"] }
+      ],
+      "properties": {
+        "expect": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/Condition" },
+          "description": "Hard-fail conditions."
+        },
+        "check": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/Condition" },
+          "description": "Soft-fail conditions."
+        }
+      }
+    },
+
+    "Condition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["condition"],
+      "properties": {
+        "condition": { "$ref": "#/definitions/Expr" },
+        "options": {
+          "type": "object",
+          "additionalProperties": { "$ref": "#/definitions/Expr" }
+        }
+      }
+    },
+
+    "StoreBlock": {
+      "type": "object",
+      "additionalProperties": { "$ref": "#/definitions/StoreEntry" },
+      "minProperties": 1,
+      "description": "Map of store keys to entries. Source keys are preserved as-is (e.g. '$$token', '$cursor', or 'last_count')."
+    },
+
+    "StoreEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["scope", "value"],
+      "properties": {
+        "scope": {
+          "type": "string",
+          "enum": ["run", "writeback"],
+          "description": "Resolved at parse time from the key prefix: `$$name` → run; `$name` and plain keys → writeback (spec §4.6)."
+        },
+        "value": { "$ref": "#/definitions/Expr" }
+      }
+    },
+
+    "Expr": {
+      "description": "Expression AST. Discriminated by `kind`. Recursive.",
+      "oneOf": [
+        { "$ref": "#/definitions/BinaryExpr" },
+        { "$ref": "#/definitions/UnaryExpr" },
+        { "$ref": "#/definitions/ThisRefExpr" },
+        { "$ref": "#/definitions/PrevRefExpr" },
+        { "$ref": "#/definitions/FuncCallExpr" },
+        { "$ref": "#/definitions/ScriptVarExpr" },
+        { "$ref": "#/definitions/RunVarExpr" },
+        { "$ref": "#/definitions/LiteralExpr" },
+        { "$ref": "#/definitions/ObjectLitExpr" },
+        { "$ref": "#/definitions/ArrayLitExpr" }
+      ]
+    },
+
+    "BinaryExpr": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "op", "left", "right"],
+      "properties": {
+        "kind":  { "const": "binary" },
+        "op":    {
+          "type": "string",
+          "enum": ["eq", "neq", "lt", "lte", "gt", "gte", "and", "or", "+", "-", "*", "/", "%"]
+        },
+        "left":  { "$ref": "#/definitions/Expr" },
+        "right": { "$ref": "#/definitions/Expr" }
+      }
+    },
+
+    "UnaryExpr": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "op", "operand"],
+      "properties": {
+        "kind":    { "const": "unary" },
+        "op":      { "enum": ["not", "-"] },
+        "operand": { "$ref": "#/definitions/Expr" }
+      }
+    },
+
+    "ThisRefExpr": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "path"],
+      "properties": {
+        "kind": { "const": "thisRef" },
+        "path": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string" },
+          "description": "Field name path. `this.body.access_token` → ['body', 'access_token']. Spec §3.4 fields valid at root; deeper paths reach into response data."
+        }
+      }
+    },
+
+    "PrevRefExpr": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "path"],
+      "properties": {
+        "kind": { "const": "prevRef" },
+        "path": {
+          "type": "array",
+          "items": {
+            "oneOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["type", "name"],
+                "properties": {
+                  "type": { "const": "field" },
+                  "name": { "type": "string" }
+                }
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["type", "index"],
+                "properties": {
+                  "type":  { "const": "index" },
+                  "index": { "type": "integer", "minimum": 0 }
+                }
+              }
+            ]
+          },
+          "description": "Mixed field-access and array-index path. `prev.calls[0].outcome` → [{field calls}, {index 0}, {field outcome}]."
+        }
+      }
+    },
+
+    "FuncCallExpr": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "name", "args"],
+      "properties": {
+        "kind": { "const": "funcCall" },
+        "name": {
+          "type": "string",
+          "description": "Function name. Core (spec §8): `json`, `form`, `schema`. Extensions register additional names; validator enforces context-appropriate restriction."
+        },
+        "args": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/Expr" }
+        }
+      }
+    },
+
+    "VarPathSeg": {
+      "type": "object",
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": ["type", "name"],
+          "properties": {
+            "type": { "const": "field" },
+            "name": { "type": "string", "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$" }
+          }
+        },
+        {
+          "required": ["type", "index"],
+          "properties": {
+            "type":  { "const": "index" },
+            "index": { "type": "integer", "minimum": 0 }
+          }
+        }
+      ],
+      "description": "One segment of a `$var.field[n]…` path. §2.1."
+    },
+
+    "ScriptVarExpr": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "name"],
+      "properties": {
+        "kind": { "const": "scriptVar" },
+        "name": {
+          "type": "string",
+          "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$",
+          "description": "Bare identifier (without leading `$`). E.g. `$BASE_URL` → name='BASE_URL'."
+        },
+        "path": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/VarPathSeg" },
+          "description": "Optional `.field` / `[index]` chain appended to the var reference."
+        }
+      }
+    },
+
+    "RunVarExpr": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "name"],
+      "properties": {
+        "kind": { "const": "runVar" },
+        "name": {
+          "type": "string",
+          "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$",
+          "description": "Bare identifier (without leading `$$`). E.g. `$$token` → name='token'."
+        },
+        "path": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/VarPathSeg" },
+          "description": "Optional `.field` / `[index]` chain appended to the var reference."
+        }
+      }
+    },
+
+    "LiteralExpr": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "valueType", "value"],
+      "properties": {
+        "kind":       { "const": "literal" },
+        "valueType": { "type": "string", "enum": ["string", "int", "float", "bool", "null"] },
+        "value": {
+          "description": "JSON-serialised value. For `null`, JSON null. For `string`, the escaped+unescaped string content (interpolation references re-scanned at evaluation time)."
+        }
+      }
+    },
+
+    "ObjectLitExpr": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "entries"],
+      "properties": {
+        "kind": { "const": "objectLit" },
+        "entries": {
+          "type": "array",
+          "description": "Ordered key-value entries. Order is preserved for deterministic serialisation (e.g. `json({...})`).",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["key", "value"],
+            "properties": {
+              "key":   { "type": "string" },
+              "value": { "$ref": "#/definitions/Expr" }
+            }
+          }
+        }
+      }
+    },
+
+    "ArrayLitExpr": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "items"],
+      "properties": {
+        "kind":  { "const": "arrayLit" },
+        "items": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/Expr" }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "id": "form_body_helper",
+  "description": "body: form({...}) parses to a typed form body with an object literal value (spec \u00a73.2).",
+  "spec_refs": [
+    "lace-spec.md \u00a73.2"
+  ],
+  "type": "parse",
+  "input": {
+    "source": "post(\"$u\", { body: form({ email: \"$e\", password: \"$p\" }) }).expect(status: 200)\n"
+  },
+  "expected": {
+    "ast": {
+      "version": "0.9.0",
+      "calls": [
+        {
+          "method": "post",
+          "url": "$u",
+          "config": {
+            "body": {
+              "type": "form",
+              "value": {
+                "kind": "objectLit",
+                "entries": [
+                  {
+                    "key": "email",
+                    "value": {
+                      "kind": "scriptVar",
+                      "name": "e"
+                    }
+                  },
+                  {
+                    "key": "password",
+                    "value": {
+                      "kind": "scriptVar",
+                      "name": "p"
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "chain": {
+            "expect": {
+              "status": {
+                "value": {
+                  "kind": "literal",
+                  "valueType": "int",
+                  "value": 200
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

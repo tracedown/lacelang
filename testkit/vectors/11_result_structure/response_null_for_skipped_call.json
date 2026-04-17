@@ -1,0 +1,67 @@
+{
+  "id": "response_null_for_skipped_call",
+  "description": "Spec \u00a715.11: calls[].response is strictly JSON null (not an empty object) for a skipped call.",
+  "spec_refs": [
+    "lace-spec.md \u00a715.11"
+  ],
+  "type": "execute",
+  "input": {
+    "source": "get(\"http://127.0.0.1:{port}/a\").expect(status: 200)\nget(\"http://127.0.0.1:{port}/b\").expect(status: 200)\n",
+    "variables": {},
+    "http_mock": [
+      {
+        "callIndex": 0,
+        "outcome": "response",
+        "status": 500,
+        "headers": {},
+        "body": ""
+      }
+    ]
+  },
+  "expected": {
+    "result": {
+      "outcome": "failure",
+      "startedAt": "1970-01-01T00:00:00Z",
+      "endedAt": "1970-01-01T00:00:00Z",
+      "runVars": {},
+      "calls": [
+        {
+          "index": 0,
+          "outcome": "failure",
+          "startedAt": "1970-01-01T00:00:00Z",
+          "endedAt": "1970-01-01T00:00:00Z",
+          "request": "IGNORED",
+          "response": "IGNORED",
+          "redirects": [],
+          "assertions": "IGNORED",
+          "config": {},
+          "warnings": [],
+          "error": null
+        },
+        {
+          "index": 1,
+          "outcome": "skipped",
+          "startedAt": null,
+          "endedAt": null,
+          "request": null,
+          "response": null,
+          "assertions": [],
+          "config": {},
+          "warnings": [],
+          "error": null
+        }
+      ],
+      "actions": {}
+    },
+    "ignore": [
+      "startedAt",
+      "endedAt",
+      "calls[0].startedAt",
+      "calls[0].endedAt",
+      "calls[0].request",
+      "calls[0].response",
+      "calls[0].assertions",
+      "calls[*].config"
+    ]
+  }
+}

@@ -1,0 +1,65 @@
+{
+  "id": "hook_before_script_and_script_fire",
+  "description": "Per spec \u00a715.14 and lace-extensions.md \u00a78.2, the `before script` and `script` hook points fire once per run at the outer script boundary: `before script` after extensions load but before any call, `script` after all call records are finalised. With two calls, each per-call hook pair fires twice, but the script-level pair fires exactly once — `before script` at the start, `script` at the end.",
+  "spec_refs": [
+    "lace-spec.md \u00a715.14",
+    "lace-extensions.md \u00a78.1",
+    "lace-extensions.md \u00a78.2"
+  ],
+  "type": "extension",
+  "requires": [
+    "extensions",
+    "actions"
+  ],
+  "input": {
+    "source": "get(\"http://127.0.0.1:{port}/a\").expect(status: 200)\nget(\"http://127.0.0.1:{port}/b\").expect(status: 200)\n",
+    "variables": {},
+    "extensions": [
+      "hookTrace"
+    ],
+    "http_mock": [
+      {
+        "callIndex": 0,
+        "outcome": "response",
+        "status": 200,
+        "headers": {},
+        "body": ""
+      },
+      {
+        "callIndex": 1,
+        "outcome": "response",
+        "status": 200,
+        "headers": {},
+        "body": ""
+      }
+    ]
+  },
+  "expected": {
+    "result": {
+      "outcome": "success",
+      "startedAt": "1970-01-01T00:00:00Z",
+      "endedAt": "1970-01-01T00:00:00Z",
+      "runVars": {},
+      "calls": "IGNORED",
+      "actions": {
+        "hook_trace": [
+          { "callIndex": -1, "hook": "before script" },
+          { "callIndex": 0,  "hook": "before call" },
+          { "callIndex": 0,  "hook": "before expect" },
+          { "callIndex": 0,  "hook": "expect" },
+          { "callIndex": 0,  "hook": "call" },
+          { "callIndex": 1,  "hook": "before call" },
+          { "callIndex": 1,  "hook": "before expect" },
+          { "callIndex": 1,  "hook": "expect" },
+          { "callIndex": 1,  "hook": "call" },
+          { "callIndex": -1, "hook": "script" }
+        ]
+      }
+    },
+    "ignore": [
+      "startedAt",
+      "endedAt",
+      "calls"
+    ]
+  }
+}

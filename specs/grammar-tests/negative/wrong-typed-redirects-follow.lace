@@ -1,0 +1,1 @@
+get("$x", { redirects: { follow: "yes" } }).expect(status: 200)

@@ -1,0 +1,17 @@
+// laceBaseline example: spike_action=skip via lace.config override.
+//
+// When spike_action is "skip", calls where any metric would spike are
+// excluded from the rolling average, preventing anomalies from
+// polluting the baseline. The extension re-checks thresholds internally
+// — it does not read back from notifications.
+//
+// Run:
+//   lacelang-executor run spike_action_skip.lace \
+//     --enable-extension laceNotifications \
+//     --enable-extension laceBaseline \
+//     --prev spike_detection_mock_prev.json \
+//     --config spike_action_skip.config \
+//     --pretty
+
+get("https://httpbin.org/delay/1")
+.expect(status: 200)

@@ -1,0 +1,17 @@
+{
+  "id": "cookie_jar_named_empty",
+  "description": "cookieJar = \"named:\" with empty name is rejected.",
+  "spec_refs": ["lace-spec.md §3.3", "lace-spec.md §12"],
+  "type": "validate",
+  "input": {
+    "source": "get(\"$x\", { cookieJar: \"named:\" }).expect(status: 200)\n",
+    "variables": ["x"],
+    "context": { "maxRedirects": 10, "maxTimeoutMs": 300000 }
+  },
+  "expected": {
+    "errors": [
+      { "code": "COOKIE_JAR_NAMED_EMPTY", "callIndex": 0 }
+    ],
+    "warnings": []
+  }
+}

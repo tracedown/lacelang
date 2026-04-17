@@ -1,0 +1,68 @@
+{
+  "id": "config_user_agent_from_env",
+  "description": "lace.config [executor].user_agent = \"env:MY_UA\" resolves the User-Agent from the MY_UA environment variable at startup (spec \u00a711 'env:VARNAME' syntax + \u00a73.6 user_agent override). The outgoing request's User-Agent header equals the env var's value. (spec \u00a711, \u00a715.13, \u00a73.6)",
+  "spec_refs": [
+    "lace-spec.md \u00a711",
+    "lace-spec.md \u00a715.13",
+    "lace-spec.md \u00a73.6"
+  ],
+  "type": "execute",
+  "input": {
+    "source": "get(\"http://127.0.0.1:{port}/x\").expect(status: 200)\n",
+    "variables": {},
+    "lace_config": "[executor]\nuser_agent = \"env:MY_UA\"\n",
+    "env": {
+      "MY_UA": "fleet-probe/7.1 (monitor-east)"
+    },
+    "http_mock": [
+      {
+        "callIndex": 0,
+        "outcome": "response",
+        "status": 200,
+        "headers": {},
+        "body": ""
+      }
+    ]
+  },
+  "expected": {
+    "result": {
+      "outcome": "success",
+      "startedAt": "1970-01-01T00:00:00Z",
+      "endedAt": "1970-01-01T00:00:00Z",
+      "runVars": {},
+      "calls": [
+        {
+          "index": 0,
+          "outcome": "success",
+          "startedAt": "1970-01-01T00:00:00Z",
+          "endedAt": "1970-01-01T00:00:00Z",
+          "request": {
+            "url": "http://127.0.0.1:{port}/x",
+            "method": "get",
+            "headers": {
+              "User-Agent": "fleet-probe/7.1 (monitor-east)"
+            },
+            "bodyPath": null
+          },
+          "response": "IGNORED",
+          "redirects": [],
+          "assertions": "IGNORED",
+          "config": {},
+          "warnings": [],
+          "error": null
+        }
+      ],
+      "actions": {}
+    },
+    "ignore": [
+      "startedAt",
+      "endedAt",
+      "calls[*].startedAt",
+      "calls[*].endedAt",
+      "calls[*].request.bodyPath",
+      "calls[*].response",
+      "calls[*].assertions",
+      "calls[*].config"
+    ]
+  }
+}

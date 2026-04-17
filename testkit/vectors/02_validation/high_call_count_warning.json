@@ -1,0 +1,26 @@
+{
+  "id": "high_call_count_warning",
+  "description": "Scripts with more than 10 calls emit a HIGH_CALL_COUNT warning (not error; spec \u00a712).",
+  "spec_refs": [
+    "lace-spec.md \u00a712"
+  ],
+  "type": "validate",
+  "input": {
+    "source": "get(\"$u/a0\").expect(status: 200)\nget(\"$u/a1\").expect(status: 200)\nget(\"$u/a2\").expect(status: 200)\nget(\"$u/a3\").expect(status: 200)\nget(\"$u/a4\").expect(status: 200)\nget(\"$u/a5\").expect(status: 200)\nget(\"$u/a6\").expect(status: 200)\nget(\"$u/a7\").expect(status: 200)\nget(\"$u/a8\").expect(status: 200)\nget(\"$u/a9\").expect(status: 200)\nget(\"$u/a10\").expect(status: 200)\nget(\"$u/a11\").expect(status: 200)\n",
+    "variables": [
+      "u"
+    ],
+    "context": {
+      "maxRedirects": 10,
+      "maxTimeoutMs": 300000
+    }
+  },
+  "expected": {
+    "errors": [],
+    "warnings": [
+      {
+        "code": "HIGH_CALL_COUNT"
+      }
+    ]
+  }
+}

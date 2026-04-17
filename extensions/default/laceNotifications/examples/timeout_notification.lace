@@ -1,0 +1,20 @@
+// laceNotifications example: notification on request timeout.
+// Uses a custom text notification on timeout, and the default
+// config.timeout_message for a second call without a custom notification.
+//
+// Run: lacelang-executor run timeout_notification.lace \
+//        --enable-extension laceNotifications --pretty
+
+get("https://httpbin.org/delay/10", {
+  timeout: {
+    ms: 500,
+    action: "fail",
+    notification: text("Login endpoint timed out after 500ms")
+  }
+})
+.expect(status: 200)
+
+get("https://httpbin.org/delay/10", {
+  timeout: { ms: 500, action: "fail" }
+})
+.expect(status: 200)

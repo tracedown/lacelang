@@ -1,0 +1,50 @@
+{
+  "id": "default_structured_on_check_failure",
+  "description": "When no custom notification option is set, a default structured() notification is emitted on check failure.",
+  "spec_refs": ["lace-extensions.md §12"],
+  "type": "extension",
+  "requires": ["extensions", "actions"],
+  "input": {
+    "source": "get(\"http://127.0.0.1:{port}/fail\").check(status: 200)\n",
+    "variables": {},
+    "extensions": ["laceNotifications"],
+    "http_mock": [
+      {
+        "callIndex": 0,
+        "outcome": "response",
+        "status": 503,
+        "headers": {},
+        "body": ""
+      }
+    ]
+  },
+  "expected": {
+    "result": {
+      "outcome": "success",
+      "startedAt": "1970-01-01T00:00:00Z",
+      "endedAt": "1970-01-01T00:00:00Z",
+      "runVars": {},
+      "calls": "IGNORED",
+      "actions": {
+        "notifications": [
+          {
+            "callIndex": 0,
+            "conditionIndex": -1,
+            "trigger": "check",
+            "scope": "status",
+            "notification": {
+              "tag": "structured",
+              "data": {
+                "scope": "status",
+                "op": "eq",
+                "expected": 200,
+                "actual": 503
+              }
+            }
+          }
+        ]
+      }
+    },
+    "ignore": ["startedAt", "endedAt", "calls"]
+  }
+}

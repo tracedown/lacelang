@@ -1,0 +1,18 @@
+// laceNotifications example: op_map notification with different messages
+// depending on how the actual value relates to the expected value.
+//
+// Run: lacelang-executor run check_with_opmap.lace \
+//        --enable-extension laceNotifications --pretty
+
+get("https://httpbin.org/get")
+.expect(status: 200)
+.check(totalDelayMs: {
+  value: 1,
+  op: "lte",
+  options: {
+    notification: {
+      "gt": text("Response too slow — exceeded 1ms threshold"),
+      "default": text("Unexpected timing result")
+    }
+  }
+})

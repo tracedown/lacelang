@@ -1,0 +1,35 @@
+{
+  "id": "empty_options_block_parses",
+  "description": "Scope full form with an empty options object (`options: {}`) parses cleanly with options as an empty map (spec \u00a74.3).",
+  "spec_refs": [
+    "lace-spec.md \u00a74.3"
+  ],
+  "type": "parse",
+  "input": {
+    "source": "get(\"$u\").expect(status: { value: 200, op: \"eq\", options: {} })\n"
+  },
+  "expected": {
+    "ast": {
+      "version": "0.9.0",
+      "calls": [
+        {
+          "method": "get",
+          "url": "$u",
+          "chain": {
+            "expect": {
+              "status": {
+                "value": {
+                  "kind": "literal",
+                  "valueType": "int",
+                  "value": 200
+                },
+                "op": "eq",
+                "options": {}
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

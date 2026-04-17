@@ -1,0 +1,45 @@
+{
+  "id": "response_null_for_connection_failure",
+  "description": "Spec \u00a715.11: on connection failure the call has response == null and error is a non-null string. Uses a hard-coded unlikely-open port (1) with no mock server.",
+  "spec_refs": [
+    "lace-spec.md \u00a715.11"
+  ],
+  "type": "execute",
+  "input": {
+    "source": "get(\"http://127.0.0.1:1/nope\").expect(status: 200)\n",
+    "variables": {}
+  },
+  "expected": {
+    "result": {
+      "outcome": "failure",
+      "startedAt": "1970-01-01T00:00:00Z",
+      "endedAt": "1970-01-01T00:00:00Z",
+      "runVars": {},
+      "calls": [
+        {
+          "index": 0,
+          "outcome": "failure",
+          "startedAt": "1970-01-01T00:00:00Z",
+          "endedAt": "1970-01-01T00:00:00Z",
+          "request": "IGNORED",
+          "response": null,
+          "redirects": [],
+          "assertions": "IGNORED",
+          "config": {},
+          "warnings": [],
+          "error": "NON_NULL"
+        }
+      ],
+      "actions": {}
+    },
+    "ignore": [
+      "startedAt",
+      "endedAt",
+      "calls[*].startedAt",
+      "calls[*].endedAt",
+      "calls[*].request",
+      "calls[*].assertions",
+      "calls[*].config"
+    ]
+  }
+}

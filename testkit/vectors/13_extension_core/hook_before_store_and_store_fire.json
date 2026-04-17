@@ -1,0 +1,110 @@
+{
+  "id": "hook_before_store_and_store_fire",
+  "description": "Per spec \u00a715.14 and lace-extensions.md \u00a78.6, the `before store` and `store` hook points each fire once per entry inside `.store()`. With two store entries (`$$ok` and `$$status`), `hookTrace` records two `before store` / `store` pairs in the emitted `result.actions.hook_trace` sequence. Full expected sequence: `before call`, `before expect`, `expect`, `before store`, `store`, `before store`, `store`, `call`.",
+  "spec_refs": [
+    "lace-spec.md \u00a715.14",
+    "lace-extensions.md \u00a78.1",
+    "lace-extensions.md \u00a78.6"
+  ],
+  "type": "extension",
+  "requires": [
+    "extensions",
+    "actions"
+  ],
+  "input": {
+    "source": "get(\"http://127.0.0.1:{port}/x\").expect(status: 200).store({$$ok: true, $$status: this.status})\n",
+    "variables": {},
+    "extensions": [
+      "hookTrace"
+    ],
+    "http_mock": [
+      {
+        "callIndex": 0,
+        "outcome": "response",
+        "status": 200,
+        "headers": {},
+        "body": ""
+      }
+    ]
+  },
+  "expected": {
+    "result": {
+      "outcome": "success",
+      "startedAt": "1970-01-01T00:00:00Z",
+      "endedAt": "1970-01-01T00:00:00Z",
+      "runVars": {
+        "ok": true,
+        "status": 200
+      },
+      "calls": [
+        {
+          "index": 0,
+          "outcome": "success",
+          "startedAt": "1970-01-01T00:00:00Z",
+          "endedAt": "1970-01-01T00:00:00Z",
+          "request": "IGNORED",
+          "response": "IGNORED",
+          "redirects": [],
+          "assertions": "IGNORED",
+          "config": {},
+          "warnings": [],
+          "error": null
+        }
+      ],
+      "actions": {
+        "hook_trace": [
+          {
+            "callIndex": -1,
+            "hook": "before script"
+          },
+          {
+            "callIndex": 0,
+            "hook": "before call"
+          },
+          {
+            "callIndex": 0,
+            "hook": "before expect"
+          },
+          {
+            "callIndex": 0,
+            "hook": "expect"
+          },
+          {
+            "callIndex": 0,
+            "hook": "before store"
+          },
+          {
+            "callIndex": 0,
+            "hook": "store"
+          },
+          {
+            "callIndex": 0,
+            "hook": "before store"
+          },
+          {
+            "callIndex": 0,
+            "hook": "store"
+          },
+          {
+            "callIndex": 0,
+            "hook": "call"
+          },
+          {
+            "callIndex": -1,
+            "hook": "script"
+          }
+        ]
+      }
+    },
+    "ignore": [
+      "startedAt",
+      "endedAt",
+      "calls[*].startedAt",
+      "calls[*].endedAt",
+      "calls[*].request",
+      "calls[*].response",
+      "calls[*].assertions",
+      "calls[*].config"
+    ]
+  }
+}

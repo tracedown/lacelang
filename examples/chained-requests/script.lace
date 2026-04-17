@@ -1,0 +1,11 @@
+post("https://httpbin.org/post", {
+  body: json({ email: "user@example.com", action: "login" })
+})
+.expect(status: 200)
+.store({ "$$origin": this.body.origin })
+
+get("https://httpbin.org/get", {
+  headers: { Origin: "$$origin" }
+})
+.expect(status: 200)
+.check(totalDelayMs: { value: 1000 })

@@ -1,0 +1,68 @@
+{
+  "id": "user_agent_default_set",
+  "description": "Executors must set a default User-Agent header (spec \u00a73.6). The request record must include a User-Agent; the exact value is deployment-specific and ignored by the testkit default ignore list.",
+  "spec_refs": [
+    "lace-spec.md \u00a73.6"
+  ],
+  "type": "execute",
+  "input": {
+    "source": "get(\"http://127.0.0.1:{port}/x\").expect(status: 200)\n",
+    "variables": {},
+    "http_mock": [
+      {
+        "callIndex": 0,
+        "outcome": "response",
+        "status": 200,
+        "headers": {},
+        "body": ""
+      }
+    ]
+  },
+  "expected": {
+    "result": {
+      "outcome": "success",
+      "startedAt": "1970-01-01T00:00:00Z",
+      "endedAt": "1970-01-01T00:00:00Z",
+      "runVars": {},
+      "calls": [
+        {
+          "index": 0,
+          "outcome": "success",
+          "startedAt": "1970-01-01T00:00:00Z",
+          "endedAt": "1970-01-01T00:00:00Z",
+          "request": {
+            "url": "http://127.0.0.1:{port}/x",
+            "method": "get",
+            "headers": "NON_NULL",
+            "bodyPath": null
+          },
+          "response": "IGNORED",
+          "redirects": [],
+          "assertions": "IGNORED",
+          "config": {},
+          "warnings": [],
+          "error": null
+        }
+      ],
+      "actions": {}
+    },
+    "ignore": [
+      "startedAt",
+      "endedAt",
+      "calls[*].startedAt",
+      "calls[*].endedAt",
+      "calls[*].request.bodyPath",
+      "calls[*].response.bodyPath",
+      "calls[*].response.responseTimeMs",
+      "calls[*].response.dnsMs",
+      "calls[*].response.connectMs",
+      "calls[*].response.tlsMs",
+      "calls[*].response.ttfbMs",
+      "calls[*].response.transferMs",
+      "calls[*].config",
+      "calls[*].response",
+      "calls[*].assertions",
+      "calls[*].request.bodyPath"
+    ]
+  }
+}

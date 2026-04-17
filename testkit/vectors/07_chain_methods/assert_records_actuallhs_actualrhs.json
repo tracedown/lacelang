@@ -1,0 +1,97 @@
+{
+  "id": "assert_records_actuallhs_actualrhs",
+  "description": "Spec \u00a715.7: .assert({ expect: [...] }) records actualLhs and actualRhs for each condition. Storing $$x = 5 in a preceding call and then asserting $$x == 5 yields actualLhs: 5 and actualRhs: 5 on the condition entry.",
+  "spec_refs": [
+    "lace-spec.md \u00a715.7"
+  ],
+  "type": "execute",
+  "input": {
+    "source": "get(\"http://127.0.0.1:{port}/a\").expect(status: 200).store({ \"$$x\": 5 })\nget(\"http://127.0.0.1:{port}/b\").expect(status: 200).assert({ expect: [$$x eq 5] })\n",
+    "variables": {},
+    "http_mock": [
+      {
+        "callIndex": 0,
+        "outcome": "response",
+        "status": 200,
+        "headers": {},
+        "body": ""
+      },
+      {
+        "callIndex": 1,
+        "outcome": "response",
+        "status": 200,
+        "headers": {},
+        "body": ""
+      }
+    ]
+  },
+  "expected": {
+    "result": {
+      "outcome": "success",
+      "startedAt": "1970-01-01T00:00:00Z",
+      "endedAt": "1970-01-01T00:00:00Z",
+      "runVars": {
+        "x": 5
+      },
+      "calls": [
+        {
+          "index": 0,
+          "outcome": "success",
+          "startedAt": "1970-01-01T00:00:00Z",
+          "endedAt": "1970-01-01T00:00:00Z",
+          "request": "IGNORED",
+          "response": "IGNORED",
+          "redirects": [],
+          "assertions": "IGNORED",
+          "config": {},
+          "warnings": [],
+          "error": null
+        },
+        {
+          "index": 1,
+          "outcome": "success",
+          "startedAt": "1970-01-01T00:00:00Z",
+          "endedAt": "1970-01-01T00:00:00Z",
+          "request": "IGNORED",
+          "response": "IGNORED",
+          "redirects": [],
+          "assertions": [
+            {
+              "method": "expect",
+              "scope": "status",
+              "op": "eq",
+              "outcome": "passed",
+              "actual": 200,
+              "expected": 200,
+              "options": null
+            },
+            {
+              "method": "assert",
+              "kind": "expect",
+              "index": 0,
+              "outcome": "passed",
+              "expression": "$$x eq 5",
+              "actualLhs": 5,
+              "actualRhs": 5,
+              "options": null
+            }
+          ],
+          "config": {},
+          "warnings": [],
+          "error": null
+        }
+      ],
+      "actions": {}
+    },
+    "ignore": [
+      "startedAt",
+      "endedAt",
+      "calls[*].startedAt",
+      "calls[*].endedAt",
+      "calls[*].request",
+      "calls[*].response",
+      "calls[*].config",
+      "calls[0].assertions"
+    ]
+  }
+}

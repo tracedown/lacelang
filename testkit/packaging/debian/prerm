@@ -1,0 +1,29 @@
+#!/bin/sh
+# Debian pre-remove hook — clean up generated certs so removal doesn't leave
+# cruft behind (the .deb does not own these files as they're created at
+# install time).
+
+set -e
+
+CERTS_DIR="/usr/share/lacelang-testkit/certs"
+
+case "$1" in
+    remove|upgrade|deconfigure)
+        if [ -d "$CERTS_DIR" ]; then
+            # Only remove files we recognise from generate-certs.sh; never
+            # wipe the whole directory in case the admin added their own.
+            for f in ca.pem ca.key valid.pem valid.key \
+                     expired.pem expired.key wrong_host.pem wrong_host.key \
+                     self_signed.pem self_signed.key; do
+                rm -f "$CERTS_DIR/$f"
+            done
+            rmdir --ignore-fail-on-non-empty "$CERTS_DIR" 2>/dev/null || true
+        fi
+        ;;
+    failed-upgrade)
+        ;;
+esac
+
+#DEBHELPER#
+
+exit 0

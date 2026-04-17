@@ -1,0 +1,2 @@
+get("https://www.google.com/")
+    .expect(status: [200, 301, 302])

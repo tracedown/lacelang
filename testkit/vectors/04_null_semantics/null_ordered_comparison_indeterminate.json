@@ -1,0 +1,96 @@
+{
+  "id": "null_ordered_comparison_indeterminate",
+  "description": "null as operand of <, >, <=, >= produces outcome \"indeterminate\" \u2014 not an error, not a failure, execution continues (spec \u00a75.4). Using in an .assert({check}) keeps the run alive so we can observe the indeterminate outcome in the result.",
+  "spec_refs": [
+    "lace-spec.md \u00a75.4",
+    "lace-spec.md \u00a715.4"
+  ],
+  "type": "execute",
+  "input": {
+    "source": "get(\"http://127.0.0.1:{port}/x\").expect(status: 200).assert({ check: [$absent lt 5] })\n",
+    "variables": {},
+    "http_mock": [
+      {
+        "callIndex": 0,
+        "outcome": "response",
+        "status": 200,
+        "headers": {},
+        "body": ""
+      }
+    ]
+  },
+  "expected": {
+    "result": {
+      "outcome": "success",
+      "startedAt": "1970-01-01T00:00:00Z",
+      "endedAt": "1970-01-01T00:00:00Z",
+      "runVars": {},
+      "calls": [
+        {
+          "index": 0,
+          "outcome": "success",
+          "startedAt": "1970-01-01T00:00:00Z",
+          "endedAt": "1970-01-01T00:00:00Z",
+          "request": {
+            "url": "http://127.0.0.1:{port}/x",
+            "method": "get",
+            "headers": {},
+            "bodyPath": null
+          },
+          "response": {
+            "status": 200,
+            "statusText": "OK",
+            "headers": {},
+            "bodyPath": null,
+            "responseTimeMs": 0,
+            "dnsMs": 0,
+            "connectMs": 0,
+            "tlsMs": 0,
+            "ttfbMs": 0,
+            "transferMs": 0,
+            "sizeBytes": 0
+          },
+          "redirects": [],
+          "assertions": [
+            {
+              "method": "expect",
+              "scope": "status",
+              "op": "eq",
+              "outcome": "passed",
+              "actual": 200,
+              "expected": 200,
+              "options": null
+            },
+            {
+              "method": "assert",
+              "kind": "check",
+              "index": 0,
+              "outcome": "indeterminate",
+              "expression": "$absent lt 5",
+              "actualLhs": null,
+              "actualRhs": 5,
+              "options": null
+            }
+          ],
+          "config": {},
+          "warnings": [],
+          "error": null
+        }
+      ],
+      "actions": {}
+    },
+    "ignore": [
+      "startedAt",
+      "endedAt",
+      "calls[*].startedAt",
+      "calls[*].endedAt",
+      "calls[*].request.bodyPath",
+      "calls[*].response.responseTimeMs",
+      "calls[*].response.dnsMs",
+      "calls[*].response.connectMs",
+      "calls[*].response.ttfbMs",
+      "calls[*].response.transferMs",
+      "calls[*].config"
+    ]
+  }
+}

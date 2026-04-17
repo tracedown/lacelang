@@ -1,0 +1,29 @@
+{
+  "id": "cookie_jar_malformed_string",
+  "description": "cookieJar value `\"garbage\"` matches none of inherit | fresh | selective_clear | named:X | X:selective_clear \u2014 COOKIE_JAR_FORMAT (spec \u00a73.3, \u00a712).",
+  "spec_refs": [
+    "lace-spec.md \u00a73.3",
+    "lace-spec.md \u00a712"
+  ],
+  "type": "validate",
+  "input": {
+    "source": "get(\"$u\", { cookieJar: \"garbage\" }).expect(status: 200)\n",
+    "variables": [
+      "u"
+    ],
+    "context": {
+      "maxRedirects": 10,
+      "maxTimeoutMs": 300000
+    }
+  },
+  "expected": {
+    "errors": [
+      {
+        "code": "COOKIE_JAR_FORMAT",
+        "callIndex": 0,
+        "field": "cookieJar"
+      }
+    ],
+    "warnings": []
+  }
+}

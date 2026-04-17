@@ -1,0 +1,73 @@
+{
+  "id": "prev_array_index",
+  "description": "prev supports both `.field` and `[int]` segments; `prev.calls[0].assertions[2]` parses to a prevRef with mixed path (spec \u00a76).",
+  "spec_refs": [
+    "lace-spec.md \u00a76"
+  ],
+  "type": "parse",
+  "input": {
+    "source": "get(\"$u\").expect(status: 200).assert({ expect: [prev.calls[0].assertions[2].outcome eq \"passed\"] })\n"
+  },
+  "expected": {
+    "ast": {
+      "version": "0.9.0",
+      "calls": [
+        {
+          "method": "get",
+          "url": "$u",
+          "chain": {
+            "expect": {
+              "status": {
+                "value": {
+                  "kind": "literal",
+                  "valueType": "int",
+                  "value": 200
+                }
+              }
+            },
+            "assert": {
+              "expect": [
+                {
+                  "condition": {
+                    "kind": "binary",
+                    "op": "eq",
+                    "left": {
+                      "kind": "prevRef",
+                      "path": [
+                        {
+                          "type": "field",
+                          "name": "calls"
+                        },
+                        {
+                          "type": "index",
+                          "index": 0
+                        },
+                        {
+                          "type": "field",
+                          "name": "assertions"
+                        },
+                        {
+                          "type": "index",
+                          "index": 2
+                        },
+                        {
+                          "type": "field",
+                          "name": "outcome"
+                        }
+                      ]
+                    },
+                    "right": {
+                      "kind": "literal",
+                      "valueType": "string",
+                      "value": "passed"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  }
+}

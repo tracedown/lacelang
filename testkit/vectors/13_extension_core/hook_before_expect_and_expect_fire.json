@@ -1,0 +1,101 @@
+{
+  "id": "hook_before_expect_and_expect_fire",
+  "description": "The `before expect` and `expect` hook points each fire once per scope inside `.expect()`. With two scopes (`status` and `headers`), `hookTrace` records two `before expect` / `expect` pairs in the emitted `result.actions.hook_trace` sequence. Per lace-extensions.md \u00a78.3, `before expect` has no `outcome` field and fires strictly before scope evaluation; `expect` fires after with the evaluated outcome. Spec \u00a715.14.",
+  "spec_refs": [
+    "lace-spec.md \u00a715.14",
+    "lace-extensions.md \u00a78.1",
+    "lace-extensions.md \u00a78.3"
+  ],
+  "type": "extension",
+  "requires": [
+    "extensions",
+    "actions"
+  ],
+  "input": {
+    "source": "get(\"http://127.0.0.1:{port}/x\").expect(status: 200, bodySize: 1024)\n",
+    "variables": {},
+    "extensions": [
+      "hookTrace"
+    ],
+    "http_mock": [
+      {
+        "callIndex": 0,
+        "outcome": "response",
+        "status": 200,
+        "headers": {
+          "content-type": "text/plain"
+        },
+        "body": ""
+      }
+    ]
+  },
+  "expected": {
+    "result": {
+      "outcome": "success",
+      "startedAt": "1970-01-01T00:00:00Z",
+      "endedAt": "1970-01-01T00:00:00Z",
+      "runVars": {},
+      "calls": [
+        {
+          "index": 0,
+          "outcome": "success",
+          "startedAt": "1970-01-01T00:00:00Z",
+          "endedAt": "1970-01-01T00:00:00Z",
+          "request": "IGNORED",
+          "response": "IGNORED",
+          "redirects": [],
+          "assertions": "IGNORED",
+          "config": {},
+          "warnings": [],
+          "error": null
+        }
+      ],
+      "actions": {
+        "hook_trace": [
+          {
+            "callIndex": -1,
+            "hook": "before script"
+          },
+          {
+            "callIndex": 0,
+            "hook": "before call"
+          },
+          {
+            "callIndex": 0,
+            "hook": "before expect"
+          },
+          {
+            "callIndex": 0,
+            "hook": "expect"
+          },
+          {
+            "callIndex": 0,
+            "hook": "before expect"
+          },
+          {
+            "callIndex": 0,
+            "hook": "expect"
+          },
+          {
+            "callIndex": 0,
+            "hook": "call"
+          },
+          {
+            "callIndex": -1,
+            "hook": "script"
+          }
+        ]
+      }
+    },
+    "ignore": [
+      "startedAt",
+      "endedAt",
+      "calls[*].startedAt",
+      "calls[*].endedAt",
+      "calls[*].request",
+      "calls[*].response",
+      "calls[*].assertions",
+      "calls[*].config"
+    ]
+  }
+}

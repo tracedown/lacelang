@@ -1,0 +1,12 @@
+// laceNotifications example: custom text notification on expect failure.
+// Run: lacelang-executor run custom_notification_on_failure.lace \
+//        --enable-extension laceNotifications --pretty
+
+get("https://httpbin.org/status/500")
+.expect(status: {
+  value: 200,
+  options: {
+    notification: text("Health check failed — got non-200 status"),
+    silentOnRepeat: false
+  }
+})

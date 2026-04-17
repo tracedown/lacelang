@@ -1,0 +1,25 @@
+// laceBaseline example: spike detection with both baseline and check scopes.
+//
+// The companion spike_detection_mock_prev.json contains 20 data points
+// with an average responseTimeMs of 100ms. With the default multiplier
+// of 3.0, any response >300ms triggers baseline spike notifications.
+//
+// httpbin.org/delay/1 adds a 1-second server-side delay, producing a
+// responseTimeMs well above 300ms. The .check(totalDelayMs: 300) also
+// fires a default structured notification for the soft-fail scope.
+// Using .check() keeps the call outcome as "success" so baseline
+// detection activates.
+//
+// Result should contain both baseline_spike notifications (from
+// laceBaseline) and check-failure notifications (from laceNotifications).
+//
+// Run:
+//   lacelang-executor run spike_detection.lace \
+//     --enable-extension laceNotifications \
+//     --enable-extension laceBaseline \
+//     --prev spike_detection_mock_prev.json \
+//     --pretty
+
+get("https://httpbin.org/delay/1")
+.expect(status: 200)
+.check(totalDelayMs: 300)

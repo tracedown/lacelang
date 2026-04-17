@@ -1,0 +1,33 @@
+{
+  "id": "extension_field_warning_when_inactive",
+  "description": "When the registering extension is not active, extension fields on registered targets (here, `timeout.notification` registered by laceNotifications) emit a warning (EXT_FIELD_INACTIVE) rather than an error. The validate test does not load the extension, so the field is unknown.",
+  "spec_refs": [
+    "lace-spec.md \u00c2\u00a712",
+    "lace-spec.md \u00c2\u00a715.14"
+  ],
+  "type": "validate",
+  "requires": [
+    "extensions"
+  ],
+  "input": {
+    "source": "get(\"$x\", { timeout: { ms: 3000, action: \"retry\", retries: 2, notification: template(\"t\") } }).expect(status: 200)\n",
+    "variables": [
+      "x"
+    ],
+    "context": {
+      "maxRedirects": 10,
+      "maxTimeoutMs": 300000
+    },
+    "extensions": []
+  },
+  "expected": {
+    "errors": [],
+    "warnings": [
+      {
+        "code": "EXT_FIELD_INACTIVE",
+        "callIndex": 0,
+        "field": "timeout.notification"
+      }
+    ]
+  }
+}

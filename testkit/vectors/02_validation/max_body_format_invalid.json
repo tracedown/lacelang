@@ -1,0 +1,17 @@
+{
+  "id": "max_body_format_invalid",
+  "description": "maxBody size strings must match /\\d+(k|kb|m|mb|g|gb)?/i. '50 kb' with a space is invalid (spec §4.3, §12).",
+  "spec_refs": ["lace-spec.md §4.3", "lace-spec.md §12"],
+  "type": "validate",
+  "input": {
+    "source": "get(\"$url\").expect(status: 200, bodySize: \"50 kb\")\n",
+    "variables": ["url"],
+    "context": { "maxRedirects": 10, "maxTimeoutMs": 300000 }
+  },
+  "expected": {
+    "errors": [
+      { "code": "MAX_BODY_FORMAT", "callIndex": 0, "chainMethod": "expect", "field": "bodySize" }
+    ],
+    "warnings": []
+  }
+}

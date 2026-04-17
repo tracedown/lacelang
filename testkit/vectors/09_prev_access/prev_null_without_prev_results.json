@@ -1,0 +1,87 @@
+{
+  "id": "prev_null_without_prev_results",
+  "description": "prev resolves to null when no --prev-results was provided. Any prev.* field access propagates null (spec \u00a76, \u00a715.9). The assertion `prev.outcome == null` must pass.",
+  "spec_refs": [
+    "lace-spec.md \u00a76",
+    "lace-spec.md \u00a715.9"
+  ],
+  "type": "execute",
+  "input": {
+    "source": "get(\"http://127.0.0.1:{port}/x\").expect(status: 200).assert({ expect: [prev.outcome eq null, prev.calls[0].outcome eq null] })\n",
+    "variables": {},
+    "prev_results": null,
+    "http_mock": [
+      {
+        "callIndex": 0,
+        "outcome": "response",
+        "status": 200,
+        "headers": {},
+        "body": ""
+      }
+    ]
+  },
+  "expected": {
+    "result": {
+      "outcome": "success",
+      "startedAt": "1970-01-01T00:00:00Z",
+      "endedAt": "1970-01-01T00:00:00Z",
+      "runVars": {},
+      "calls": [
+        {
+          "index": 0,
+          "outcome": "success",
+          "startedAt": "1970-01-01T00:00:00Z",
+          "endedAt": "1970-01-01T00:00:00Z",
+          "request": "IGNORED",
+          "response": "IGNORED",
+          "redirects": [],
+          "assertions": [
+            {
+              "method": "expect",
+              "scope": "status",
+              "op": "eq",
+              "outcome": "passed",
+              "actual": 200,
+              "expected": 200,
+              "options": null
+            },
+            {
+              "method": "assert",
+              "kind": "expect",
+              "index": 0,
+              "outcome": "passed",
+              "expression": "prev.outcome eq null",
+              "actualLhs": null,
+              "actualRhs": null,
+              "options": null
+            },
+            {
+              "method": "assert",
+              "kind": "expect",
+              "index": 1,
+              "outcome": "passed",
+              "expression": "prev.calls[0].outcome eq null",
+              "actualLhs": null,
+              "actualRhs": null,
+              "options": null
+            }
+          ],
+          "config": {},
+          "warnings": [],
+          "error": null
+        }
+      ],
+      "actions": {}
+    },
+    "ignore": [
+      "startedAt",
+      "endedAt",
+      "calls[*].startedAt",
+      "calls[*].endedAt",
+      "calls[*].request",
+      "calls[*].response",
+      "calls[*].config",
+      "validationWarnings"
+    ]
+  }
+}

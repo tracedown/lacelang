@@ -1,0 +1,28 @@
+{
+  "id": "empty_assert_block",
+  "description": ".assert() with no conditions in either clause is EMPTY_ASSERT_BLOCK (spec \u00a712).",
+  "spec_refs": [
+    "lace-spec.md \u00a712"
+  ],
+  "type": "validate",
+  "input": {
+    "source": "get(\"$u\").expect(status: 200).assert({ expect: [] })\n",
+    "variables": [
+      "u"
+    ],
+    "context": {
+      "maxRedirects": 10,
+      "maxTimeoutMs": 300000
+    }
+  },
+  "expected": {
+    "errors": [
+      {
+        "code": "EMPTY_ASSERT_BLOCK",
+        "callIndex": 0,
+        "chainMethod": "assert"
+      }
+    ],
+    "warnings": []
+  }
+}

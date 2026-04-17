@@ -1,0 +1,1 @@
+get("$BASE_URL/x").expect(status: 200).options(timeoutMs: 1000)

@@ -1,0 +1,17 @@
+{
+  "id": "clear_cookies_wrong_jar",
+  "description": "clearCookies is only valid when cookieJar is a selective_clear variant (spec §3.3, §12).",
+  "spec_refs": ["lace-spec.md §3.3", "lace-spec.md §12"],
+  "type": "validate",
+  "input": {
+    "source": "get(\"$url\", { cookieJar: \"inherit\", clearCookies: [\"session\"] }).expect(status: 200)\n",
+    "variables": ["url"],
+    "context": { "maxRedirects": 10, "maxTimeoutMs": 300000 }
+  },
+  "expected": {
+    "errors": [
+      { "code": "CLEAR_COOKIES_WRONG_JAR", "callIndex": 0 }
+    ],
+    "warnings": []
+  }
+}

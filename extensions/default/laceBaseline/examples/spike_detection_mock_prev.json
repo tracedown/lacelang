@@ -1,0 +1,36 @@
+{
+  "outcome": "success",
+  "startedAt": "2026-04-17T10:00:00Z",
+  "endedAt": "2026-04-17T10:00:01Z",
+  "runVars": {
+    "laceBaseline.stats": {
+      "count": 20,
+      "sums": {
+        "responseTimeMs": 2000.0,
+        "dnsMs": 100.0,
+        "connectMs": 400.0,
+        "tlsMs": 600.0,
+        "ttfbMs": 1400.0,
+        "transferMs": 200.0,
+        "sizeBytes": 6000.0
+      }
+    }
+  },
+  "calls": [
+    {
+      "index": 0,
+      "outcome": "success",
+      "response": {
+        "status": 200,
+        "responseTimeMs": 100,
+        "dnsMs": 5,
+        "connectMs": 20,
+        "tlsMs": 30,
+        "ttfbMs": 70,
+        "transferMs": 10,
+        "sizeBytes": 300
+      }
+    }
+  ],
+  "actions": {}
+}

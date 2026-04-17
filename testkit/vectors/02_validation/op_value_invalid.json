@@ -1,0 +1,17 @@
+{
+  "id": "op_value_invalid",
+  "description": "op: must be one of lt|lte|eq|neq|gte|gt. 'lessthan' is invalid (spec §12).",
+  "spec_refs": ["lace-spec.md §12"],
+  "type": "validate",
+  "input": {
+    "source": "get(\"$url\").expect(totalDelayMs: { value: 500, op: \"lessthan\" })\n",
+    "variables": ["url"],
+    "context": { "maxRedirects": 10, "maxTimeoutMs": 300000 }
+  },
+  "expected": {
+    "errors": [
+      { "code": "OP_VALUE_INVALID", "callIndex": 0, "chainMethod": "expect", "field": "totalDelayMs" }
+    ],
+    "warnings": []
+  }
+}

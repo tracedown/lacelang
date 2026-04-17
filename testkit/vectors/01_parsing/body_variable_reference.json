@@ -1,0 +1,32 @@
+{
+  "id": "body_variable_reference",
+  "description": "body matcher bound to a bare script variable parses to a scope value whose value is a scriptVar node (spec \u00a74.5).",
+  "spec_refs": [
+    "lace-spec.md \u00a74.5"
+  ],
+  "type": "parse",
+  "input": {
+    "source": "get(\"$u\").expect(body: $raw)\n"
+  },
+  "expected": {
+    "ast": {
+      "version": "0.9.0",
+      "calls": [
+        {
+          "method": "get",
+          "url": "$u",
+          "chain": {
+            "expect": {
+              "body": {
+                "value": {
+                  "kind": "scriptVar",
+                  "name": "raw"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

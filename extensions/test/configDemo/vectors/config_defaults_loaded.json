@@ -1,0 +1,41 @@
+{
+  "id": "config_defaults_loaded",
+  "description": "Extension config defaults from the sibling .config file are loaded when no lace.config override is provided. configDemo declares greeting=hello and threshold=5 as defaults.",
+  "spec_refs": ["lace-extensions.md §2.3", "lace-extensions.md §11.1"],
+  "type": "extension",
+  "requires": ["extensions", "actions"],
+  "input": {
+    "source": "get(\"http://127.0.0.1:{port}/ok\").expect(status: 200)\n",
+    "variables": {},
+    "extensions": ["configDemo"],
+    "http_mock": [
+      {
+        "callIndex": 0,
+        "outcome": "response",
+        "status": 200,
+        "headers": {},
+        "body": ""
+      }
+    ]
+  },
+  "expected": {
+    "result": {
+      "outcome": "success",
+      "startedAt": "1970-01-01T00:00:00Z",
+      "endedAt": "1970-01-01T00:00:00Z",
+      "runVars": {},
+      "calls": "IGNORED",
+      "actions": {
+        "config_echo": [
+          {"key": "greeting", "value": "hello"},
+          {"key": "threshold", "value": 5}
+        ]
+      }
+    },
+    "ignore": [
+      "startedAt",
+      "endedAt",
+      "calls"
+    ]
+  }
+}

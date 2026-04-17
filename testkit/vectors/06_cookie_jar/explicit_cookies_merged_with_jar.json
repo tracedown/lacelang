@@ -1,0 +1,106 @@
+{
+  "id": "explicit_cookies_merged_with_jar",
+  "description": "Per-request `cookies: { b: \"2\" }` are merged on top of the active jar's cookies (spec \u00a715.6). Call 0 primes the default jar with `a=1`. Call 1 adds a per-request cookie `b=2`; the outgoing Cookie header carries both `a=1` and `b=2`.",
+  "spec_refs": [
+    "lace-spec.md \u00a73.3",
+    "lace-spec.md \u00a715.6"
+  ],
+  "type": "execute",
+  "input": {
+    "source": "post(\"http://127.0.0.1:{port}/login\").expect(status: 200)\nget(\"http://127.0.0.1:{port}/after\", { cookies: { b: \"2\" } }).expect(status: 200)\n",
+    "variables": {},
+    "http_mock": [
+      {
+        "callIndex": 0,
+        "outcome": "response",
+        "status": 200,
+        "headers": {
+          "set-cookie": "a=1; Path=/"
+        },
+        "body": ""
+      },
+      {
+        "callIndex": 1,
+        "outcome": "response",
+        "status": 200,
+        "headers": {},
+        "body": ""
+      }
+    ]
+  },
+  "expected": {
+    "result": {
+      "outcome": "success",
+      "startedAt": "1970-01-01T00:00:00Z",
+      "endedAt": "1970-01-01T00:00:00Z",
+      "runVars": {},
+      "calls": [
+        {
+          "index": 0,
+          "outcome": "success",
+          "startedAt": "1970-01-01T00:00:00Z",
+          "endedAt": "1970-01-01T00:00:00Z",
+          "request": "IGNORED",
+          "response": "IGNORED",
+          "redirects": [],
+          "assertions": [
+            {
+              "method": "expect",
+              "scope": "status",
+              "op": "eq",
+              "outcome": "passed",
+              "actual": 200,
+              "expected": 200,
+              "options": null
+            }
+          ],
+          "config": {},
+          "warnings": [],
+          "error": null
+        },
+        {
+          "index": 1,
+          "outcome": "success",
+          "startedAt": "1970-01-01T00:00:00Z",
+          "endedAt": "1970-01-01T00:00:00Z",
+          "request": {
+            "url": "http://127.0.0.1:{port}/after",
+            "method": "get",
+            "headers": {
+              "Cookie": "a=1; b=2"
+            },
+            "bodyPath": null
+          },
+          "response": "IGNORED",
+          "redirects": [],
+          "assertions": [
+            {
+              "method": "expect",
+              "scope": "status",
+              "op": "eq",
+              "outcome": "passed",
+              "actual": 200,
+              "expected": 200,
+              "options": null
+            }
+          ],
+          "config": {},
+          "warnings": [],
+          "error": null
+        }
+      ],
+      "actions": {}
+    },
+    "ignore": [
+      "startedAt",
+      "endedAt",
+      "calls[*].startedAt",
+      "calls[*].endedAt",
+      "calls[0].request",
+      "calls[0].response",
+      "calls[1].response",
+      "calls[1].request.bodyPath",
+      "calls[*].config"
+    ]
+  }
+}

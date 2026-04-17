@@ -1,0 +1,93 @@
+{
+  "id": "schema_of_null_is_hard_fail",
+  "description": "schema($var) where $var is null is a hard fail (spec \u00a75.4, \u00a74.5).",
+  "spec_refs": [
+    "lace-spec.md \u00a75.4",
+    "lace-spec.md \u00a74.5"
+  ],
+  "type": "execute",
+  "input": {
+    "source": "get(\"http://127.0.0.1:{port}/x\").expect(body: schema($missing_schema))\n",
+    "variables": {},
+    "http_mock": [
+      {
+        "callIndex": 0,
+        "outcome": "response",
+        "status": 200,
+        "headers": {
+          "content-type": "application/json"
+        },
+        "body": "{}"
+      }
+    ]
+  },
+  "expected": {
+    "result": {
+      "outcome": "failure",
+      "startedAt": "1970-01-01T00:00:00Z",
+      "endedAt": "1970-01-01T00:00:00Z",
+      "runVars": {},
+      "calls": [
+        {
+          "index": 0,
+          "outcome": "failure",
+          "startedAt": "1970-01-01T00:00:00Z",
+          "endedAt": "1970-01-01T00:00:00Z",
+          "request": {
+            "url": "http://127.0.0.1:{port}/x",
+            "method": "get",
+            "headers": {},
+            "bodyPath": null
+          },
+          "response": {
+            "status": 200,
+            "statusText": "OK",
+            "headers": {
+              "content-type": "application/json"
+            },
+            "bodyPath": "/ignored",
+            "responseTimeMs": 0,
+            "dnsMs": 0,
+            "connectMs": 0,
+            "tlsMs": 0,
+            "ttfbMs": 0,
+            "transferMs": 0,
+            "sizeBytes": 2
+          },
+          "redirects": [],
+          "assertions": [
+            {
+              "method": "expect",
+              "scope": "body",
+              "op": "eq",
+              "outcome": "failed",
+              "actual": "IGNORED",
+              "expected": "IGNORED",
+              "options": null
+            }
+          ],
+          "config": {},
+          "warnings": [],
+          "error": null
+        }
+      ],
+      "actions": {}
+    },
+    "ignore": [
+      "startedAt",
+      "endedAt",
+      "calls[*].startedAt",
+      "calls[*].endedAt",
+      "calls[*].request.bodyPath",
+      "calls[*].response.bodyPath",
+      "calls[*].response.responseTimeMs",
+      "calls[*].response.dnsMs",
+      "calls[*].response.connectMs",
+      "calls[*].response.ttfbMs",
+      "calls[*].response.transferMs",
+      "calls[*].config",
+      "calls[*].assertions[*].actual",
+      "calls[*].assertions[*].expected"
+    ]
+  }
+}

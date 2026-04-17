@@ -1,0 +1,46 @@
+{
+  "id": "body_schema_with_mode",
+  "description": "body: schema($var) accepts a `mode` modifier of 'strict' or 'loose' (spec \u00a74.5.1). Parses into a ScopeValue with value=schema(...) call, mode: 'strict'.",
+  "spec_refs": [
+    "lace-spec.md \u00a74.5.1"
+  ],
+  "type": "parse",
+  "input": {
+    "source": "get(\"$u\").expect(body: { value: schema($s), mode: \"strict\" }, status: 200)\n"
+  },
+  "expected": {
+    "ast": {
+      "version": "0.9.0",
+      "calls": [
+        {
+          "method": "get",
+          "url": "$u",
+          "chain": {
+            "expect": {
+              "body": {
+                "value": {
+                  "kind": "funcCall",
+                  "name": "schema",
+                  "args": [
+                    {
+                      "kind": "scriptVar",
+                      "name": "s"
+                    }
+                  ]
+                },
+                "mode": "strict"
+              },
+              "status": {
+                "value": {
+                  "kind": "literal",
+                  "valueType": "int",
+                  "value": 200
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

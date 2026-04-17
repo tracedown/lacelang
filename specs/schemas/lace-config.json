@@ -1,0 +1,89 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://lacelang.dev/schemas/lace-config/0.9.0",
+  "title": "Lace executor configuration (lace.config)",
+  "description": "TOML structure for `lace.config` files. Conforms to lace-spec.md §11. Consumers parse the TOML, then validate the resulting JSON against this schema. All sections are optional; the executor uses defaults for absent fields.",
+
+  "type": "object",
+  "additionalProperties": true,
+  "description": "Top-level keys: `executor`, `result`, `extensions`, plus environment-suffixed `lace.config.{env}` overrides (handled by the loader, not represented in this schema).",
+  "properties": {
+    "executor": { "$ref": "#/definitions/ExecutorSection" },
+    "result":   { "$ref": "#/definitions/ResultSection" },
+    "extensions": {
+      "type": "object",
+      "description": "Per-extension configuration. Keys are extension names (matching .laceext [extension].name). Each value is a free-form TOML table — extension-defined.",
+      "additionalProperties": { "$ref": "#/definitions/ExtensionConfig" }
+    }
+  },
+
+  "definitions": {
+
+    "ExecutorSection": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "extensions": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Extension names to load at startup. Each must have a corresponding [extensions.{name}] section pointing at its .laceext file. Default: [] (no extensions active)."
+        },
+        "maxRedirects": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 10,
+          "description": "System redirect limit. Validator rejects scripts where redirects.max exceeds this."
+        },
+        "maxTimeoutMs": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 300000,
+          "description": "System timeout limit in ms (default 5 min). Validator rejects timeout.ms exceeding this."
+        },
+        "user_agent": {
+          "type": "string",
+          "description": "Override the default outgoing User-Agent header (spec §3.6). When omitted, the executor sends `lace-probe/<executor-version> (<implementation-name>)`. Script-level headers still take precedence per request."
+        }
+      }
+    },
+
+    "ResultSection": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "oneOf": [
+            { "type": "string" },
+            { "type": "boolean", "const": false }
+          ],
+          "default": ".",
+          "description": "Where to save the result JSON. Directory path: timestamped filename auto-generated. Full file path: overwrites that file. `false`: do not save."
+        },
+        "bodies": { "$ref": "#/definitions/ResultBodiesSection" }
+      }
+    },
+
+    "ResultBodiesSection": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "dir": {
+          "type": "string",
+          "description": "Directory for request/response body files. Defaults to the same directory as result.path."
+        }
+      }
+    },
+
+    "ExtensionConfig": {
+      "type": "object",
+      "description": "Per-extension config overrides. The `laceext` key is reserved for the extension file path; all other keys override the extension's `.config` defaults (see lace-extensions.md §2.3). Keys absent here retain the extension's declared defaults.",
+      "additionalProperties": true,
+      "properties": {
+        "laceext": {
+          "type": "string",
+          "description": "Path to the .laceext file or `builtin:{name}` for bundled extensions."
+        }
+      }
+    }
+  }
+}

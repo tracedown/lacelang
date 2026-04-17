@@ -1,0 +1,28 @@
+{
+  "id": "redirects_max_limit",
+  "description": "redirects.max cannot exceed the context system limit (spec \u00a712).",
+  "spec_refs": [
+    "lace-spec.md \u00a712"
+  ],
+  "type": "validate",
+  "input": {
+    "source": "get(\"$u\", { redirects: { follow: true, max: 99 } }).expect(status: 200)\n",
+    "variables": [
+      "u"
+    ],
+    "context": {
+      "maxRedirects": 10,
+      "maxTimeoutMs": 300000
+    }
+  },
+  "expected": {
+    "errors": [
+      {
+        "code": "REDIRECTS_MAX_LIMIT",
+        "callIndex": 0,
+        "field": "redirects.max"
+      }
+    ],
+    "warnings": []
+  }
+}

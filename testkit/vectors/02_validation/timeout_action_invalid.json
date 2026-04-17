@@ -1,0 +1,28 @@
+{
+  "id": "timeout_action_invalid",
+  "description": "timeout.action must be \"fail\" | \"warn\" | \"retry\" (spec \u00a73.2, \u00a712).",
+  "spec_refs": [
+    "lace-spec.md \u00a712"
+  ],
+  "type": "validate",
+  "input": {
+    "source": "get(\"$u\", { timeout: { ms: 3000, action: \"bogus\" } }).expect(status: 200)\n",
+    "variables": [
+      "u"
+    ],
+    "context": {
+      "maxRedirects": 10,
+      "maxTimeoutMs": 300000
+    }
+  },
+  "expected": {
+    "errors": [
+      {
+        "code": "TIMEOUT_ACTION_INVALID",
+        "callIndex": 0,
+        "field": "timeout.action"
+      }
+    ],
+    "warnings": []
+  }
+}

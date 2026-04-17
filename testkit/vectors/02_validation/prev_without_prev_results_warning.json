@@ -1,0 +1,28 @@
+{
+  "id": "prev_without_prev_results_warning",
+  "description": "A script references `prev.foo` but the validator has no --prev-results available \u2014 emits PREV_WITHOUT_RESULTS as a warning, not an error (spec \u00a712).",
+  "spec_refs": [
+    "lace-spec.md \u00a712"
+  ],
+  "type": "validate",
+  "input": {
+    "source": "get(\"$u\").assert({ expect: [prev.foo eq 1] })\n",
+    "variables": [
+      "u"
+    ],
+    "context": {
+      "maxRedirects": 10,
+      "maxTimeoutMs": 300000
+    }
+  },
+  "expected": {
+    "errors": [],
+    "warnings": [
+      {
+        "code": "PREV_WITHOUT_RESULTS",
+        "callIndex": 0,
+        "chainMethod": "assert"
+      }
+    ]
+  }
+}

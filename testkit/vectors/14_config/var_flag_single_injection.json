@@ -1,0 +1,81 @@
+{
+  "id": "var_flag_single_injection",
+  "description": "The --var KEY=VALUE CLI flag injects a single variable into the variable registry for the run. With --var user=alice and no 'variables' in the testkit input, the script's $user resolves to 'alice' and the assertion passes. (spec \u00a715.13)",
+  "spec_refs": [
+    "lace-spec.md \u00a715.13",
+    "lace-spec.md \u00a711"
+  ],
+  "type": "execute",
+  "input": {
+    "source": "get(\"http://127.0.0.1:{port}/x\").expect(status: 200).assert({ expect: [$user eq \"alice\"] })\n",
+    "variables": {
+      "user": ""
+    },
+    "cli_args": [
+      "--var",
+      "user=alice"
+    ],
+    "http_mock": [
+      {
+        "callIndex": 0,
+        "outcome": "response",
+        "status": 200,
+        "headers": {},
+        "body": ""
+      }
+    ]
+  },
+  "expected": {
+    "result": {
+      "outcome": "success",
+      "startedAt": "1970-01-01T00:00:00Z",
+      "endedAt": "1970-01-01T00:00:00Z",
+      "runVars": {},
+      "calls": [
+        {
+          "index": 0,
+          "outcome": "success",
+          "startedAt": "1970-01-01T00:00:00Z",
+          "endedAt": "1970-01-01T00:00:00Z",
+          "request": "IGNORED",
+          "response": "IGNORED",
+          "redirects": [],
+          "assertions": [
+            {
+              "method": "expect",
+              "scope": "status",
+              "op": "eq",
+              "outcome": "passed",
+              "actual": 200,
+              "expected": 200,
+              "options": null
+            },
+            {
+              "method": "assert",
+              "kind": "expect",
+              "index": 0,
+              "outcome": "passed",
+              "expression": "$user eq \"alice\"",
+              "actualLhs": "alice",
+              "actualRhs": "alice",
+              "options": null
+            }
+          ],
+          "config": {},
+          "warnings": [],
+          "error": null
+        }
+      ],
+      "actions": {}
+    },
+    "ignore": [
+      "startedAt",
+      "endedAt",
+      "calls[*].startedAt",
+      "calls[*].endedAt",
+      "calls[*].request",
+      "calls[*].response",
+      "calls[*].config"
+    ]
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "id": "first_run_no_spike_detection",
+  "description": "On first run (no prev), spike detection is inactive because there are no previous stats. The extension emits initial stats to runVars from the on-script rule.",
+  "spec_refs": ["lace-extensions.md §13"],
+  "type": "extension",
+  "requires": ["extensions", "actions"],
+  "input": {
+    "source": "get(\"http://127.0.0.1:{port}/x\").expect(status: 200)\n",
+    "variables": {},
+    "extensions": ["laceNotifications", "laceBaseline"],
+    "http_mock": [
+      {
+        "callIndex": 0,
+        "outcome": "response",
+        "status": 200,
+        "headers": {},
+        "body": ""
+      }
+    ]
+  },
+  "expected": {
+    "result": {
+      "outcome": "success",
+      "startedAt": "1970-01-01T00:00:00Z",
+      "endedAt": "1970-01-01T00:00:00Z",
+      "runVars": {
+        "laceBaseline.stats": {
+          "count": 1,
+          "sums": "IGNORED"
+        }
+      },
+      "calls": "IGNORED",
+      "actions": {}
+    },
+    "ignore": [
+      "startedAt",
+      "endedAt",
+      "calls",
+      "actions.notifications"
+    ]
+  }
+}

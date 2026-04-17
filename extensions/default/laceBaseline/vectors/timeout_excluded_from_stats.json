@@ -1,0 +1,68 @@
+{
+  "id": "timeout_excluded_from_stats",
+  "description": "Timed-out calls have no response and are excluded from stats accumulation. The count remains unchanged from prev.",
+  "spec_refs": ["lace-extensions.md §13"],
+  "type": "extension",
+  "requires": ["extensions", "actions"],
+  "input": {
+    "source": "get(\"http://127.0.0.1:{port}/slow\", { timeout: { ms: 100, action: \"fail\" } }).expect(status: 200)\n",
+    "variables": {},
+    "extensions": ["laceNotifications", "laceBaseline"],
+    "prev_results": {
+      "outcome": "success",
+      "startedAt": "1970-01-01T00:00:00Z",
+      "endedAt": "1970-01-01T00:00:00Z",
+      "runVars": {
+        "laceBaseline.stats": {
+          "count": 5,
+          "sums": {
+            "responseTimeMs": 500.0,
+            "dnsMs": 50.0,
+            "connectMs": 100.0,
+            "tlsMs": 0.0,
+            "ttfbMs": 250.0,
+            "transferMs": 100.0,
+            "sizeBytes": 5000.0
+          }
+        }
+      },
+      "calls": [],
+      "actions": {}
+    },
+    "http_mock": [
+      {
+        "callIndex": 0,
+        "outcome": "timeout"
+      }
+    ]
+  },
+  "expected": {
+    "result": {
+      "outcome": "timeout",
+      "startedAt": "1970-01-01T00:00:00Z",
+      "endedAt": "1970-01-01T00:00:00Z",
+      "runVars": {
+        "laceBaseline.stats": {
+          "count": 5,
+          "sums": {
+            "responseTimeMs": 500.0,
+            "dnsMs": 50.0,
+            "connectMs": 100.0,
+            "tlsMs": 0.0,
+            "ttfbMs": 250.0,
+            "transferMs": 100.0,
+            "sizeBytes": 5000.0
+          }
+        }
+      },
+      "calls": "IGNORED",
+      "actions": {}
+    },
+    "ignore": [
+      "startedAt",
+      "endedAt",
+      "calls",
+      "actions.notifications"
+    ]
+  }
+}

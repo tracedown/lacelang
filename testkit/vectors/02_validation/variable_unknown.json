@@ -1,0 +1,29 @@
+{
+  "id": "variable_unknown",
+  "description": "Script variable reference not in the declared variables list is VARIABLE_UNKNOWN (spec \u00a712).",
+  "spec_refs": [
+    "lace-spec.md \u00a712"
+  ],
+  "type": "validate",
+  "input": {
+    "source": "get(\"$known\").expect(status: 200).assert({ expect: [$unknown eq 1] })\n",
+    "variables": [
+      "known"
+    ],
+    "context": {
+      "maxRedirects": 10,
+      "maxTimeoutMs": 300000
+    }
+  },
+  "expected": {
+    "errors": [
+      {
+        "code": "VARIABLE_UNKNOWN",
+        "callIndex": 0,
+        "chainMethod": "assert",
+        "field": "unknown"
+      }
+    ],
+    "warnings": []
+  }
+}

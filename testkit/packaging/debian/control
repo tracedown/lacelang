@@ -1,0 +1,30 @@
+Source: lacelang-testkit
+Section: devel
+Priority: optional
+Maintainer: lacelang contributors <maintainers@lacelang.dev>
+Build-Depends: debhelper-compat (= 13), gcc, make, python3
+Standards-Version: 4.6.2
+Homepage: https://github.com/lacelang/lacelang
+Vcs-Git: https://github.com/lacelang/lacelang.git
+Vcs-Browser: https://github.com/lacelang/lacelang
+
+Package: lacelang-testkit
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, libssl3
+Recommends: openssl
+Description: Canonical conformance test harness for Lace executors
+ lace-conformance drives an executor under test through every vector in
+ the Lace conformance suite (parse, validate, execute, extension types)
+ and diffs the captured output against per-vector expected results.
+ .
+ This package contains a self-contained binary with every vector
+ embedded at build time. The executor under test is any language
+ implementation of the Lace probe scripting language, invoked via `-c
+ <cmd>` or `-m <manifest.toml>`.
+ .
+ TLS scenarios use the bundled HTTPS mock server (OpenSSL-linked). The
+ per-scenario test certs are generated at install time via the openssl
+ CLI. If openssl is not installed, certs are skipped with a clear warning
+ and HTTPS-requiring vectors are reported as skipped; run
+ `lace-conformance --generate-certs` after installing openssl to populate
+ them manually.

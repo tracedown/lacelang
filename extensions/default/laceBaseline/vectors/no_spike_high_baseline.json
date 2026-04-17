@@ -1,0 +1,63 @@
+{
+  "id": "no_spike_high_baseline",
+  "description": "When baseline averages are very high relative to current metrics, no spike is detected. actions.baseline remains empty.",
+  "spec_refs": ["lace-extensions.md §13"],
+  "type": "extension",
+  "requires": ["extensions", "actions"],
+  "input": {
+    "source": "get(\"http://127.0.0.1:{port}/x\").expect(status: 200)\n",
+    "variables": {},
+    "extensions": ["laceNotifications", "laceBaseline"],
+    "prev_results": {
+      "outcome": "success",
+      "startedAt": "1970-01-01T00:00:00Z",
+      "endedAt": "1970-01-01T00:00:00Z",
+      "runVars": {
+        "laceBaseline.stats": {
+          "count": 10,
+          "sums": {
+            "responseTimeMs": 99999990.0,
+            "dnsMs": 99999990.0,
+            "connectMs": 99999990.0,
+            "tlsMs": 99999990.0,
+            "ttfbMs": 99999990.0,
+            "transferMs": 99999990.0,
+            "sizeBytes": 99999990.0
+          }
+        }
+      },
+      "calls": [],
+      "actions": {}
+    },
+    "http_mock": [
+      {
+        "callIndex": 0,
+        "outcome": "response",
+        "status": 200,
+        "headers": {},
+        "body": ""
+      }
+    ]
+  },
+  "expected": {
+    "result": {
+      "outcome": "success",
+      "startedAt": "1970-01-01T00:00:00Z",
+      "endedAt": "1970-01-01T00:00:00Z",
+      "runVars": {
+        "laceBaseline.stats": {
+          "count": 11,
+          "sums": "IGNORED"
+        }
+      },
+      "calls": "IGNORED",
+      "actions": {}
+    },
+    "ignore": [
+      "startedAt",
+      "endedAt",
+      "calls",
+      "actions.notifications"
+    ]
+  }
+}

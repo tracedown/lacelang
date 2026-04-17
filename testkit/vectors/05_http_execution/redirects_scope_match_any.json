@@ -1,0 +1,74 @@
+{
+  "id": "redirects_scope_match_any",
+  "description": "redirects scope with match: \"any\" passes when the expected URL appears anywhere in the hop list (spec \u00a73.7, \u00a74.3).",
+  "spec_refs": [
+    "lace-spec.md \u00a73.7",
+    "lace-spec.md \u00a74.3"
+  ],
+  "type": "execute",
+  "input": {
+    "source": "get(\"http://127.0.0.1:{port}/hop0\", { redirects: { follow: true, max: 3 } }).expect(status: 200, redirects: { value: \"http://127.0.0.1:{port}/dest\", match: \"any\" })\n",
+    "variables": {},
+    "http_mock": [
+      {
+        "callIndex": 0,
+        "outcome": "response",
+        "status": 302,
+        "headers": {
+          "location": "http://127.0.0.1:{port}/dest"
+        },
+        "body": ""
+      },
+      {
+        "callIndex": 1,
+        "outcome": "response",
+        "status": 200,
+        "headers": {},
+        "body": ""
+      }
+    ]
+  },
+  "expected": {
+    "result": {
+      "outcome": "success",
+      "startedAt": "1970-01-01T00:00:00Z",
+      "endedAt": "1970-01-01T00:00:00Z",
+      "runVars": {},
+      "calls": [
+        {
+          "index": 0,
+          "outcome": "success",
+          "startedAt": "1970-01-01T00:00:00Z",
+          "endedAt": "1970-01-01T00:00:00Z",
+          "request": "IGNORED",
+          "response": "IGNORED",
+          "redirects": "IGNORED",
+          "assertions": "IGNORED",
+          "config": {},
+          "warnings": [],
+          "error": null
+        }
+      ],
+      "actions": {}
+    },
+    "ignore": [
+      "startedAt",
+      "endedAt",
+      "calls[*].startedAt",
+      "calls[*].endedAt",
+      "calls[*].request.bodyPath",
+      "calls[*].response.bodyPath",
+      "calls[*].response.responseTimeMs",
+      "calls[*].response.dnsMs",
+      "calls[*].response.connectMs",
+      "calls[*].response.tlsMs",
+      "calls[*].response.ttfbMs",
+      "calls[*].response.transferMs",
+      "calls[*].config",
+      "calls[*].request",
+      "calls[*].response",
+      "calls[*].redirects",
+      "calls[*].assertions"
+    ]
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "id": "timeout_retries_requires_retry",
+  "description": "timeout.retries is only valid when timeout.action is \"retry\" (spec §2.3, §12).",
+  "spec_refs": ["lace-spec.md §2.3", "lace-spec.md §12"],
+  "type": "validate",
+  "input": {
+    "source": "get(\"$url\", { timeout: { ms: 3000, action: \"fail\", retries: 2 } }).expect(status: 200)\n",
+    "variables": ["url"],
+    "context": { "maxRedirects": 10, "maxTimeoutMs": 300000 }
+  },
+  "expected": {
+    "errors": [
+      { "code": "TIMEOUT_RETRIES_REQUIRES_RETRY", "callIndex": 0 }
+    ],
+    "warnings": []
+  }
+}

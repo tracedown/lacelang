@@ -1,0 +1,28 @@
+{
+  "id": "this_outside_chain_rejected",
+  "description": "`this` is only meaningful inside chain methods. Using `this.body` as a call-config header value is THIS_OUT_OF_SCOPE (spec \u00a712; the validator walks call-config expressions with allow_this=false).",
+  "spec_refs": [
+    "lace-spec.md \u00a712",
+    "lace-spec.md \u00a715.2"
+  ],
+  "type": "validate",
+  "input": {
+    "source": "get(\"$u\", { headers: { \"X-Echo\": this.body } }).expect(status: 200)\n",
+    "variables": [
+      "u"
+    ],
+    "context": {
+      "maxRedirects": 10,
+      "maxTimeoutMs": 300000
+    }
+  },
+  "expected": {
+    "errors": [
+      {
+        "code": "THIS_OUT_OF_SCOPE",
+        "callIndex": 0
+      }
+    ],
+    "warnings": []
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "id": "interpolation_string_to_script_var",
+  "description": "A string literal that is *exactly* `$name` collapses at parse time to a scriptVar node, not a string literal (spec \u00a73.5).",
+  "spec_refs": [
+    "lace-spec.md \u00a73.5"
+  ],
+  "type": "parse",
+  "input": {
+    "source": "get(\"$url\").expect(status: 200)\n"
+  },
+  "expected": {
+    "ast": {
+      "version": "0.9.0",
+      "calls": [
+        {
+          "method": "get",
+          "url": "$url",
+          "chain": {
+            "expect": {
+              "status": {
+                "value": {
+                  "kind": "literal",
+                  "valueType": "int",
+                  "value": 200
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

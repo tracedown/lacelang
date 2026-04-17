@@ -1,0 +1,7 @@
+# Certs are generated at runtime — only the script is tracked.
+*.pem
+*.key
+*.csr
+*.srl
+*.db
+*.db.old

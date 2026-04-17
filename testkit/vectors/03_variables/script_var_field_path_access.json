@@ -1,0 +1,65 @@
+{
+  "id": "script_var_field_path_access",
+  "description": "Script variables support `.field` and `[index]` path access (spec \u00a72.1 grammar + \u00a715.4 field-access-on-null). A JSON-object script var is destructured directly without a wrapping .store().",
+  "spec_refs": [
+    "lace-spec.md \u00a72.1",
+    "lace-spec.md \u00a75.4"
+  ],
+  "type": "execute",
+  "input": {
+    "source": "get(\"http://127.0.0.1:{port}/x\").expect(status: 200).assert({ expect: [$user.name eq \"alice\", $user.tags[1] eq \"admin\"] })\n",
+    "variables": {
+      "user": {
+        "name": "alice",
+        "tags": [
+          "reader",
+          "admin",
+          "owner"
+        ]
+      }
+    },
+    "http_mock": [
+      {
+        "callIndex": 0,
+        "outcome": "response",
+        "status": 200,
+        "headers": {},
+        "body": ""
+      }
+    ]
+  },
+  "expected": {
+    "result": {
+      "outcome": "success",
+      "startedAt": "1970-01-01T00:00:00Z",
+      "endedAt": "1970-01-01T00:00:00Z",
+      "runVars": {},
+      "calls": [
+        {
+          "index": 0,
+          "outcome": "success",
+          "startedAt": "1970-01-01T00:00:00Z",
+          "endedAt": "1970-01-01T00:00:00Z",
+          "request": "IGNORED",
+          "response": "IGNORED",
+          "redirects": [],
+          "assertions": "IGNORED",
+          "config": {},
+          "warnings": [],
+          "error": null
+        }
+      ],
+      "actions": {}
+    },
+    "ignore": [
+      "startedAt",
+      "endedAt",
+      "calls[*].startedAt",
+      "calls[*].endedAt",
+      "calls[*].request",
+      "calls[*].response",
+      "calls[*].assertions",
+      "calls[*].config"
+    ]
+  }
+}

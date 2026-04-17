@@ -1,0 +1,67 @@
+{
+  "id": "bodysize_default_operator_lte",
+  "description": "Spec \u00a74.4, \u00a715.7: .expect(bodySize: \"1KB\") omits op; the default operator for bodySize (per spec \u00a74.4 table) applies and the tiny response body passes. The resulting assertion entry carries the default op string (spec \u00a74.4 row: bodySize => lt).",
+  "spec_refs": [
+    "lace-spec.md \u00a74.4",
+    "lace-spec.md \u00a715.7"
+  ],
+  "type": "execute",
+  "input": {
+    "source": "get(\"http://127.0.0.1:{port}/x\").expect(bodySize: \"1KB\")\n",
+    "variables": {},
+    "http_mock": [
+      {
+        "callIndex": 0,
+        "outcome": "response",
+        "status": 200,
+        "headers": {
+          "content-type": "text/plain"
+        },
+        "body": "ok"
+      }
+    ]
+  },
+  "expected": {
+    "result": {
+      "outcome": "success",
+      "startedAt": "1970-01-01T00:00:00Z",
+      "endedAt": "1970-01-01T00:00:00Z",
+      "runVars": {},
+      "calls": [
+        {
+          "index": 0,
+          "outcome": "success",
+          "startedAt": "1970-01-01T00:00:00Z",
+          "endedAt": "1970-01-01T00:00:00Z",
+          "request": "IGNORED",
+          "response": "IGNORED",
+          "redirects": [],
+          "assertions": [
+            {
+              "method": "expect",
+              "scope": "bodySize",
+              "op": "lt",
+              "outcome": "passed",
+              "actual": "IGNORED",
+              "expected": "IGNORED",
+              "options": null
+            }
+          ],
+          "config": {},
+          "warnings": [],
+          "error": null
+        }
+      ],
+      "actions": {}
+    },
+    "ignore": [
+      "startedAt",
+      "endedAt",
+      "calls[*].startedAt",
+      "calls[*].endedAt",
+      "calls[*].request",
+      "calls[*].response",
+      "calls[*].config"
+    ]
+  }
+}

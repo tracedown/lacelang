@@ -1,0 +1,78 @@
+{
+  "id": "config_max_redirects_from_file",
+  "description": "lace.config [executor].maxRedirects lowers the executor's system redirect cap. With maxRedirects = 2 in config and a 3-hop redirect chain, the call hard-fails with a redirect-limit error. Assumes the executor applies config maxRedirects as the DEFAULT for calls that omit redirects.max. (spec \u00a711, \u00a715.13, \u00a77)",
+  "spec_refs": [
+    "lace-spec.md \u00a711",
+    "lace-spec.md \u00a715.13",
+    "lace-spec.md \u00a77"
+  ],
+  "type": "execute",
+  "input": {
+    "source": "get(\"http://127.0.0.1:{port}/hop0\", { redirects: { follow: true } }).expect(status: 200)\n",
+    "variables": {},
+    "lace_config": "[executor]\nmaxRedirects = 2\n",
+    "http_mock": [
+      {
+        "callIndex": 0,
+        "outcome": "response",
+        "status": 302,
+        "headers": {
+          "location": "http://127.0.0.1:{port}/hop1"
+        },
+        "body": ""
+      },
+      {
+        "callIndex": 1,
+        "outcome": "response",
+        "status": 302,
+        "headers": {
+          "location": "http://127.0.0.1:{port}/hop2"
+        },
+        "body": ""
+      },
+      {
+        "callIndex": 2,
+        "outcome": "response",
+        "status": 302,
+        "headers": {
+          "location": "http://127.0.0.1:{port}/hop3"
+        },
+        "body": ""
+      }
+    ]
+  },
+  "expected": {
+    "result": {
+      "outcome": "failure",
+      "startedAt": "1970-01-01T00:00:00Z",
+      "endedAt": "1970-01-01T00:00:00Z",
+      "runVars": {},
+      "calls": [
+        {
+          "index": 0,
+          "outcome": "failure",
+          "startedAt": "1970-01-01T00:00:00Z",
+          "endedAt": "1970-01-01T00:00:00Z",
+          "request": "IGNORED",
+          "response": null,
+          "redirects": "IGNORED",
+          "assertions": [],
+          "config": {},
+          "warnings": [],
+          "error": "IGNORED"
+        }
+      ],
+      "actions": {}
+    },
+    "ignore": [
+      "startedAt",
+      "endedAt",
+      "calls[*].startedAt",
+      "calls[*].endedAt",
+      "calls[*].request",
+      "calls[*].redirects",
+      "calls[*].config",
+      "calls[*].error"
+    ]
+  }
+}

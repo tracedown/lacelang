@@ -1,0 +1,19 @@
+// laceBaseline example: basic health check with baseline monitoring.
+// On first run (no --prev), only stats are collected.
+// On subsequent runs, spike detection activates after min_entries runs.
+//
+// Run (first):
+//   lacelang-executor run baseline_health_check.lace \
+//     --enable-extension laceNotifications \
+//     --enable-extension laceBaseline \
+//     --save-to result.json --pretty
+//
+// Run (subsequent — pass previous result):
+//   lacelang-executor run baseline_health_check.lace \
+//     --enable-extension laceNotifications \
+//     --enable-extension laceBaseline \
+//     --prev result.json \
+//     --save-to result.json --pretty
+
+get("https://httpbin.org/get")
+.expect(status: 200)

@@ -1,0 +1,28 @@
+{
+  "id": "timeout_ms_limit",
+  "description": "timeout.ms cannot exceed the context system timeout maximum (spec \u00a712).",
+  "spec_refs": [
+    "lace-spec.md \u00a712"
+  ],
+  "type": "validate",
+  "input": {
+    "source": "get(\"$u\", { timeout: { ms: 999999999 } }).expect(status: 200)\n",
+    "variables": [
+      "u"
+    ],
+    "context": {
+      "maxRedirects": 10,
+      "maxTimeoutMs": 300000
+    }
+  },
+  "expected": {
+    "errors": [
+      {
+        "code": "TIMEOUT_MS_LIMIT",
+        "callIndex": 0,
+        "field": "timeout.ms"
+      }
+    ],
+    "warnings": []
+  }
+}

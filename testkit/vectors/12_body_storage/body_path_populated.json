@@ -1,0 +1,90 @@
+{
+  "id": "bodyPath_populated",
+  "description": "When a response body is captured, response.bodyPath is a non-null file path and bodyNotCapturedReason is absent (spec \u00a79.4, \u00a715.12). The testkit normalises the actual path to a sentinel; this vector asserts the field is non-null by using a non-string placeholder in the expected.",
+  "spec_refs": [
+    "lace-spec.md \u00a79.4",
+    "lace-spec.md \u00a715.12"
+  ],
+  "type": "execute",
+  "input": {
+    "source": "get(\"http://127.0.0.1:{port}/x\").expect(status: 200)\n",
+    "variables": {},
+    "http_mock": [
+      {
+        "callIndex": 0,
+        "outcome": "response",
+        "status": 200,
+        "headers": {
+          "content-type": "text/plain"
+        },
+        "body": "hello"
+      }
+    ]
+  },
+  "expected": {
+    "result": {
+      "outcome": "success",
+      "startedAt": "1970-01-01T00:00:00Z",
+      "endedAt": "1970-01-01T00:00:00Z",
+      "runVars": {},
+      "calls": [
+        {
+          "index": 0,
+          "outcome": "success",
+          "startedAt": "1970-01-01T00:00:00Z",
+          "endedAt": "1970-01-01T00:00:00Z",
+          "request": {
+            "url": "http://127.0.0.1:{port}/x",
+            "method": "get",
+            "headers": {},
+            "bodyPath": null
+          },
+          "response": {
+            "status": 200,
+            "statusText": "OK",
+            "headers": {
+              "content-type": "text/plain"
+            },
+            "bodyPath": "NON_NULL",
+            "responseTimeMs": 0,
+            "dnsMs": 0,
+            "connectMs": 0,
+            "tlsMs": 0,
+            "ttfbMs": 0,
+            "transferMs": 0,
+            "sizeBytes": 5
+          },
+          "redirects": [],
+          "assertions": [
+            {
+              "method": "expect",
+              "scope": "status",
+              "op": "eq",
+              "outcome": "passed",
+              "actual": 200,
+              "expected": 200,
+              "options": null
+            }
+          ],
+          "config": {},
+          "warnings": [],
+          "error": null
+        }
+      ],
+      "actions": {}
+    },
+    "ignore": [
+      "startedAt",
+      "endedAt",
+      "calls[*].startedAt",
+      "calls[*].endedAt",
+      "calls[*].request.bodyPath",
+      "calls[*].response.responseTimeMs",
+      "calls[*].response.dnsMs",
+      "calls[*].response.connectMs",
+      "calls[*].response.ttfbMs",
+      "calls[*].response.transferMs",
+      "calls[*].config"
+    ]
+  }
+}

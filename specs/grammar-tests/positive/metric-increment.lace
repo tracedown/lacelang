@@ -1,0 +1,35 @@
+get("$BASE_URL/metrics/events", {
+  headers: { Authorization: "Bearer $metrics_key" }
+})
+.expect(status: 200)
+.store({ "$$count_before": this.body.count })
+
+post("$BASE_URL/events", {
+  headers: { Authorization: "Bearer $api_key" },
+  body:    json({ type: "probe_test" })
+})
+.expect(status: [200, 201, 202])
+.check(totalDelayMs: { value: 1000 })
+.wait(2000)
+
+get("$BASE_URL/metrics/events", {
+  headers: { Authorization: "Bearer $metrics_key" }
+})
+.expect(status: 200)
+.assert({
+  expect: [{
+    condition: $$count_after == $$count_before + 1,
+    options: {
+      silentOnRepeat: false,
+      notification: {
+        "lt":     template("event_count_decreased"),
+        "eq":     template("event_count_unchanged"),
+        "default": template("event_count_unexpected")
+      }
+    }
+  }]
+})
+.store({
+  "$$count_after": this.body.count,
+  last_event_count: this.body.count
+})

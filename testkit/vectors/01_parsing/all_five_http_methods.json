@@ -1,0 +1,21 @@
+{
+  "id": "all_five_http_methods",
+  "description": "All five HTTP methods — get, post, put, patch, delete — parse correctly (spec §3.1).",
+  "spec_refs": ["lace-spec.md §3.1"],
+  "type": "parse",
+  "input": {
+    "source": "get(\"/a\").expect(status: 200)\npost(\"/b\").expect(status: 201)\nput(\"/c\").expect(status: 200)\npatch(\"/d\").expect(status: 200)\ndelete(\"/e\").expect(status: 204)\n"
+  },
+  "expected": {
+    "ast": {
+      "version": "0.9.0",
+      "calls": [
+        { "method": "get",    "url": "/a", "chain": { "expect": { "status": { "value": { "kind": "literal", "valueType": "int", "value": 200 } } } } },
+        { "method": "post",   "url": "/b", "chain": { "expect": { "status": { "value": { "kind": "literal", "valueType": "int", "value": 201 } } } } },
+        { "method": "put",    "url": "/c", "chain": { "expect": { "status": { "value": { "kind": "literal", "valueType": "int", "value": 200 } } } } },
+        { "method": "patch",  "url": "/d", "chain": { "expect": { "status": { "value": { "kind": "literal", "valueType": "int", "value": 200 } } } } },
+        { "method": "delete", "url": "/e", "chain": { "expect": { "status": { "value": { "kind": "literal", "valueType": "int", "value": 204 } } } } }
+      ]
+    }
+  }
+}

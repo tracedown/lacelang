@@ -1,0 +1,6 @@
+get("https://www.google.com/")
+.expect(status: 200)
+.check(
+  totalDelayMs: { value: 1000 },
+  ttfb: { value: 200 }
+)

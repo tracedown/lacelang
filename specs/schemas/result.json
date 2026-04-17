@@ -1,0 +1,350 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://lacelang.dev/schemas/result/0.9.0",
+  "title": "Lace ProbeResult",
+  "description": "Wire format returned by every Lace executor. Conforms to lace-spec.md §9. Extension-defined fields appear under `actions.{key}` (arrays) and `runVars` (scalars with `{extension_name}.` prefix). All other top-level fields are core.",
+
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["outcome", "startedAt", "endedAt", "elapsedMs", "runVars", "calls", "actions"],
+  "properties": {
+    "outcome": {
+      "type": "string",
+      "enum": ["success", "failure", "timeout"],
+      "description": "Overall run outcome (spec §9.1)."
+    },
+    "startedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "UTC ISO 8601 timestamp before the first call begins."
+    },
+    "endedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "UTC ISO 8601 timestamp after all chain methods complete or after the failure cascade stops."
+    },
+    "elapsedMs": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Wall-clock elapsed time in milliseconds (endedAt - startedAt)."
+    },
+    "runVars": {
+      "type": "object",
+      "description": "Final state of all `$$var` assignments plus any extension-emitted variables (extension keys must be prefixed `{extension_name}.`). Each `$$var` key appears at most once per the write-once rule (spec §5.3). Values may be any JSON-serialisable shape (§4.6).",
+      "additionalProperties": true
+    },
+    "calls": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/CallRecord" },
+      "description": "Ordered call records including `\"skipped\"` calls."
+    },
+    "actions": {
+      "type": "object",
+      "description": "Free-form action map. `actions.variables` is the only typed mandatory section (writeback `.store()` entries). Other keys are extension-defined arrays.",
+      "additionalProperties": true,
+      "properties": {
+        "variables": {
+          "type": "object",
+          "description": "Writeback variables from `.store()` (`$name` and plain keys). `$` prefix is stripped. Values may be any JSON-serialisable shape (§4.6).",
+          "additionalProperties": true
+        }
+      }
+    }
+  },
+
+  "definitions": {
+
+    "CallRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["index", "outcome", "startedAt", "endedAt", "request", "response", "redirects", "assertions", "config", "warnings", "error"],
+      "properties": {
+        "index": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Zero-based call index in script order."
+        },
+        "outcome": {
+          "type": "string",
+          "enum": ["success", "failure", "timeout", "skipped"]
+        },
+        "startedAt": {
+          "oneOf": [
+            { "type": "string", "format": "date-time" },
+            { "type": "null" }
+          ],
+          "description": "Null for skipped calls."
+        },
+        "endedAt": {
+          "oneOf": [
+            { "type": "string", "format": "date-time" },
+            { "type": "null" }
+          ]
+        },
+        "request": {
+          "oneOf": [
+            { "$ref": "#/definitions/RequestRecord" },
+            { "type": "null" }
+          ],
+          "description": "Null for skipped calls."
+        },
+        "response": {
+          "oneOf": [
+            { "$ref": "#/definitions/ResponseRecord" },
+            { "type": "null" }
+          ],
+          "description": "Null for skipped, timeout (no response received), or connection failure."
+        },
+        "redirects": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Ordered URLs followed (spec §3.7). Empty array when the call issued no redirects. Populated even on REDIRECTS_MAX_LIMIT hard-fail."
+        },
+        "assertions": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/AssertionRecord" },
+          "description": "All evaluated scopes and conditions in evaluation order. Empty for skipped calls."
+        },
+        "config": {
+          "type": "object",
+          "description": "Resolved call config (after defaults applied), including any extension-registered fields.",
+          "additionalProperties": true
+        },
+        "warnings": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Warning strings (null interpolations, TLS warnings, skipped writes, etc.). Empty array if none."
+        },
+        "error": {
+          "oneOf": [
+            { "type": "string" },
+            { "type": "null" }
+          ],
+          "description": "Non-assertion failure detail (connection error, TLS, redirect limit, body too large). Null otherwise."
+        }
+      }
+    },
+
+    "RequestRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["url", "method", "headers", "bodyPath"],
+      "properties": {
+        "url":     { "type": "string", "description": "Resolved URL after variable interpolation." },
+        "method":  { "type": "string", "enum": ["get", "post", "put", "patch", "delete"] },
+        "headers": {
+          "type": "object",
+          "additionalProperties": { "type": "string" },
+          "description": "Resolved headers sent on the wire."
+        },
+        "bodyPath": {
+          "oneOf": [
+            { "type": "string" },
+            { "type": "null" }
+          ],
+          "description": "Absolute path to request body file on shared storage. Null if no body."
+        }
+      }
+    },
+
+    "ResponseRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "statusText", "headers", "bodyPath", "responseTimeMs", "dnsMs", "connectMs", "tlsMs", "ttfbMs", "transferMs", "sizeBytes", "dns", "tls"],
+      "properties": {
+        "status":      { "type": "integer", "minimum": 100, "maximum": 599 },
+        "statusText": { "type": "string" },
+        "headers": {
+          "type": "object",
+          "additionalProperties": {
+            "oneOf": [
+              { "type": "string" },
+              { "type": "array", "items": { "type": "string" } }
+            ]
+          },
+          "description": "Lower-cased header names. Multi-value headers as string arrays."
+        },
+        "bodyPath": {
+          "oneOf": [
+            { "type": "string" },
+            { "type": "null" }
+          ],
+          "description": "Absolute path to response body file. Null when not captured (see body_not_captured_reason)."
+        },
+        "bodyNotCapturedReason": {
+          "type": "string",
+          "enum": ["bodyTooLarge", "notRequested", "timeout"],
+          "description": "Present when body_path is null."
+        },
+        "responseTimeMs": { "type": "integer", "minimum": 0 },
+        "dnsMs":           { "type": "integer", "minimum": 0 },
+        "connectMs":       { "type": "integer", "minimum": 0 },
+        "tlsMs":           { "type": "integer", "minimum": 0, "description": "0 for non-HTTPS calls (spec §3.4)." },
+        "ttfbMs":          { "type": "integer", "minimum": 0 },
+        "transferMs":      { "type": "integer", "minimum": 0 },
+        "sizeBytes":       { "type": "integer", "minimum": 0 },
+        "dns":             { "$ref": "#/definitions/DnsMeta" },
+        "tls": {
+          "oneOf": [
+            { "$ref": "#/definitions/TlsMeta" },
+            { "type": "null" }
+          ],
+          "description": "TLS metadata for HTTPS calls; null for plain HTTP (spec §3.4.2)."
+        }
+      }
+    },
+
+    "DnsMeta": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["resolvedIps", "resolvedIp"],
+      "description": "DNS resolution metadata (spec §3.4.1). The core executor populates these; extensions interpret.",
+      "properties": {
+        "resolvedIps": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "All addresses returned by the OS resolver, in order."
+        },
+        "resolvedIp": {
+          "oneOf": [
+            { "type": "string" },
+            { "type": "null" }
+          ],
+          "description": "The address the executor actually connected to. Typically resolvedIps[0]."
+        }
+      }
+    },
+
+    "TlsMeta": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["protocol", "cipher", "alpn", "certificate"],
+      "description": "TLS session metadata (spec §3.4.2). null when rejectInvalidCerts: false leaves the certificate unparseable, but the rest of the object is always populated.",
+      "properties": {
+        "protocol": { "type": "string", "description": "e.g. 'TLSv1.3'." },
+        "cipher":   { "type": "string", "description": "Negotiated cipher suite name." },
+        "alpn": {
+          "oneOf": [
+            { "type": "string" },
+            { "type": "null" }
+          ],
+          "description": "Negotiated ALPN protocol (e.g. 'h2') or null."
+        },
+        "certificate": {
+          "oneOf": [
+            { "$ref": "#/definitions/CertificateMeta" },
+            { "type": "null" }
+          ],
+          "description": "Peer certificate. Null when the runtime cannot expose it (common under rejectInvalidCerts: false)."
+        }
+      }
+    },
+
+    "CertificateMeta": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["subject", "subjectAltNames", "issuer", "notBefore", "notAfter"],
+      "properties": {
+        "subject": {
+          "type": "object",
+          "properties": {
+            "cn": { "type": "string" }
+          },
+          "additionalProperties": true
+        },
+        "subjectAltNames": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "SAN entries as 'DNS:name' / 'IP:addr' tokens."
+        },
+        "issuer": {
+          "type": "object",
+          "properties": {
+            "cn": { "type": "string" }
+          },
+          "additionalProperties": true
+        },
+        "notBefore": { "type": "string", "format": "date-time" },
+        "notAfter":  { "type": "string", "format": "date-time" }
+      }
+    },
+
+    "AssertionRecord": {
+      "description": "Discriminated by `method`. Scope assertions (.expect/.check) carry `scope`/`op`/`actual`/`expected`. Condition assertions (.assert) carry `kind`/`index`/`expression`/`actual_lhs`/`actual_rhs`.",
+      "oneOf": [
+        { "$ref": "#/definitions/ScopeAssertion" },
+        { "$ref": "#/definitions/ConditionAssertion" }
+      ]
+    },
+
+    "ScopeAssertion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["method", "scope", "op", "outcome", "actual", "expected", "options"],
+      "properties": {
+        "method": { "type": "string", "enum": ["expect", "check"] },
+        "scope": {
+          "type": "string",
+          "enum": ["status", "body", "headers", "bodySize", "totalDelayMs", "dns", "connect", "tls", "ttfb", "transfer", "size", "redirects"]
+        },
+        "op": {
+          "type": "string",
+          "enum": ["lt", "lte", "eq", "neq", "gte", "gt"]
+        },
+        "match": {
+          "type": "string",
+          "enum": ["first", "last", "any"],
+          "description": "Only present on `redirects` scope assertions (spec §4.3). Selects which redirect URL is compared."
+        },
+        "outcome": {
+          "type": "string",
+          "enum": ["passed", "failed", "indeterminate"]
+        },
+        "actual": {
+          "description": "Observed value. Type depends on scope."
+        },
+        "expected": {
+          "description": "Expected value as written in source (after variable resolution)."
+        },
+        "options": {
+          "oneOf": [
+            { "type": "object" },
+            { "type": "null" }
+          ],
+          "description": "The `options {}` object from source, passed through opaquely. Null if no options block."
+        }
+      }
+    },
+
+    "ConditionAssertion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["method", "kind", "index", "outcome", "expression", "actualLhs", "actualRhs", "options"],
+      "properties": {
+        "method": { "const": "assert" },
+        "kind":   { "type": "string", "enum": ["expect", "check"] },
+        "index":  { "type": "integer", "minimum": 0 },
+        "outcome": {
+          "type": "string",
+          "enum": ["passed", "failed", "indeterminate"]
+        },
+        "expression": {
+          "type": "string",
+          "description": "Expression as written in source."
+        },
+        "actualLhs": {
+          "description": "Resolved left operand value. May be any JSON type or null."
+        },
+        "actualRhs": {
+          "description": "Resolved right operand value. May be any JSON type or null."
+        },
+        "options": {
+          "oneOf": [
+            { "type": "object" },
+            { "type": "null" }
+          ]
+        }
+      }
+    }
+  }
+}

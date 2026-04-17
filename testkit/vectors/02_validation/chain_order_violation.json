@@ -1,0 +1,28 @@
+{
+  "id": "chain_order_violation",
+  "description": "Chain method order .store before .assert is rejected; required order is .expect \u2192 .check \u2192 .assert \u2192 .store \u2192 .wait.",
+  "spec_refs": [
+    "lace-spec.md \u00a72.3",
+    "lace-spec.md \u00a712"
+  ],
+  "type": "validate",
+  "input": {
+    "source": "get(\"$x\").store({ a: this.body.x }).assert({ expect: [this.status eq 200] })\n",
+    "variables": [
+      "x"
+    ],
+    "context": {
+      "maxRedirects": 10,
+      "maxTimeoutMs": 300000
+    }
+  },
+  "expected": {
+    "errors": [
+      {
+        "code": "CHAIN_ORDER",
+        "callIndex": 0
+      }
+    ],
+    "warnings": []
+  }
+}

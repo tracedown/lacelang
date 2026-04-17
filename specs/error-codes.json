@@ -1,0 +1,50 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://lacelang.dev/error-codes/0.9.0",
+  "title": "Lace canonical error code registry",
+  "description": "Stable error/warning codes used by every Lace validator. Cross-implementation conformance depends on every validator emitting the same code for the same condition. The conformance vector schema (conformance-vector.schema.json) constrains expected error codes to this enum.",
+
+  "version": "0.9.0",
+  "codes": [
+
+    { "code": "PARSE_ERROR",                "severity": "error",   "blocks_activation": true,  "spec": "lace-spec.md §2",      "description": "Source text does not conform to the grammar." },
+
+    { "code": "AT_LEAST_ONE_CALL",          "severity": "error",   "blocks_activation": true,  "spec": "lace-spec.md §2.3",    "description": "Script contains zero HTTP calls." },
+    { "code": "EMPTY_CHAIN",                "severity": "error",   "blocks_activation": true,  "spec": "lace-spec.md §2.3",    "description": "A call has zero chain methods." },
+    { "code": "CHAIN_ORDER",                "severity": "error",   "blocks_activation": true,  "spec": "lace-spec.md §2.3",    "description": "Chain methods appear in wrong order. Required: .expect → .check → .assert → .store → .wait." },
+    { "code": "CHAIN_DUPLICATE",            "severity": "error",   "blocks_activation": true,  "spec": "lace-spec.md §2.3",    "description": "A chain method appears more than once on the same call." },
+    { "code": "EMPTY_SCOPE_BLOCK",          "severity": "error",   "blocks_activation": true,  "spec": "lace-spec.md §12",     "description": ".expect() or .check() present with zero scopes." },
+    { "code": "EMPTY_ASSERT_BLOCK",         "severity": "error",   "blocks_activation": true,  "spec": "lace-spec.md §12",     "description": ".assert() present with zero conditions." },
+    { "code": "EMPTY_STORE_BLOCK",          "severity": "error",   "blocks_activation": true,  "spec": "lace-spec.md §12",     "description": ".store() present with zero entries." },
+
+    { "code": "THIS_OUT_OF_SCOPE",          "severity": "error",   "blocks_activation": true,  "spec": "lace-spec.md §12",     "description": "`this` referenced outside chain methods or in a different call's chain." },
+    { "code": "PREV_WITHOUT_RESULTS",       "severity": "warning", "blocks_activation": false, "spec": "lace-spec.md §12",     "description": "`prev.*` referenced but no --prev-results provided." },
+    { "code": "UNKNOWN_FUNCTION",           "severity": "error",   "blocks_activation": true,  "spec": "lace-spec.md §12, §8", "description": "Function call to a name not in the helper set (json/form/schema) outside an extension-permitted context." },
+    { "code": "EXPRESSION_SYNTAX",          "severity": "error",   "blocks_activation": true,  "spec": "lace-spec.md §12",     "description": ".assert() expression failed to parse." },
+
+    { "code": "VARIABLE_UNKNOWN",           "severity": "error",   "blocks_activation": true,  "spec": "lace-spec.md §12",     "description": "$var reference does not appear in the variable registry." },
+    { "code": "RUN_VAR_REASSIGNED",         "severity": "error",   "blocks_activation": true,  "spec": "lace-spec.md §5.3",    "description": "Same $$var assigned more than once across the script." },
+    { "code": "SCHEMA_VAR_UNKNOWN",         "severity": "error",   "blocks_activation": true,  "spec": "lace-spec.md §12",     "description": "schema($var) argument is not a declared variable." },
+
+    { "code": "REDIRECTS_MAX_LIMIT",        "severity": "error",   "blocks_activation": true,  "spec": "lace-spec.md §12",     "description": "redirects.max exceeds context system maximum." },
+    { "code": "TIMEOUT_MS_LIMIT",           "severity": "error",   "blocks_activation": true,  "spec": "lace-spec.md §12",     "description": "timeout.ms exceeds context system maximum." },
+    { "code": "TIMEOUT_RETRIES_REQUIRES_RETRY", "severity": "error", "blocks_activation": true, "spec": "lace-spec.md §12",     "description": "timeout.retries set without timeout.action: \"retry\"." },
+    { "code": "TIMEOUT_ACTION_INVALID",     "severity": "error",   "blocks_activation": true,  "spec": "lace-spec.md §3.2",    "description": "timeout.action value is not one of \"fail\", \"warn\", \"retry\"." },
+
+    { "code": "CLEAR_COOKIES_WRONG_JAR",    "severity": "error",   "blocks_activation": true,  "spec": "lace-spec.md §12",     "description": "clearCookies present but cookieJar is not a selective_clear variant." },
+    { "code": "COOKIE_JAR_NAMED_EMPTY",     "severity": "error",   "blocks_activation": true,  "spec": "lace-spec.md §12, §3.3", "description": "cookieJar = \"named:\" with empty name." },
+    { "code": "COOKIE_JAR_FORMAT",          "severity": "error",   "blocks_activation": true,  "spec": "lace-spec.md §3.3",    "description": "cookieJar value does not match a recognised pattern." },
+
+    { "code": "OP_VALUE_INVALID",           "severity": "error",   "blocks_activation": true,  "spec": "lace-spec.md §12",     "description": "op value is not one of: lt, lte, eq, neq, gte, gt." },
+    { "code": "MAX_BODY_FORMAT",            "severity": "error",   "blocks_activation": true,  "spec": "lace-spec.md §12, §4.3", "description": "maxBody size string does not match /\\d+(k|kb|m|mb|g|gb)?/i." },
+
+    { "code": "EXT_FIELD_INACTIVE",         "severity": "warning", "blocks_activation": false, "spec": "lace-spec.md §12",     "description": "Extension-registered field used but the registering extension is not active." },
+    { "code": "HIGH_CALL_COUNT",            "severity": "warning", "blocks_activation": false, "spec": "lace-spec.md §12",     "description": "Script contains more than 10 calls." },
+
+    { "code": "EXT_HOOK_NAME_UNKNOWN",      "severity": "error",   "blocks_activation": true,  "spec": "lace-extensions.md §8", "description": "Extension rule registers for an unknown hook name." },
+    { "code": "EXT_EMIT_FORBIDDEN_TARGET",  "severity": "error",   "blocks_activation": true,  "spec": "lace-extensions.md §10","description": "Extension rule emits to a target not declared in [result] or to a forbidden core path." },
+    { "code": "EXT_RUN_VAR_NAMESPACE",      "severity": "error",   "blocks_activation": true,  "spec": "lace-extensions.md §9", "description": "Extension emit to result.run_vars uses a key not prefixed with the extension name." },
+
+    { "code": "FUNC_ARG_TYPE",              "severity": "error",   "blocks_activation": true,  "spec": "lace-spec.md §8",      "description": "Helper function called with wrong argument type (e.g. json(string) instead of json(objectLit), schema(literal) instead of schema($var))." }
+  ]
+}

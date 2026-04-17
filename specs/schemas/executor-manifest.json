@@ -1,0 +1,88 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://lacelang.dev/schemas/executor-manifest/0.9.0",
+  "title": "Lace executor manifest (lace-executor.toml)",
+  "description": "TOML structure declaring how the testkit invokes a specific executor. Placed in the executor's repo root. The testkit reads it via `lace-conformance -m <path>` (or auto-discovers `./lace-executor.toml`) before running the conformance suite.",
+
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["executor", "adapter"],
+  "properties": {
+    "executor":    { "$ref": "#/definitions/ExecutorMeta" },
+    "adapter":     { "$ref": "#/definitions/Adapter" },
+    "conformance": { "$ref": "#/definitions/Conformance" }
+  },
+
+  "definitions": {
+
+    "ExecutorMeta": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "version", "language"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Executor package name (e.g. lacelang-py-executor)."
+        },
+        "version": {
+          "type": "string",
+          "description": "Executor version. Reported in test output."
+        },
+        "language": {
+          "type": "string",
+          "description": "Implementation language (e.g. python, javascript, kotlin, c). Free-form."
+        },
+        "conforms_to": {
+          "type": "string",
+          "description": "Lace spec version range this executor claims to satisfy (semver range e.g. '>=0.9.0'). Testkit may refuse to run if its bundled vectors are for a version this executor doesn't claim."
+        }
+      }
+    },
+
+    "Adapter": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Command templates for the three CLI subcommands. Each template is a shell command with placeholders `{script}`, `{vars}`, `{vars_list}`, `{context}`, `{prev}`, `{config}`. The testkit substitutes paths for placeholders and invokes the command, captures stdout, parses as JSON, and diffs against expected.",
+      "required": ["parse", "validate", "run"],
+      "properties": {
+        "parse": {
+          "type": "string",
+          "description": "Command to parse a script. Must accept a script file path (placeholder `{script}`) and write JSON to stdout: `{ \"ast\": <AST conforming to ast.schema.json> }` on success or `{ \"errors\": [<ExpectedError>...] }` on parse failure. Exit 0 on success, 1 on parse error."
+        },
+        "validate": {
+          "type": "string",
+          "description": "Command to validate a script. Accepts `{script}`, optionally `{vars_list}` (JSON array of declared variable names) and `{context}` (JSON ValidationContext). Stdout JSON: `{ \"errors\": [...], \"warnings\": [...] }`. Exit 0 if errors empty, else 1."
+        },
+        "run": {
+          "type": "string",
+          "description": "Command to execute a script. Accepts `{script}`, `{vars}` (JSON variable map), optionally `{prev}` (path to prev result JSON), `{config}` (path to lace.config). Stdout: ProbeResult JSON conforming to result.schema.json. Exit 0 on outcome=success, 1 on failure, 2 on timeout, 3 on internal error."
+        },
+        "timeout_seconds": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 60,
+          "description": "Per-invocation timeout. Testkit kills the subprocess after this many seconds and reports the test as failed (timeout)."
+        },
+        "env": {
+          "type": "object",
+          "additionalProperties": { "type": "string" },
+          "description": "Environment variables to set when invoking the executor. Useful for build-output paths or feature flags."
+        }
+      }
+    },
+
+    "Conformance": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Declares the spec features this executor *does not* implement. The testkit skips vectors that require an omitted feature and reports a `compliant-partial` label instead of `compliant`. Default: empty list (full conformance). See lace-spec.md §17.",
+      "properties": {
+        "omit": {
+          "type": "array",
+          "items": { "type": "string", "enum": ["extensions", "actions"] },
+          "uniqueItems": true,
+          "default": []
+        }
+      }
+    }
+  }
+}

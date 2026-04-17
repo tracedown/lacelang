@@ -1,0 +1,34 @@
+{
+  "id": "redirects_scope_with_match",
+  "description": "The redirects scope accepts match: 'first' | 'last' | 'any' (spec \u00a74.3). Full form carries `value` and `match`; op defaults to 'eq'.",
+  "spec_refs": [
+    "lace-spec.md \u00a74.3"
+  ],
+  "type": "parse",
+  "input": {
+    "source": "get(\"$u\").expect(redirects: { value: \"/login\", match: \"first\" })\n"
+  },
+  "expected": {
+    "ast": {
+      "version": "0.9.0",
+      "calls": [
+        {
+          "method": "get",
+          "url": "$u",
+          "chain": {
+            "expect": {
+              "redirects": {
+                "value": {
+                  "kind": "literal",
+                  "valueType": "string",
+                  "value": "/login"
+                },
+                "match": "first"
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

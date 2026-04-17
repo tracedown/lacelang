@@ -1,0 +1,16 @@
+#!/bin/sh
+# opkg post-install hook for lacelang-testkit.
+
+CERTS_DIR="/usr/share/lacelang-testkit/certs"
+GEN_SCRIPT="/usr/share/lacelang-testkit/generate-certs.sh"
+
+if [ -x "$GEN_SCRIPT" ]; then
+    if command -v openssl >/dev/null 2>&1; then
+        "$GEN_SCRIPT" "$CERTS_DIR" || true
+    else
+        echo "lacelang-testkit: openssl not installed — TLS cert generation skipped."
+        echo "                  opkg install openssl-util && lace-conformance --generate-certs"
+    fi
+fi
+
+exit 0

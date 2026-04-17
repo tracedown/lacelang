@@ -1,0 +1,2 @@
+get("$BASE_URL/health"
+.expect(status: 200)

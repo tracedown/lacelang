@@ -1,0 +1,3 @@
+get("$BASE_URL/health")
+.expect(status: 200)
+.check(totalDelayMs: 500)

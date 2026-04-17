@@ -1,0 +1,41 @@
+{
+  "id": "config_env_var_missing_errors",
+  "description": "lace.config with user_agent = \"env:REQUIRED_VAR\" (no :default suffix) and REQUIRED_VAR unset in the environment. Per spec \u00a711, this is a startup error: 'resolves to the value of VARNAME, error at startup if unset'. The executor must fail before executing any call. ASSUMPTION: failure surfaces as top-level result outcome \"failure\" and the call is recorded as skipped / not executed. If the executor chooses to exit non-zero with no result JSON, the runner adapter may need to synthesise a failure result. (spec \u00a711, \u00a715.13)",
+  "spec_refs": [
+    "lace-spec.md \u00a711",
+    "lace-spec.md \u00a715.13"
+  ],
+  "type": "execute",
+  "input": {
+    "source": "get(\"http://127.0.0.1:{port}/x\").expect(status: 200)\n",
+    "variables": {},
+    "lace_config": "[executor]\nuser_agent = \"env:REQUIRED_VAR\"\n",
+    "http_mock": [
+      {
+        "callIndex": 0,
+        "outcome": "response",
+        "status": 200,
+        "headers": {},
+        "body": ""
+      }
+    ]
+  },
+  "expected": {
+    "result": {
+      "outcome": "failure",
+      "startedAt": "1970-01-01T00:00:00Z",
+      "endedAt": "1970-01-01T00:00:00Z",
+      "runVars": {},
+      "calls": "IGNORED",
+      "actions": {},
+      "error": "NON_NULL"
+    },
+    "ignore": [
+      "startedAt",
+      "endedAt",
+      "calls",
+      "runVars",
+      "actions"
+    ]
+  }
+}

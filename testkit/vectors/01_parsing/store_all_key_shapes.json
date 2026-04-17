@@ -1,0 +1,75 @@
+{
+  "id": "store_all_key_shapes",
+  "description": ".store() accepts four key shapes: $$name (run-scope), $name (writeback), bare identifier (writeback), and quoted string (writeback unless it starts with $$) — spec §4.6.",
+  "spec_refs": [
+    "lace-spec.md §4.6"
+  ],
+  "type": "parse",
+  "input": {
+    "source": "get(\"$u\").expect(status: 200).store({ \"$$a\": 1, \"$b\": 2, c: 3, \"d_quoted\": 4, \"$$e_quoted\": 5 })\n"
+  },
+  "expected": {
+    "ast": {
+      "version": "0.9.0",
+      "calls": [
+        {
+          "method": "get",
+          "url": "$u",
+          "chain": {
+            "expect": {
+              "status": {
+                "value": {
+                  "kind": "literal",
+                  "valueType": "int",
+                  "value": 200
+                }
+              }
+            },
+            "store": {
+              "$$a": {
+                "scope": "run",
+                "value": {
+                  "kind": "literal",
+                  "valueType": "int",
+                  "value": 1
+                }
+              },
+              "$b": {
+                "scope": "writeback",
+                "value": {
+                  "kind": "literal",
+                  "valueType": "int",
+                  "value": 2
+                }
+              },
+              "c": {
+                "scope": "writeback",
+                "value": {
+                  "kind": "literal",
+                  "valueType": "int",
+                  "value": 3
+                }
+              },
+              "d_quoted": {
+                "scope": "writeback",
+                "value": {
+                  "kind": "literal",
+                  "valueType": "int",
+                  "value": 4
+                }
+              },
+              "$$e_quoted": {
+                "scope": "run",
+                "value": {
+                  "kind": "literal",
+                  "valueType": "int",
+                  "value": 5
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

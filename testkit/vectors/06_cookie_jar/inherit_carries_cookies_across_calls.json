@@ -1,0 +1,114 @@
+{
+  "id": "inherit_carries_cookies_across_calls",
+  "description": "cookieJar: \"inherit\" (the default) carries Set-Cookie headers from call 0 to the jar used by call 1 (spec \u00a73.3, \u00a715.6). Test server echoes 'Cookie:' back in the response body; call 1's response must contain the session cookie set by call 0.",
+  "spec_refs": [
+    "lace-spec.md \u00a73.3",
+    "lace-spec.md \u00a715.6"
+  ],
+  "type": "execute",
+  "input": {
+    "source": "post(\"http://127.0.0.1:{port}/login\").expect(status: 200)\nget(\"http://127.0.0.1:{port}/echo-cookies\").expect(status: 200, body: \"sid=abc123\")\n",
+    "variables": {},
+    "http_mock": [
+      {
+        "callIndex": 0,
+        "outcome": "response",
+        "status": 200,
+        "headers": {
+          "set-cookie": "sid=abc123; Path=/"
+        },
+        "body": ""
+      },
+      {
+        "callIndex": 1,
+        "outcome": "response",
+        "status": 200,
+        "headers": {
+          "content-type": "text/plain"
+        },
+        "body": "sid=abc123"
+      }
+    ]
+  },
+  "expected": {
+    "result": {
+      "outcome": "success",
+      "startedAt": "1970-01-01T00:00:00Z",
+      "endedAt": "1970-01-01T00:00:00Z",
+      "runVars": {},
+      "calls": [
+        {
+          "index": 0,
+          "outcome": "success",
+          "startedAt": "1970-01-01T00:00:00Z",
+          "endedAt": "1970-01-01T00:00:00Z",
+          "request": {
+            "url": "http://127.0.0.1:{port}/login",
+            "method": "post",
+            "headers": {},
+            "bodyPath": null
+          },
+          "response": "IGNORED",
+          "redirects": [],
+          "assertions": [
+            {
+              "method": "expect",
+              "scope": "status",
+              "op": "eq",
+              "outcome": "passed",
+              "actual": 200,
+              "expected": 200,
+              "options": null
+            }
+          ],
+          "config": {},
+          "warnings": [],
+          "error": null
+        },
+        {
+          "index": 1,
+          "outcome": "success",
+          "startedAt": "1970-01-01T00:00:00Z",
+          "endedAt": "1970-01-01T00:00:00Z",
+          "request": "IGNORED",
+          "response": "IGNORED",
+          "redirects": [],
+          "assertions": [
+            {
+              "method": "expect",
+              "scope": "status",
+              "op": "eq",
+              "outcome": "passed",
+              "actual": 200,
+              "expected": 200,
+              "options": null
+            },
+            {
+              "method": "expect",
+              "scope": "body",
+              "op": "eq",
+              "outcome": "passed",
+              "actual": "sid=abc123",
+              "expected": "sid=abc123",
+              "options": null
+            }
+          ],
+          "config": {},
+          "warnings": [],
+          "error": null
+        }
+      ],
+      "actions": {}
+    },
+    "ignore": [
+      "startedAt",
+      "endedAt",
+      "calls[*].startedAt",
+      "calls[*].endedAt",
+      "calls[*].config",
+      "calls[0].response",
+      "calls[1].request",
+      "calls[1].response"
+    ]
+  }
+}

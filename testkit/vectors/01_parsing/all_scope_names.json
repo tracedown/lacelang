@@ -1,0 +1,103 @@
+{
+  "id": "all_scope_names",
+  "description": "Every scope name defined in \u00a74.3 parses \u2014 status, body, headers, size, bodySize, totalDelayMs, dns, connect, tls, ttfb, transfer, redirects.",
+  "spec_refs": [
+    "lace-spec.md \u00a74.3"
+  ],
+  "type": "parse",
+  "input": {
+    "source": "get(\"$u\").expect(status: 200, body: \"OK\", size: 0, bodySize: \"1k\", totalDelayMs: 500, dns: 50, connect: 50, tls: 50, ttfb: 100, transfer: 100, redirects: \"/a\")\n"
+  },
+  "expected": {
+    "ast": {
+      "version": "0.9.0",
+      "calls": [
+        {
+          "method": "get",
+          "url": "$u",
+          "chain": {
+            "expect": {
+              "status": {
+                "value": {
+                  "kind": "literal",
+                  "valueType": "int",
+                  "value": 200
+                }
+              },
+              "body": {
+                "value": {
+                  "kind": "literal",
+                  "valueType": "string",
+                  "value": "OK"
+                }
+              },
+              "size": {
+                "value": {
+                  "kind": "literal",
+                  "valueType": "int",
+                  "value": 0
+                }
+              },
+              "bodySize": {
+                "value": {
+                  "kind": "literal",
+                  "valueType": "string",
+                  "value": "1k"
+                }
+              },
+              "totalDelayMs": {
+                "value": {
+                  "kind": "literal",
+                  "valueType": "int",
+                  "value": 500
+                }
+              },
+              "dns": {
+                "value": {
+                  "kind": "literal",
+                  "valueType": "int",
+                  "value": 50
+                }
+              },
+              "connect": {
+                "value": {
+                  "kind": "literal",
+                  "valueType": "int",
+                  "value": 50
+                }
+              },
+              "tls": {
+                "value": {
+                  "kind": "literal",
+                  "valueType": "int",
+                  "value": 50
+                }
+              },
+              "ttfb": {
+                "value": {
+                  "kind": "literal",
+                  "valueType": "int",
+                  "value": 100
+                }
+              },
+              "transfer": {
+                "value": {
+                  "kind": "literal",
+                  "valueType": "int",
+                  "value": 100
+                }
+              },
+              "redirects": {
+                "value": {
+                  "kind": "literal",
+                  "valueType": "string",
+                  "value": "/a"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

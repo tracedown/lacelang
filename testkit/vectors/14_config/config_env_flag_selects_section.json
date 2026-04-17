@@ -1,0 +1,70 @@
+{
+  "id": "config_env_flag_selects_section",
+  "description": "The --env CLI flag selects the active [lace.config.{env}] section. Same config as config_section_lace_env_selects_production, but with '--env production' passed as a CLI arg instead of LACE_ENV in the environment. The production section's maxRedirects=1 must win; a 2-hop redirect chain hard-fails. (spec \u00a711, \u00a715.13, \u00a77)",
+  "spec_refs": [
+    "lace-spec.md \u00a711",
+    "lace-spec.md \u00a715.13",
+    "lace-spec.md \u00a77"
+  ],
+  "type": "execute",
+  "input": {
+    "source": "get(\"http://127.0.0.1:{port}/hop0\", { redirects: { follow: true } }).expect(status: 200)\n",
+    "variables": {},
+    "lace_config": "[executor]\nmaxRedirects = 10\n\n[lace.config.production]\nexecutor.maxRedirects = 1\n",
+    "cli_args": ["--env", "production"],
+    "http_mock": [
+      {
+        "callIndex": 0,
+        "outcome": "response",
+        "status": 302,
+        "headers": {
+          "location": "http://127.0.0.1:{port}/hop1"
+        },
+        "body": ""
+      },
+      {
+        "callIndex": 1,
+        "outcome": "response",
+        "status": 302,
+        "headers": {
+          "location": "http://127.0.0.1:{port}/hop2"
+        },
+        "body": ""
+      }
+    ]
+  },
+  "expected": {
+    "result": {
+      "outcome": "failure",
+      "startedAt": "1970-01-01T00:00:00Z",
+      "endedAt": "1970-01-01T00:00:00Z",
+      "runVars": {},
+      "calls": [
+        {
+          "index": 0,
+          "outcome": "failure",
+          "startedAt": "1970-01-01T00:00:00Z",
+          "endedAt": "1970-01-01T00:00:00Z",
+          "request": "IGNORED",
+          "response": null,
+          "redirects": "IGNORED",
+          "assertions": [],
+          "config": {},
+          "warnings": [],
+          "error": "IGNORED"
+        }
+      ],
+      "actions": {}
+    },
+    "ignore": [
+      "startedAt",
+      "endedAt",
+      "calls[*].startedAt",
+      "calls[*].endedAt",
+      "calls[*].request",
+      "calls[*].redirects",
+      "calls[*].config",
+      "calls[*].error"
+    ]
+  }
+}

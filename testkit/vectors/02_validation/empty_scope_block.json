@@ -1,0 +1,28 @@
+{
+  "id": "empty_scope_block",
+  "description": ".expect() with zero scopes is an EMPTY_SCOPE_BLOCK error (spec \u00a712).",
+  "spec_refs": [
+    "lace-spec.md \u00a712"
+  ],
+  "type": "validate",
+  "input": {
+    "source": "get(\"$u\").expect().check(status: 200)\n",
+    "variables": [
+      "u"
+    ],
+    "context": {
+      "maxRedirects": 10,
+      "maxTimeoutMs": 300000
+    }
+  },
+  "expected": {
+    "errors": [
+      {
+        "code": "EMPTY_SCOPE_BLOCK",
+        "callIndex": 0,
+        "chainMethod": "expect"
+      }
+    ],
+    "warnings": []
+  }
+}
