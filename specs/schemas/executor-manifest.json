@@ -74,7 +74,7 @@
     "Conformance": {
       "type": "object",
       "additionalProperties": false,
-      "description": "Declares the spec features this executor *does not* implement. The testkit skips vectors that require an omitted feature and reports a `compliant-partial` label instead of `compliant`. Default: empty list (full conformance). See lace-spec.md §17.",
+      "description": "Declares the spec features this executor *does not* implement. The testkit skips vectors that require an omitted feature and reports a `compliant-partial` label instead of `compliant`. Default: empty list (full conformance). See lace-spec.md §16.",
       "properties": {
         "omit": {
           "type": "array",

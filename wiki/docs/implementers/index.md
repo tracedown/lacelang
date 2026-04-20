@@ -51,6 +51,5 @@ See [Conformance Levels](conformance-levels.md) for partial conformance options.
 - [Extension Checklist](checklist-extensions.md) -- extension system requirements
 - [Packaging Rules](packaging.md) -- validator/executor separation
 - [Conformance Levels](conformance-levels.md) -- omission options and outcome labels
-- [Block Editor Mapping](block-editor.md) -- UI slot mapping for visual editors
 - [Grammar Notes](notes/grammar.md) -- ANTLR4 grammar implementation notes
 - [Extension Notes](notes/extensions.md) -- extension format conventions
