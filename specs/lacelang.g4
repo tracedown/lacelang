@@ -195,6 +195,7 @@ storeEntry
 
 storeKey
     : RUN_VAR        // $$name → run-scope, write-once
+    | SCRIPT_VAR     // $name → write-back ($ stripped in result)
     | identKey       // bare identifier → write-back
     | STRING         // quoted key — write-back unless source is "$$..."
     ;

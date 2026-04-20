@@ -3,7 +3,7 @@ site_description: Documentation for the Lace HTTP probing scripting language
 site_url: https://lacelang.dev/
 
 repo_url: https://github.com/tracedown/lacelang
-repo_name: tracedown/lacelang
+repo_name: tracedown/lacelang v0.9.0
 
 theme:
   name: material
@@ -32,6 +32,8 @@ theme:
     - search.highlight
     - toc.follow
 
+copyright: Copyright &copy; 2026 lacelang contributors &mdash; Apache License 2.0
+
 markdown_extensions:
   - admonition
   - pymdownx.details
@@ -54,7 +56,9 @@ nav:
   - Home: index.md
   - Getting Started:
     - getting-started/index.md
-    - Executors: getting-started/executors.md
+    - Executors:
+      - getting-started/executors/index.md
+      - Python Executor: getting-started/executors/python-executor.md
     - Why Lace: getting-started/why-lace.md
     - Examples: getting-started/examples.md
   - Language:

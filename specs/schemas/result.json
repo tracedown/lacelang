@@ -49,6 +49,14 @@
           "additionalProperties": true
         }
       }
+    },
+    "validationWarnings": {
+      "type": "array",
+      "description": "Structured validator diagnostics (code, callIndex, chainMethod) emitted during pre-execution validation. Present only when the validator produced warnings. Not part of per-call `warnings` (which are plain runtime strings).",
+      "items": {
+        "type": "object",
+        "additionalProperties": true
+      }
     }
   },
 

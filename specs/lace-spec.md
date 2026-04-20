@@ -430,7 +430,7 @@ For plain HTTP, `this.tls` is `null`. The executor performs no interpretation of
 | `$varname` | Injected script variable |
 | `$$varname` | Run-scope variable |
 
-Disambiguation: `${$varname}`, `${$$varname}`. Escape: `\$`. Missing variable → `null` (see §5.4).
+Disambiguation: `${$varname}`, `${$$varname}`. Use braced forms when a variable name is adjacent to other text (e.g. `${$host}name`). The `\$` escape sequence (§2.2) produces a literal `$` character but does not prevent interpolation — use braced forms for disambiguation instead. Missing variable → `null` (see §5.4).
 
 Timestamps are available through the executor rather than the source language. The top-level result carries `startedAt` / `endedAt`; each call record carries its own `startedAt` / `endedAt`; extensions observing the `before script` hook see `script.startedAt` in context. Scripts that need a submit-time marker should inject one via `--var ts=...`.
 
@@ -1026,7 +1026,6 @@ Errors prevent enabling. Warnings allow saving and enabling.
 | Unknown expression function | **Error** | Not in `json`, `form`, `schema` |
 | Variable existence | **Error** | All `$var` references in registry |
 | `$$var` write-once | **Error** | Same `$$` key assigned > once |
-| `$var` as store key | **Error** | Script variables as `.store()` keys |
 | `schema()` argument | **Error** | Variable must exist in registry |
 | Expression syntax | **Error** | `.assert()` expressions parse without error; also emitted for `.wait()` when its argument is not an integer literal |
 | `redirects.max` limit | **Error** | Value > context system max |

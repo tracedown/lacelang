@@ -31,7 +31,13 @@ live in separate repositories and conform to this spec by passing the test suite
 - [Versioning](#versioning)
 
 ### Known executor implementations
-* To be implemented
+
+| Executor | Language | Conformance | Spec Version | Repository |
+|---|---|---|---|---|
+| `lacelang-executor` | Python | Canonical | 0.9.0 | [tracedown/lacelang-python-executor](https://github.com/tracedown/lacelang-python-executor) |
+| `lacelang-validator` | Python | Canonical | 0.9.0 | [tracedown/lacelang-python-validator](https://github.com/tracedown/lacelang-python-validator) |
+
+The Python implementation is the **canonical reference** — the spec is developed and verified against it. Conformance vectors, error codes, and wire-format schemas are tested against this implementation before each spec release.
 
 ## Examples
 

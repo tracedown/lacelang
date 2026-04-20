@@ -34,6 +34,8 @@ they require careful consideration.
      `specs/checklist-extensions.md`)
    - Updated wiki pages (`wiki/docs/`)
    - New or updated conformance vectors (`testkit/vectors/`)
+   - Update documentation in Changelog (`/CHANGELOG.md`)
+   - Updates to relevant README files
 3. Run `make verify` in `specs/` before submitting.
 4. Discussion happens in PR comments. A maintainer must approve before
    merge.

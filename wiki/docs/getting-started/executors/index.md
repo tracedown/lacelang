@@ -64,7 +64,7 @@ methods, body matching, previous results, failure cascade, result
 structure, body storage, and configuration.
 
 An executor that passes the full suite is **Lace-Conformant**. Partial
-conformance is allowed — see [Conformance Levels](../implementers/conformance-levels.md)
+conformance is allowed — see [Conformance Levels](../../implementers/conformance-levels.md)
 for how to declare omissions.
 
 ## Building your own executor
@@ -72,25 +72,25 @@ for how to declare omissions.
 Executors can be built in any language. The spec, grammar, and schemas
 define the contract:
 
-- **[Grammar](../reference/grammar.md)** — the EBNF that defines valid syntax
-- **[Result Schema](../reference/result-schema.md)** — the JSON structure every executor must produce
-- **[Error Codes](../reference/error-codes.md)** — the error codes every validator must emit
-- **[Core Checklist](../implementers/checklist-core.md)** — every behaviour an executor must implement
-- **[Extension Checklist](../implementers/checklist-extensions.md)** — extension system requirements
+- **[Grammar](../../reference/grammar.md)** — the EBNF that defines valid syntax
+- **[Result Schema](../../reference/result-schema.md)** — the JSON structure every executor must produce
+- **[Error Codes](../../reference/error-codes.md)** — the error codes every validator must emit
+- **[Core Checklist](../../implementers/checklist-core.md)** — every behaviour an executor must implement
+- **[Extension Checklist](../../implementers/checklist-extensions.md)** — extension system requirements
 
-See [For Implementers](../implementers/index.md) for a guided walkthrough.
+See [For Implementers](../../implementers/index.md) for a guided walkthrough.
 
 To register your executor, open a PR adding it to the table below.
 The maintainers will review your implementation and verify conformance.
 
 ## Known executor implementations
 
-!!! info "No executors have been released yet"
-
-    The reference Python executor (`lacelang-executor`) is in
-    development alongside the spec. It will be the first listed here
-    once published.
-
 | Executor | Language | Conformance | Spec Version | Repository |
 |---|---|---|---|---|
-| *Coming soon* | | | | |
+| `lacelang-executor` | Python | **Canonical** | 0.9.0 | [tracedown/lacelang-python-executor](https://github.com/tracedown/lacelang-python-executor) |
+
+The Python executor is the **canonical reference implementation**. The Lace specification is developed and verified against it — conformance vectors, error codes, and wire-format schemas are tested against this implementation before each spec release.
+
+Parsing and semantic validation are handled by the companion [`lacelang-validator`](https://github.com/tracedown/lacelang-python-validator) package (zero network dependencies). The executor depends on the validator and adds the HTTP runtime, assertion evaluation, cookie jars, extension dispatch, and body storage.
+
+See the [Python Executor](python-executor.md) page for installation, CLI usage, and the programmatic API.
