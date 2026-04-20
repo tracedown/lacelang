@@ -344,6 +344,22 @@ lacelang/
 │   ├── tools/                 Cert generation, packaging helpers
 │   └── packaging/             Distribution metadata
 │
+├── wiki/                      Documentation site (mkdocs-material)
+│   ├── mkdocs.yml             Site config and navigation
+│   ├── Dockerfile             Build + serve static site
+│   ├── railway.toml           Railway deployment config
+│   └── docs/                  47 wiki pages
+│       ├── getting-started/   Installation, examples, why Lace
+│       ├── language/          Script authoring guide
+│       ├── result/            ProbeResult format for backends
+│       ├── extensions/        Extension authoring guide
+│       ├── reference/         Grammar, error codes, schemas, scopes
+│       ├── implementers/      Checklists, packaging, conformance
+│       └── project/           Contributing, changelog, license
+│
+├── VERSION                   Canonical version string (all specs, schemas, testkit reference this)
+├── CONTRIBUTING.md           How to contribute, register executors, propose spec changes
+├── GOVERNANCE.md             Project governance and future foundation plans
 └── CHANGELOG.md              Version history
 ```
 

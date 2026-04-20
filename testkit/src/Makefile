@@ -3,9 +3,13 @@
 # Sources: main + vector loading + adapter + diff + runner + mock HTTP/HTTPS
 # server + JUnit reporter + manifest + cJSON.
 
+# Read version from the canonical VERSION file at the repo root.
+LACE_VERSION := $(shell cat ../../VERSION 2>/dev/null || echo 0.9.0)
+
 CC      ?= cc
 CFLAGS  ?= -std=c99 -Wall -Wextra -Wpedantic -O2 -D_POSIX_C_SOURCE=200809L -D_GNU_SOURCE
 CFLAGS  += -Ithird_party/cjson
+CFLAGS  += -DLACE_CONFORMANCE_VERSION='"$(LACE_VERSION)"'
 LDFLAGS ?= -lpthread
 BUILD   := build
 
