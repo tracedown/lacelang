@@ -8,6 +8,7 @@ on:
 
 jobs:
   deploy:
+    if: github.repository == 'tracedown/lacelang'
     runs-on: ubuntu-latest
     defaults:
       run:
