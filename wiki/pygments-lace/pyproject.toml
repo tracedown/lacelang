@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pygments-lace"
+version = "0.1.0"
+description = "Pygments lexer for the Lace probe scripting language"
+requires-python = ">=3.9"
+dependencies = ["pygments"]
+
+[project.entry-points."pygments.lexers"]
+lace = "pygments_lace:LaceLexer"

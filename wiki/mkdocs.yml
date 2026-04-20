@@ -1,0 +1,110 @@
+site_name: Lace Language
+site_description: Documentation for the Lace HTTP probing scripting language
+site_url: https://lacelang.dev/
+
+repo_url: https://github.com/tracedown/lacelang
+repo_name: tracedown/lacelang
+
+theme:
+  name: material
+  custom_dir: overrides
+  icon:
+    repo: fontawesome/brands/github
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.sections
+    - navigation.expand
+    - navigation.indexes
+    - navigation.top
+    - content.code.copy
+    - search.highlight
+    - toc.follow
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - tables
+  - attr_list
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - md_in_html
+  - toc:
+      permalink: true
+
+nav:
+  - Home: index.md
+  - Getting Started:
+    - getting-started/index.md
+    - Executors: getting-started/executors.md
+    - Why Lace: getting-started/why-lace.md
+    - Examples: getting-started/examples.md
+  - Language:
+    - language/index.md
+    - HTTP Calls: language/http-calls.md
+    - Assertions: language/assertions.md
+    - Custom Assertions: language/custom-assertions.md
+    - Variables: language/variables.md
+    - Request Chaining: language/chaining.md
+    - Previous Results: language/previous-results.md
+    - Failure Semantics: language/failure-semantics.md
+    - Configuration: language/configuration.md
+  - Result Format:
+    - result/index.md
+    - Call Record: result/call-record.md
+    - Response Metadata: result/response-metadata.md
+    - Body Storage: result/body-storage.md
+    - Actions: result/actions.md
+  - Extensions:
+    - extensions/index.md
+    - Schema Additions: extensions/schema-additions.md
+    - Result Additions: extensions/result-additions.md
+    - Rule Language: extensions/rule-language.md
+    - Expressions: extensions/expressions.md
+    - Functions: extensions/functions.md
+    - Hook Points: extensions/hooks.md
+    - Variables & Config: extensions/variables-and-config.md
+    - Built-in Extensions:
+      - extensions/built-in/index.md
+      - laceNotifications: extensions/built-in/notifications.md
+      - laceBaseline: extensions/built-in/baseline.md
+  - Reference:
+    - reference/grammar.md
+    - reference/error-codes.md
+    - reference/result-schema.md
+    - reference/ast-schema.md
+    - reference/scope-reference.md
+    - reference/helper-functions.md
+    - reference/primitives.md
+  - For Implementers:
+    - implementers/index.md
+    - Core Checklist: implementers/checklist-core.md
+    - Extension Checklist: implementers/checklist-extensions.md
+    - Packaging: implementers/packaging.md
+    - Conformance Levels: implementers/conformance-levels.md
+    - Block Editor Mapping: implementers/block-editor.md
+    - Notes:
+      - implementers/notes/grammar.md
+      - implementers/notes/extensions.md
+  - Project:
+    - Contributing: project/contributing.md
+    - Changelog: project/changelog.md
+    - License: project/license.md

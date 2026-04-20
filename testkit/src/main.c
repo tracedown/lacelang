@@ -30,7 +30,10 @@
 #include <unistd.h>
 #include <dirent.h>
 
+/* Injected by Makefile from ../../VERSION; fallback for standalone builds. */
+#ifndef LACE_CONFORMANCE_VERSION
 #define LACE_CONFORMANCE_VERSION "0.9.0"
+#endif
 
 typedef struct {
     const char       *executor_cmd;
