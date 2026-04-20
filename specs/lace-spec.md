@@ -42,18 +42,17 @@
 10. [Extension System (Overview)](#10-extension-system-overview)
 11. [Configuration (`lace.config`)](#11-configuration-laceconfig)
 12. [Validators](#12-validators)
-13. [Block Editor Mapping](#13-block-editor-mapping)
-14. [Preset Examples](#14-preset-examples)
-15. [Core Executor Compatibility Checklist](#15-core-executor-compatibility-checklist) → [checklist-core.md](./checklist-core.md)
-16. [Packaging: Validator / Executor Separation](#16-packaging-validator--executor-separation)
-    - 16.1 [Rules](#161-rules)
-    - 16.2 [Rationale](#162-rationale)
-17. [Conformance Levels](#17-conformance-levels)
-    - 17.1 [Omissions](#171-omissions)
-    - 17.2 [Declaring the Level](#172-declaring-the-level)
-    - 17.3 [Testkit Behaviour](#173-testkit-behaviour)
-    - 17.4 [Outcome Labels](#174-outcome-labels)
-    - 17.5 [What Partial Conformance Doesn't Mean](#175-what-partial-conformance-doesnt-mean)
+13. [Preset Examples](#13-preset-examples)
+14. [Core Executor Compatibility Checklist](#14-core-executor-compatibility-checklist) → [checklist-core.md](./checklist-core.md)
+15. [Packaging: Validator / Executor Separation](#15-packaging-validator--executor-separation)
+    - 15.1 [Rules](#151-rules)
+    - 15.2 [Rationale](#152-rationale)
+16. [Conformance Levels](#16-conformance-levels)
+    - 16.1 [Omissions](#161-omissions)
+    - 16.2 [Declaring the Level](#162-declaring-the-level)
+    - 16.3 [Testkit Behaviour](#163-testkit-behaviour)
+    - 16.4 [Outcome Labels](#164-outcome-labels)
+    - 16.5 [What Partial Conformance Doesn't Mean](#165-what-partial-conformance-doesnt-mean)
 
 ---
 
@@ -1042,31 +1041,7 @@ Errors prevent enabling. Warnings allow saving and enabling.
 
 ---
 
-## 13. Block Editor Mapping
-
-The block editor reads and writes `.lace` source text via `lace-js-translator`.
-
-**Sub-block slots (fixed order, always rendered):**
-
-| Slot | Chain method | Collapsed when |
-|---|---|---|
-| Expect | `.expect(...)` | No scopes |
-| Check | `.check(...)` | No scopes |
-| Store | `.store({...})` | No entries |
-| Assert | `.assert({...})` | No conditions |
-| Wait | `.wait(N)` | Not configured |
-
-**Note:** `.options()` chain method no longer exists. Execution parameters (`timeout`, `redirects`, `security`) are configured on the call config object in the request block UI.
-
-**Scope entry editor:** three modes toggled by the author — shorthand (value only), value+op, full form (shows `options {}` panel when extension is active). When no extension is active, the `options {}` panel is hidden.
-
-**`options {}` panel:** rendered by the extension's block editor contribution. Extensions register UI components for their option fields alongside their `.laceext` schema definition.
-
-**Variable picker:** lists variables from injected registry. Grouping is host application concern. `$$` = run-scope badge. `$` and plain keys = writeback badge. Duplicate `$$var` = error indicator.
-
----
-
-## 14. Preset Examples
+## 13. Preset Examples
 
 ### Minimal uptime check
 
@@ -1223,22 +1198,22 @@ get("$BASE_URL/metrics/events", {
 
 ---
 
-## 15. Core Executor Compatibility Checklist
+## 14. Core Executor Compatibility Checklist
 
 Moved to **[checklist-core.md](./checklist-core.md)** for maintainability. The checklist covers parsing, validation, variable handling, null semantics, HTTP execution, cookie jar, chain method execution, body matching, prev access, failure cascade, result structure, body storage, configuration, and the core-side extension interface.
 
 ---
 
-## 16. Packaging: Validator / Executor Separation
+## 15. Packaging: Validator / Executor Separation
 
 Every Lace implementation **must** ship its language validator and its runtime executor as **two distinct, independently-installable packages**. One must not force-install the other.
 
 | Package role | Provides | Depends on | Typical consumers |
 |---|---|---|---|
-| **Validator** | Lexer, parser, semantic checks, canonical error codes, CLI with `parse` and `validate` subcommands | nothing (zero network surface) | CI jobs, IDE / editor plugins, block editors, script-authoring tools, backend platform validators |
+| **Validator** | Lexer, parser, semantic checks, canonical error codes, CLI with `parse` and `validate` subcommands | nothing (zero network surface) | CI jobs, IDE / editor plugins, script-authoring tools, backend platform validators |
 | **Executor** | Runtime (HTTP client, assertion evaluation, cookie jars, extension dispatch, body storage), CLI with `parse` / `validate` / `run` subcommands | the validator package | probe runners, monitoring fleets, any platform hosting Lace |
 
-### 16.1 Rules
+### 15.1 Rules
 
 - The validator package **must not** link an HTTP client, TLS stack, DNS resolver, cookie library, notification dispatcher, or any network-capable dependency. Installing it must be safe in sandboxed environments (read-only filesystems, no egress, air-gapped CI).
 - The executor package **must** depend on the validator package at the same spec-compatible version and delegate `parse` + `validate` subcommands to it. It must not re-implement parsing or validation logic.
@@ -1248,9 +1223,9 @@ Every Lace implementation **must** ship its language validator and its runtime e
 - The validator's CLI **must** expose `parse` and `validate`, and **must not** expose `run`.
 - Package naming: the spec does not mandate a convention, but the canonical suggestion is `lacelang-validator-<lang>` and `lacelang-executor-<lang>` (e.g. `lacelang-validator` / `lacelang-executor` on PyPI, `@lacelang/validator` / `@lacelang/executor` on npm).
 
-### 16.2 Rationale
+### 15.2 Rationale
 
-Most consumers of `.lace` source text do not run probes. Block editors, IDE linters, CI gates, and backend platform validators need syntax and semantic checks but have no reason to depend on an HTTP stack. Forcing the runtime into every dependency tree enlarges the supply-chain surface and excludes constrained environments. Conversely, some runners may want to validate, then hand off execution to a remote worker — that worker, too, should be able to install the validator alone.
+Most consumers of `.lace` source text do not run probes. IDE linters, CI gates, and backend platform validators need syntax and semantic checks but have no reason to depend on an HTTP stack. Forcing the runtime into every dependency tree enlarges the supply-chain surface and excludes constrained environments. Conversely, some runners may want to validate, then hand off execution to a remote worker — that worker, too, should be able to install the validator alone.
 
 The split also makes conformance auditing easier: a validator package is a pure function from text to diagnostics, so its correctness is tractably unit-testable without network mocks or subprocess sandboxing.
 
@@ -1258,11 +1233,11 @@ The split also makes conformance auditing easier: a validator package is a pure 
 
 ---
 
-## 17. Conformance Levels
+## 16. Conformance Levels
 
 Not every executor implementation needs every feature of the spec. Some targets — embedded probe runners, CI gates, bespoke monitoring appliances — have no use for the extension system or no surface for emitting writeback actions. Lace defines **conformance levels** so such implementations can declare what they support and have that claim verified by the testkit.
 
-### 17.1 Omissions
+### 16.1 Omissions
 
 Two optional omissions may be declared:
 
@@ -1273,7 +1248,7 @@ Two optional omissions may be declared:
 
 No other axis is omissible at the spec level. TLS handshake scenarios, cookie jar modes, body storage, prev-access, and every other core feature are mandatory for any non-omitted level.
 
-### 17.2 Declaring the Level
+### 16.2 Declaring the Level
 
 **In the executor manifest** (`lace-executor.toml`):
 
@@ -1290,7 +1265,7 @@ Absent or empty `omit` means full conformance.
 lace-conformance -m ./lace-executor.toml --omit extensions,actions
 ```
 
-### 17.3 Testkit Behaviour
+### 16.3 Testkit Behaviour
 
 Each conformance vector carries an optional `requires` array listing the features it exercises:
 
@@ -1303,7 +1278,7 @@ Each conformance vector carries an optional `requires` array listing the feature
 
 A vector whose `requires` list intersects the active omit set is **skipped** (outcome: `skipped`, reason: `"omitted: <feature>"`). Vectors without a `requires` list are always run.
 
-### 17.4 Outcome Labels
+### 16.4 Outcome Labels
 
 The testkit reports a **conformance label** at the end of each run:
 
@@ -1315,7 +1290,7 @@ The testkit reports a **conformance label** at the end of each run:
 
 Process exit code: `0` for `compliant` and `compliant-partial`, `1` for `non-compliant`. A CI gate that requires full compliance enforces that separately (e.g. `--require-level=full`, to be added when actually needed).
 
-### 17.5 What Partial Conformance *Doesn't* Mean
+### 16.5 What Partial Conformance *Doesn't* Mean
 
 - A `compliant-partial` executor is **not** spec-incompatible. It is spec-compliant at its declared level. Host platforms that don't use extensions can legitimately claim `compliant-partial (omit: extensions)` with no stigma.
 - Omitting a feature removes both the obligation to implement it and the right to emit its artefacts. An executor claiming `omit: actions` must not emit a `result.actions` field in some runs and not others — it is a structural guarantee, not a runtime toggle.

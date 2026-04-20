@@ -31,7 +31,7 @@
       "type": "array",
       "items": { "type": "string", "enum": ["extensions", "actions"] },
       "uniqueItems": true,
-      "description": "Feature areas this vector exercises. When the testkit is run with `--omit` (or a manifest declares `[conformance].omit`), any vector whose `requires` intersects the omit set is skipped with reason 'omitted: <feature>'. Vectors without a `requires` list are always runnable. See lace-spec.md §17."
+      "description": "Feature areas this vector exercises. When the testkit is run with `--omit` (or a manifest declares `[conformance].omit`), any vector whose `requires` intersects the omit set is skipped with reason 'omitted: <feature>'. Vectors without a `requires` list are always runnable. See lace-spec.md §16."
     },
     "input": {
       "description": "Inputs vary by `type`. See the `oneOf` discriminator."

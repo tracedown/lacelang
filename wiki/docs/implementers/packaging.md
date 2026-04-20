@@ -8,7 +8,7 @@ Spec version: 0.9.0 (source: `lace-spec.md` section 16)
 
 | Package | Provides | Depends on | Typical Consumers |
 |---|---|---|---|
-| **Validator** | Lexer, parser, semantic checks, canonical error codes, CLI with `parse` and `validate` subcommands | Nothing (zero network surface) | CI jobs, IDE/editor plugins, block editors, script-authoring tools, backend platform validators |
+| **Validator** | Lexer, parser, semantic checks, canonical error codes, CLI with `parse` and `validate` subcommands | Nothing (zero network surface) | CI jobs, IDE/editor plugins, script-authoring tools, backend platform validators |
 | **Executor** | Runtime (HTTP client, assertion evaluation, cookie jars, extension dispatch, body storage), CLI with `parse` / `validate` / `run` subcommands | The validator package | Probe runners, monitoring fleets, any platform hosting Lace |
 
 ## Rules
@@ -29,6 +29,6 @@ Spec version: 0.9.0 (source: `lace-spec.md` section 16)
 
 ## Rationale
 
-Most consumers of `.lace` source text do not run probes. Block editors, IDE linters, CI gates, and backend platform validators need syntax and semantic checks but have no reason to depend on an HTTP stack. Forcing the runtime into every dependency tree enlarges the supply-chain surface and excludes constrained environments. Conversely, some runners may want to validate, then hand off execution to a remote worker -- that worker, too, should be able to install the validator alone.
+Most consumers of `.lace` source text do not run probes. IDE linters, CI gates, and backend platform validators need syntax and semantic checks but have no reason to depend on an HTTP stack. Forcing the runtime into every dependency tree enlarges the supply-chain surface and excludes constrained environments. Conversely, some runners may want to validate, then hand off execution to a remote worker -- that worker, too, should be able to install the validator alone.
 
 The split also makes conformance auditing easier: a validator package is a pure function from text to diagnostics, so its correctness is tractably unit-testable without network mocks or subprocess sandboxing.

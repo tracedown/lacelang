@@ -104,7 +104,6 @@ nav:
     - Extension Checklist: implementers/checklist-extensions.md
     - Packaging: implementers/packaging.md
     - Conformance Levels: implementers/conformance-levels.md
-    - Block Editor Mapping: implementers/block-editor.md
     - Notes:
       - implementers/notes/grammar.md
       - implementers/notes/extensions.md
