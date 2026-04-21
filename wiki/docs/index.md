@@ -13,10 +13,10 @@ structured JSON result.
 
 Lace defines the language. Executors implement it. Anyone can build an
 executor in any programming language — the [conformance test suite](getting-started/executors/index.md)
-ensures they all behave identically. The canonical reference implementation
-is the [Python executor](getting-started/executors/python-executor.md), which conforms
-to spec version 0.9.0. See [Executors](getting-started/executors/index.md) for
-how this works.
+ensures they all behave identically. Two reference implementations conform
+to spec version 0.9.0: [Python](getting-started/executors/python-executor.md)
+(canonical) and [TypeScript](getting-started/executors/ts-executor.md).
+See [Executors](getting-started/executors/index.md) for how this works.
 
 ## Your first probe
 

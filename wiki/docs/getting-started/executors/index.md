@@ -85,12 +85,18 @@ The maintainers will review your implementation and verify conformance.
 
 ## Known executor implementations
 
-| Executor | Language | Conformance | Spec Version | Repository |
+| Package | Language | Conformance | Spec Version | Repository |
 |---|---|---|---|---|
 | `lacelang-executor` | Python | **Canonical** | 0.9.0 | [tracedown/lacelang-python-executor](https://github.com/tracedown/lacelang-python-executor) |
+| `@lacelang/executor` | TypeScript | **Conformant** | 0.9.0 | [tracedown/lacelang-js-executor](https://github.com/tracedown/lacelang-js-executor) |
 
-The Python executor is the **canonical reference implementation**. The Lace specification is developed and verified against it — conformance vectors, error codes, and wire-format schemas are tested against this implementation before each spec release.
+Both implementations pass the full 171-vector conformance suite. The Python executor is the **canonical reference** — the spec is developed and verified against it. The TypeScript executor is fully interchangeable and targets the same spec version.
 
-Parsing and semantic validation are handled by the companion [`lacelang-validator`](https://github.com/tracedown/lacelang-python-validator) package (zero network dependencies). The executor depends on the validator and adds the HTTP runtime, assertion evaluation, cookie jars, extension dispatch, and body storage.
+Each implementation splits into a **validator** (parser + semantic checks, zero network dependencies) and an **executor** (HTTP runtime). See the [packaging rules](../../implementers/packaging.md) for why.
 
-See the [Python Executor](python-executor.md) page for installation, CLI usage, and the programmatic API.
+| Validator | Language | Repository |
+|---|---|---|
+| `lacelang-validator` | Python | [tracedown/lacelang-python-validator](https://github.com/tracedown/lacelang-python-validator) |
+| `@lacelang/validator` | TypeScript | [tracedown/lacelang-js-validator](https://github.com/tracedown/lacelang-js-validator) |
+
+See the [Python Executor](python-executor.md) and [TypeScript Executor](ts-executor.md) pages for installation, CLI usage, and the programmatic API.

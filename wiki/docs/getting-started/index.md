@@ -8,7 +8,8 @@ You need a Lace executor -- a program that parses `.lace` files, runs the HTTP c
     The Lace specification is implementation-agnostic. Currently known executors:
 
     - **Python** (canonical reference) -- [`lacelang-executor`](https://github.com/tracedown/lacelang-python-executor) + [`lacelang-validator`](https://github.com/tracedown/lacelang-python-validator)
-    - JavaScript, Kotlin -- TBD
+    - **TypeScript** (conformant) -- [`@lacelang/executor`](https://github.com/tracedown/lacelang-js-executor) + [`@lacelang/validator`](https://github.com/tracedown/lacelang-js-validator)
+    - Kotlin -- TBD
 
     Any executor that passes the [conformance test suite](../implementers/checklist-core.md) is a valid Lace executor.
 
@@ -26,7 +27,7 @@ pip install git+https://github.com/tracedown/lacelang-python-executor.git
 
 This installs the `lacelang-executor` CLI and the `lacelang-validator` dependency (parser + semantic checks, no network dependencies).
 
-See the [Python Executor](executors/python-executor.md) page for full installation options and the programmatic API.
+See the [Python Executor](executors/python-executor.md) or [TypeScript Executor](executors/ts-executor.md) page for full installation options and the programmatic API.
 
 ## Running your first script
 
