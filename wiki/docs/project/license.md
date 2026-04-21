@@ -6,8 +6,10 @@ The entire canonical Lace stack is licensed under the
 | Repository | Description | License |
 |------------|-------------|---------|
 | [lacelang](https://github.com/tracedown/lacelang) | Specification, grammar, schemas, conformance suite, wiki | Apache 2.0 |
-| [lacelang-executor](https://github.com/tracedown/lacelang-python-executor) | Reference Python executor (canonical) | Apache 2.0 |
-| [lacelang-validator](https://github.com/tracedown/lacelang-python-validator) | Reference Python validator (canonical) | Apache 2.0 |
+| [lacelang-python-executor](https://github.com/tracedown/lacelang-python-executor) | Reference Python executor (canonical) | Apache 2.0 |
+| [lacelang-python-validator](https://github.com/tracedown/lacelang-python-validator) | Reference Python validator (canonical) | Apache 2.0 |
+| [lacelang-js-executor](https://github.com/tracedown/lacelang-js-executor) | Reference TypeScript executor (conformant) | Apache 2.0 |
+| [lacelang-js-validator](https://github.com/tracedown/lacelang-js-validator) | Reference TypeScript validator (conformant) | Apache 2.0 |
 
 You may obtain a copy of the license at:
 [apache.org/licenses/LICENSE-2.0](https://www.apache.org/licenses/LICENSE-2.0)
