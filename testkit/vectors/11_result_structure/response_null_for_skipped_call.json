@@ -45,6 +45,7 @@
           "endedAt": null,
           "request": null,
           "response": null,
+          "redirects": [],
           "assertions": [],
           "config": {},
           "warnings": [],
