@@ -42,6 +42,7 @@
             "statusText": "OK",
             "headers": {},
             "bodyPath": null,
+            "bodyNotCapturedReason": "notRequested",
             "responseTimeMs": 0,
             "dnsMs": 0,
             "connectMs": 0,

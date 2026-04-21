@@ -44,6 +44,9 @@
           "redirects": [],
           "assertions": "IGNORED",
           "config": {
+            "timeout": {"ms": 30000, "action": "fail", "retries": 0},
+            "redirects": {"follow": true, "max": 10},
+            "security": {"rejectInvalidCerts": true},
             "extensions": {
               "traceTag": "bar"
             }
