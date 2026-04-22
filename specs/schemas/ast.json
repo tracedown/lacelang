@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://lacelang.dev/schemas/ast/0.9.0",
+  "$id": "https://lacelang.dev/schemas/ast/0.9.1",
   "title": "Lace internal AST",
   "description": "Canonical in-memory representation produced by parsers from `.lace` source text. Conforms to lace-spec.md and the lacelang.g4 grammar. Although the spec calls the AST 'an implementation detail and never stored or transmitted', this schema is the canonical wire format used by the testkit's `parse` conformance tests — every executor's `parse` subcommand must serialise its internal AST to this shape for the testkit to compare against expected outputs.",
 
@@ -10,7 +10,7 @@
   "properties": {
     "version": {
       "type": "string",
-      "const": "0.9.0",
+      "const": "0.9.1",
       "description": "AST schema version. Bumped on breaking changes to this schema."
     },
     "calls": {

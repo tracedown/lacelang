@@ -35,8 +35,7 @@
           "request": {
             "url": "http://127.0.0.1:{port}/hop0",
             "method": "get",
-            "headers": {},
-            "bodyPath": null
+            "headers": {}
           },
           "response": null,
           "redirects": ["http://127.0.0.1:{port}/hop1"],
@@ -53,7 +52,7 @@
       "endedAt",
       "calls[*].startedAt",
       "calls[*].endedAt",
-      "calls[*].request.bodyPath",
+
       "calls[*].config",
       "calls[*].error"
     ]

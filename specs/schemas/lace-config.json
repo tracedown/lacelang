@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://lacelang.dev/schemas/lace-config/0.9.0",
+  "$id": "https://lacelang.dev/schemas/lace-config/0.9.1",
   "title": "Lace executor configuration (lace.config)",
   "description": "TOML structure for `lace.config` files. Conforms to lace-spec.md §11. Consumers parse the TOML, then validate the resulting JSON against this schema. All sections are optional; the executor uses defaults for absent fields.",
 
@@ -68,8 +68,12 @@
       "additionalProperties": false,
       "properties": {
         "dir": {
-          "type": "string",
-          "description": "Directory for request/response body files. Defaults to the same directory as result.path."
+          "oneOf": [
+            { "type": "string" },
+            { "type": "boolean", "const": false }
+          ],
+          "default": false,
+          "description": "Path string: save response body files to this directory. false (default): do not save. When false, response.bodyPath is always null with bodyNotCapturedReason 'notRequested'."
         }
       }
     },

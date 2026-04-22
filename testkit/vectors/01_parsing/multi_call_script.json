@@ -1,8 +1,8 @@
 {
   "id": "multi_call_script",
-  "description": "A script with three calls parses to a top-level `calls` array of length 3 in source order (spec \u00a72.1).",
+  "description": "A script with three calls parses to a top-level `calls` array of length 3 in source order (spec §2.1).",
   "spec_refs": [
-    "lace-spec.md \u00a72.1"
+    "lace-spec.md §2.1"
   ],
   "type": "parse",
   "input": {
@@ -10,7 +10,7 @@
   },
   "expected": {
     "ast": {
-      "version": "0.9.0",
+      "version": "0.9.1",
       "calls": [
         {
           "method": "get",

@@ -1,6 +1,6 @@
-# Lace — Specification v0.9.0
+# Lace — Specification v0.9.1
 
-> Status: Initial release (v0.9.0)
+> Status: Initial release (v0.9.1)
 > Referenced by: api-monitoring-spec.md §3
 
 ## Table of Contents
@@ -828,13 +828,12 @@ Valid in expressions only:
     "url":      "https://api.example.com/login",
     "method":   "post",
     "headers":  { "content-type": "application/json" },
-    "bodyPath": "/probe_runs/abc/call_0_request.json"
   },
   "response": {
     "status":         200,
     "statusText":     "OK",
     "headers":        { "content-type": "application/json" },
-    "bodyPath":       "/probe_runs/abc/call_0_response.json",
+    "bodyPath":       "/probe_runs/abc/call_0_response.json",  // only present when result.bodies.dir is a path
     "responseTimeMs": 145,
     "dnsMs":          12,
     "connectMs":      34,
@@ -882,9 +881,8 @@ Valid in expressions only:
 | `assertions[].outcome` | `"passed"` \| `"failed"` \| `"indeterminate"` |
 | `assertions[].options` | The `options {}` object from the source, passed through opaquely. Extensions read this. |
 | `config` | Resolved call config (after defaults applied). Extensions may read registered fields here. |
-| `request.bodyPath` | Absolute path to request body file. `null` if no body. |
 | `response` | `null` for timeout, skipped, or connection failure. |
-| `response.bodyPath` | Absolute path to response body file. `null` if not captured. |
+| `response.bodyPath` | Absolute path to response body file. Requires `result.bodies.dir is a path`; otherwise always `null`. |
 | `response.bodyNotCapturedReason` | `"bodyTooLarge"` \| `"notRequested"` \| `"timeout"`. Present when `bodyPath` is null. |
 | `warnings` | Warning strings from this call (null interpolations, TLS warnings, skipped writes). |
 | `error` | Non-assertion failure detail. `null` otherwise. |
@@ -903,11 +901,11 @@ All other `actions` fields are extension-defined (see §10).
 
 ### 9.4 Body Storage
 
-Executor writes request and response bodies to a shared filesystem volume. Result JSON contains absolute paths — no body bytes in the result JSON itself.
+When `result.bodies.dir` is a path string, executor writes response bodies to that directory. Result JSON contains absolute paths — no body bytes in the result JSON itself. Request bodies are not saved to disk (they are already present in the AST).
 
-Path convention: `{run_base_dir}/call_{index}_{request|response}.{ext}`
+When `result.bodies.dir` is `false` (the default), no body files are written and `response.bodyPath` is always `null` with `bodyNotCapturedReason: "notRequested"`.
 
-Run base directory provided in execution context (configured via `result.bodies.dir` in `lace.config`).
+Path convention: `{bodies_dir}/call_{index}_response.{ext}`
 
 ---
 
@@ -944,8 +942,10 @@ maxTimeoutMs = 300000
 path = "./lace_results"
 
 [result.bodies]
-# Where to write request/response body files
-dir = "./lace_results/bodies"
+# Where to write response body files.
+# Path string: save to that directory
+# false: do not save (default)
+dir = false
 
 [extensions.laceNotifications]
 # Path to .laceext file (default: bundled with executor)
@@ -979,19 +979,23 @@ Extensions may ship a companion `{extName}.config` file alongside their `.laceex
 | `executor.maxRedirects` | `10` | System redirect limit |
 | `executor.maxTimeoutMs` | `300000` | System timeout limit (5 minutes) |
 | `result.path` | `"."` | Current directory |
-| `result.bodies.dir` | Same as `result.path` | Body storage directory |
+| `result.bodies.dir` | `false` | Body storage directory. Path string to save, `false` to skip. |
 
 **Environment variable syntax:** any string config value may reference an environment variable:
 - `"env:VARNAME"` — resolves to the value of `VARNAME`, error at startup if unset
 - `"env:VARNAME:default"` — resolves to `VARNAME` if set, `default` otherwise
 
 **Config resolution order** (highest priority first):
-1. CLI flags (`--vars`, `--prev-results`, `--save-to`, `--config`)
+1. CLI flags (`--vars`, `--prev-results`, `--save-to`, `--save-body`, `--config`)
 2. `lace.config` in script directory
 3. `lace.config` in working directory
 4. Built-in defaults
 
 **`--save-to` flag:** overrides `result.path` for a single run.
+
+**`--save-body` flag:** sets `result.bodies.dir` to the result path (or system temp) for a single run, enabling response body file writing.
+
+**`--bodies-dir` flag:** sets `result.bodies.dir` to the given path (implies body saving).
 
 **`lace.config.{env}` usage:** the `{env}` suffix is also supported in config section names for environment-specific config:
 
@@ -1298,4 +1302,4 @@ Process exit code: `0` for `compliant` and `compliant-partial`, `1` for `non-com
 
 ---
 
-*End of Lace specification v0.9.0*
+*End of Lace specification v0.9.1*

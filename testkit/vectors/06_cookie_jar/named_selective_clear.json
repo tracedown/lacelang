@@ -67,7 +67,6 @@
             "url": "http://127.0.0.1:{port}/after",
             "method": "get",
             "headers": {},
-            "bodyPath": null
           },
           "response": "IGNORED",
           "redirects": [],
@@ -97,7 +96,7 @@
       "calls[0].request",
       "calls[0].response",
       "calls[1].response",
-      "calls[1].request.bodyPath",
+
       "calls[*].config"
     ]
   }

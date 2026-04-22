@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.9.1 — Body saving changes
+
+- Removed `bodyPath` from the request record schema; request bodies are no longer saved to disk (they are already present in the AST)
+- Added `result.bodies.save` configuration option (default `false`) to control whether response body files are written
+- Added `--save-body` CLI flag to enable response body file writing for a single run
+- Body file path convention simplified to `call_{index}_response.{ext}`
+
 ## 0.9.0 — Initial specifications
 
 First public release of the Lace probe scripting language.

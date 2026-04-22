@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://lacelang.dev/schemas/laceext/0.9.0",
+  "$id": "https://lacelang.dev/schemas/laceext/0.9.1",
   "title": "Lace extension file (.laceext)",
   "description": "TOML structure for Lace extensions. Conforms to lace-extensions.md. The TOML is parsed into JSON; this schema validates the resulting JSON shape. Rule body and function body content is opaque at this level — the extension processor parses those strings against the rule body grammar in lace-extensions.md §5.",
 

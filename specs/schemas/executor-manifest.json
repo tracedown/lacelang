@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://lacelang.dev/schemas/executor-manifest/0.9.0",
+  "$id": "https://lacelang.dev/schemas/executor-manifest/0.9.1",
   "title": "Lace executor manifest (lace-executor.toml)",
   "description": "TOML structure declaring how the testkit invokes a specific executor. Placed in the executor's repo root. The testkit reads it via `lace-conformance -m <path>` (or auto-discovers `./lace-executor.toml`) before running the conformance suite.",
 
@@ -34,7 +34,7 @@
         },
         "conforms_to": {
           "type": "string",
-          "description": "Lace spec version range this executor claims to satisfy (semver range e.g. '>=0.9.0'). Testkit may refuse to run if its bundled vectors are for a version this executor doesn't claim."
+          "description": "Lace spec version range this executor claims to satisfy (semver range e.g. '>=0.9.1'). Testkit may refuse to run if its bundled vectors are for a version this executor doesn't claim."
         }
       }
     },

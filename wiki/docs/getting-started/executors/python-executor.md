@@ -1,7 +1,7 @@
 # Python Executor
 
 The canonical reference implementation of Lace, conformant to spec version
-**0.9.0**. The Lace specification is developed and verified against this
+**0.9.1**. The Lace specification is developed and verified against this
 implementation — conformance vectors, error codes, and wire-format schemas
 are tested here before each spec release.
 
@@ -272,7 +272,7 @@ maxTimeoutMs = 60000           # overridden
 
 [lace.config.production]
 [lace.config.production.executor]
-user_agent = "lace-probe/0.9.0 (acme-platform)"
+user_agent = "lace-probe/0.9.1 (acme-platform)"
 ```
 
 ### Resolution by constructor arguments

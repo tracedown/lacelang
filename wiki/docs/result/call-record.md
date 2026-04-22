@@ -66,8 +66,7 @@ All fields are required.
         "method": "get",
         "headers": {
           "user-agent": "Lace/0.9"
-        },
-        "bodyPath": null
+        }
       },
       "response": {
         "status": 200,
@@ -149,7 +148,6 @@ All fields are required.
 | `url` | `string` | Resolved URL after variable interpolation. |
 | `method` | `string` | One of `"get"`, `"post"`, `"put"`, `"patch"`, `"delete"`. Always lower-case. |
 | `headers` | `object` | Resolved headers sent on the wire. Keys are header names, values are strings. |
-| `bodyPath` | `string \| null` | Absolute path to the request body file on shared storage. `null` if no body was sent (e.g. GET requests). |
 
 ```json
 {
@@ -158,9 +156,7 @@ All fields are required.
   "headers": {
     "content-type": "application/json",
     "authorization": "Bearer tok_abc"
-  },
-  "bodyPath": "/probe_runs/abc/call_0_request.json"
-}
+  }
 ```
 
 ---

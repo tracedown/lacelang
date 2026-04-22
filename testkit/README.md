@@ -169,9 +169,9 @@ templates, and invokes the resulting argv:
 ```toml
 [executor]
 name        = "lacelang-executor"
-version     = "0.9.0"
+version     = "0.9.1"
 language    = "python"
-conforms_to = ">=0.9.0"
+conforms_to = ">=0.9.1"
 
 [adapter]
 parse    = "python3 -m lacelang_executor parse {script}"

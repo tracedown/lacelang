@@ -34,11 +34,11 @@ live in separate repositories and conform to this spec by passing the test suite
 
 | Package | Language | Conformance | Spec Version | Repository |
 |---|---|---|---|---|
-| `lacelang-executor` | Python | Canonical | 0.9.0 | [tracedown/lacelang-python-executor](https://github.com/tracedown/lacelang-python-executor) |
-| `lacelang-validator` | Python | Canonical | 0.9.0 | [tracedown/lacelang-python-validator](https://github.com/tracedown/lacelang-python-validator) |
-| `@lacelang/executor` | TypeScript | Conformant | 0.9.0 | [tracedown/lacelang-js-executor](https://github.com/tracedown/lacelang-js-executor) |
-| `@lacelang/validator` | TypeScript | Conformant | 0.9.0 | [tracedown/lacelang-js-validator](https://github.com/tracedown/lacelang-js-validator) |
-| `lacelang-kt-validator` | Kotlin | Conformant | 0.9.0 | [tracedown/lacelang-kt-validator](https://github.com/tracedown/lacelang-kt-validator) |
+| `lacelang-executor` | Python | Canonical | 0.9.1 | [tracedown/lacelang-python-executor](https://github.com/tracedown/lacelang-python-executor) |
+| `lacelang-validator` | Python | Canonical | 0.9.1 | [tracedown/lacelang-python-validator](https://github.com/tracedown/lacelang-python-validator) |
+| `@lacelang/executor` | TypeScript | Conformant | 0.9.1 | [tracedown/lacelang-js-executor](https://github.com/tracedown/lacelang-js-executor) |
+| `@lacelang/validator` | TypeScript | Conformant | 0.9.1 | [tracedown/lacelang-js-validator](https://github.com/tracedown/lacelang-js-validator) |
+| `lacelang-kt-validator` | Kotlin | Conformant | 0.9.1 | [tracedown/lacelang-kt-validator](https://github.com/tracedown/lacelang-kt-validator) |
 
 The Python implementation is the **canonical reference** — the spec is developed and verified against it. The TypeScript and Kotlin implementations pass the same conformance vectors and are fully interchangeable.
 
@@ -517,7 +517,7 @@ See `testkit/README.md` for architecture and current status.
 ## Versioning
 
 Spec, grammar, schemas, error codes, vectors, and the testkit all share
-a single version line — currently **0.9.0** (pre-release). Any change to
+a single version line — currently **0.9.1** (pre-release). Any change to
 the spec that requires executors to update is a version bump. Pre-1.0
 versions may break compatibility freely; from 1.0.0 onward, breaking
 changes follow semver (major bump).

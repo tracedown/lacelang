@@ -1,8 +1,8 @@
 {
   "id": "interpolation_expr_form",
-  "description": "A URL string containing `${expr}` is preserved verbatim as the URL literal by the lexer/parser \u2014 interpolation is re-scanned at executor time (spec \u00a73.5). The parse only needs the raw token content to round-trip.",
+  "description": "A URL string containing `${expr}` is preserved verbatim as the URL literal by the lexer/parser — interpolation is re-scanned at executor time (spec §3.5). The parse only needs the raw token content to round-trip.",
   "spec_refs": [
-    "lace-spec.md \u00a73.5"
+    "lace-spec.md §3.5"
   ],
   "type": "parse",
   "input": {
@@ -10,7 +10,7 @@
   },
   "expected": {
     "ast": {
-      "version": "0.9.0",
+      "version": "0.9.1",
       "calls": [
         {
           "method": "get",

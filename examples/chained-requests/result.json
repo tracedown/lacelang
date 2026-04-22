@@ -18,8 +18,7 @@
         "headers": {
           "Content-Type": "application/json",
           "User-Agent": "lace-probe/0.1.0 (lacelang-python)"
-        },
-        "bodyPath": "bodies/call_0_request.json"
+        }
       },
       "response": {
         "status": 200,
@@ -100,8 +99,7 @@
         "headers": {
           "Origin": "203.0.113.1",
           "User-Agent": "lace-probe/0.1.0 (lacelang-python)"
-        },
-        "bodyPath": null
+        }
       },
       "response": {
         "status": 200,

@@ -38,7 +38,6 @@
             "url": "http://127.0.0.1:{port}/big",
             "method": "get",
             "headers": {},
-            "bodyPath": null
           },
           "response": {
             "status": 200,
@@ -70,7 +69,7 @@
       "endedAt",
       "calls[*].startedAt",
       "calls[*].endedAt",
-      "calls[*].request.bodyPath",
+
       "calls[*].response.responseTimeMs",
       "calls[*].response.dnsMs",
       "calls[*].response.connectMs",

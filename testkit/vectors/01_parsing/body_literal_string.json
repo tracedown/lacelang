@@ -1,8 +1,8 @@
 {
   "id": "body_literal_string",
-  "description": "body matcher bound to a literal string parses to a scope value whose value is a string literal (spec \u00a74.5).",
+  "description": "body matcher bound to a literal string parses to a scope value whose value is a string literal (spec §4.5).",
   "spec_refs": [
-    "lace-spec.md \u00a74.5"
+    "lace-spec.md §4.5"
   ],
   "type": "parse",
   "input": {
@@ -10,7 +10,7 @@
   },
   "expected": {
     "ast": {
-      "version": "0.9.0",
+      "version": "0.9.1",
       "calls": [
         {
           "method": "get",

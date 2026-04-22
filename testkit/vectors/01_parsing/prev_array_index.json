@@ -1,8 +1,8 @@
 {
   "id": "prev_array_index",
-  "description": "prev supports both `.field` and `[int]` segments; `prev.calls[0].assertions[2]` parses to a prevRef with mixed path (spec \u00a76).",
+  "description": "prev supports both `.field` and `[int]` segments; `prev.calls[0].assertions[2]` parses to a prevRef with mixed path (spec §6).",
   "spec_refs": [
-    "lace-spec.md \u00a76"
+    "lace-spec.md §6"
   ],
   "type": "parse",
   "input": {
@@ -10,7 +10,7 @@
   },
   "expected": {
     "ast": {
-      "version": "0.9.0",
+      "version": "0.9.1",
       "calls": [
         {
           "method": "get",

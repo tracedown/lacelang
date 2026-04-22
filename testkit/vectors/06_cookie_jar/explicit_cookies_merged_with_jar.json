@@ -69,7 +69,6 @@
             "headers": {
               "Cookie": "a=1; b=2"
             },
-            "bodyPath": null
           },
           "response": "IGNORED",
           "redirects": [],
@@ -99,7 +98,7 @@
       "calls[0].request",
       "calls[0].response",
       "calls[1].response",
-      "calls[1].request.bodyPath",
+
       "calls[*].config"
     ]
   }

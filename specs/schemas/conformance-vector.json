@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://lacelang.dev/schemas/conformance-vector/0.9.0",
+  "$id": "https://lacelang.dev/schemas/conformance-vector/0.9.1",
   "title": "Lace conformance test vector",
   "description": "A single conformance test case, distributed in lacelang-testkit and consumed by every executor's CLI under test. Discriminated by `type`. The testkit reads vectors from disk, invokes the executor's `parse` / `validate` / `run` subcommand per the executor manifest, normalises the actual output (stripping fields listed in `expected.ignore`), and diffs against `expected`.",
 
@@ -292,7 +292,7 @@
     "IgnorePaths": {
       "type": "array",
       "items": { "type": "string" },
-      "description": "JSON-pointer-like paths to strip from the actual output before diffing. Supports `[*]` for array wildcards (e.g. 'calls[*].started_at'). Default ignores: 'started_at', 'ended_at', 'calls[*].started_at', 'calls[*].ended_at', 'calls[*].request.body_path', 'calls[*].response.body_path' — the testkit applies these unconditionally; this field adds to them."
+      "description": "JSON-pointer-like paths to strip from the actual output before diffing. Supports `[*]` for array wildcards (e.g. 'calls[*].started_at'). Default ignores: 'started_at', 'ended_at', 'calls[*].started_at', 'calls[*].ended_at', 'calls[*].response.body_path' — the testkit applies these unconditionally; this field adds to them."
     },
 
     "ExpectedError": {

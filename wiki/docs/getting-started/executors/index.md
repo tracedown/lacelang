@@ -87,8 +87,8 @@ The maintainers will review your implementation and verify conformance.
 
 | Package | Language | Conformance | Spec Version | Repository |
 |---|---|---|---|---|
-| `lacelang-executor` | Python | **Canonical** | 0.9.0 | [tracedown/lacelang-python-executor](https://github.com/tracedown/lacelang-python-executor) |
-| `@lacelang/executor` | TypeScript | **Conformant** | 0.9.0 | [tracedown/lacelang-js-executor](https://github.com/tracedown/lacelang-js-executor) |
+| `lacelang-executor` | Python | **Canonical** | 0.9.1 | [tracedown/lacelang-python-executor](https://github.com/tracedown/lacelang-python-executor) |
+| `@lacelang/executor` | TypeScript | **Conformant** | 0.9.1 | [tracedown/lacelang-js-executor](https://github.com/tracedown/lacelang-js-executor) |
 
 Both implementations pass the full 171-vector conformance suite. The Python executor is the **canonical reference** — the spec is developed and verified against it. The TypeScript executor is fully interchangeable and targets the same spec version.
 

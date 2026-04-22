@@ -1,8 +1,11 @@
 # Body Storage
 
-Lace executors write request and response bodies to a shared filesystem volume. The
-result JSON contains **absolute paths** to these files -- no body bytes appear in the
-result JSON itself.
+When `result.bodies.dir` is set to a path, Lace executors write response bodies to that
+directory. The result JSON contains **absolute paths** to these files -- no body
+bytes appear in the result JSON itself.
+
+By default, body saving is **disabled** (`result.bodies.dir = false`). Enable it in
+`lace.config` or with the `--save-body` / `--bodies-dir` CLI flags.
 
 ---
 
@@ -11,60 +14,27 @@ result JSON itself.
 Body files follow the naming pattern:
 
 ```
-{run_base_dir}/call_{index}_{request|response}.{ext}
+{run_base_dir}/call_{index}_response.{ext}
 ```
 
 | Segment | Description |
 |---|---|
 | `run_base_dir` | Base directory for this probe run. Configured via `result.bodies.dir` in `lace.config`. |
 | `index` | Zero-based call index matching `calls[n].index`. |
-| `request \| response` | Whether the file contains the request body or response body. |
 | `ext` | File extension derived from the content type (e.g. `json`, `xml`, `txt`, `html`). |
 
 ### Examples
 
 ```
-/probe_runs/abc/call_0_request.json
 /probe_runs/abc/call_0_response.json
 /probe_runs/abc/call_1_response.html
 ```
 
 ---
 
-## bodyPath
+## Response bodyPath
 
-Both the request record and the response record include a `bodyPath` field.
-
-**Request `bodyPath`:** absolute path to the request body file, or `null` if no body
-was sent (typical for GET and DELETE requests).
-
-=== "POST"
-
-    ```json
-    {
-      "request": {
-        "url": "https://api.example.com/users",
-        "method": "post",
-        "headers": {
-          "content-type": "application/json"
-        },
-        "bodyPath": "/probe_runs/abc/call_0_request.json"
-      }
-    }
-    ```
-
-=== "GET"
-
-    ```json
-    {
-      "request": {
-        "url": "https://api.example.com/users",
-        "method": "get",
-        "headers": {},
-        "bodyPath": null
-      }
-    }
-    ```
+The response record includes a `bodyPath` field.
 
 **Response `bodyPath`:** absolute path to the response body file, or `null` when the
 body was not captured.
@@ -92,7 +62,7 @@ When the response `bodyPath` is `null`, the `bodyNotCapturedReason` field explai
 | Value | Meaning |
 |---|---|
 | `"bodyTooLarge"` | The response body exceeded the configured size limit and was not written. |
-| `"notRequested"` | The probe configuration did not request body capture for this call. |
+| `"notRequested"` | Body saving is disabled (`result.bodies.dir = false`, the default). |
 | `"timeout"` | The call timed out before the body could be fully received. |
 
 === "Compact"
@@ -142,16 +112,16 @@ When the response `bodyPath` is `null`, the `bodyNotCapturedReason` field explai
 
 ## Configuration
 
-The run base directory is set in `lace.config`:
+Body saving is controlled by `result.bodies.dir` in `lace.config`:
 
 ```toml
 [result.bodies]
-dir = "./lace_results/bodies"
+dir = "./lace_results/bodies"    # path string = save here, false = don't save
 ```
-
-If not specified, it defaults to the same directory as `result.path` (which itself
-defaults to the current directory).
 
 | Config key | Default | Description |
 |---|---|---|
-| `result.bodies.dir` | Same as `result.path` | Directory where body files are written. |
+| `result.bodies.dir` | `false` | Path string: save body files to this directory. `false`: do not save. |
+
+The `--save-body` CLI flag sets `result.bodies.dir` to the result path (or system temp) for a single run.
+The `--bodies-dir <path>` CLI flag sets `result.bodies.dir` to the given path explicitly.

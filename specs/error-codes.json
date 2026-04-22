@@ -1,10 +1,10 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://lacelang.dev/error-codes/0.9.0",
+  "$id": "https://lacelang.dev/error-codes/0.9.1",
   "title": "Lace canonical error code registry",
   "description": "Stable error/warning codes used by every Lace validator. Cross-implementation conformance depends on every validator emitting the same code for the same condition. The conformance vector schema (conformance-vector.schema.json) constrains expected error codes to this enum.",
 
-  "version": "0.9.0",
+  "version": "0.9.1",
   "codes": [
 
     { "code": "PARSE_ERROR",                "severity": "error",   "blocks_activation": true,  "spec": "lace-spec.md §2",      "description": "Source text does not conform to the grammar." },

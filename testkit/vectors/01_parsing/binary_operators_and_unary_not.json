@@ -1,8 +1,8 @@
 {
   "id": "binary_operators_and_unary_not",
-  "description": "Precedence sanity: `not $a and $b eq $c + $d * $e` parses per the spec precedence table (spec \u00a72.1, \u00a75).",
+  "description": "Precedence sanity: `not $a and $b eq $c + $d * $e` parses per the spec precedence table (spec §2.1, §5).",
   "spec_refs": [
-    "lace-spec.md \u00a72.1"
+    "lace-spec.md §2.1"
   ],
   "type": "parse",
   "input": {
@@ -10,7 +10,7 @@
   },
   "expected": {
     "ast": {
-      "version": "0.9.0",
+      "version": "0.9.1",
       "calls": [
         {
           "method": "get",

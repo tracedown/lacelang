@@ -42,7 +42,6 @@
             "headers": {
               "User-Agent": "fleet-probe/7.1 (monitor-east)"
             },
-            "bodyPath": null
           },
           "response": "IGNORED",
           "redirects": [],
@@ -59,7 +58,7 @@
       "endedAt",
       "calls[*].startedAt",
       "calls[*].endedAt",
-      "calls[*].request.bodyPath",
+
       "calls[*].response",
       "calls[*].assertions",
       "calls[*].config"

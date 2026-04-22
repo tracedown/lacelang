@@ -1,8 +1,8 @@
 {
   "id": "body_schema_with_mode",
-  "description": "body: schema($var) accepts a `mode` modifier of 'strict' or 'loose' (spec \u00a74.5.1). Parses into a ScopeValue with value=schema(...) call, mode: 'strict'.",
+  "description": "body: schema($var) accepts a `mode` modifier of 'strict' or 'loose' (spec §4.5.1). Parses into a ScopeValue with value=schema(...) call, mode: 'strict'.",
   "spec_refs": [
-    "lace-spec.md \u00a74.5.1"
+    "lace-spec.md §4.5.1"
   ],
   "type": "parse",
   "input": {
@@ -10,7 +10,7 @@
   },
   "expected": {
     "ast": {
-      "version": "0.9.0",
+      "version": "0.9.1",
       "calls": [
         {
           "method": "get",

@@ -2,7 +2,7 @@
 
 Not every executor implementation needs every feature of the spec. Some targets -- embedded probe runners, CI gates, bespoke monitoring appliances -- have no use for the extension system or no surface for emitting writeback actions. Lace defines conformance levels so such implementations can declare what they support and have that claim verified by the testkit.
 
-Spec version: 0.9.0 (source: `lace-spec.md` section 17)
+Spec version: 0.9.1 (source: `lace-spec.md` section 17)
 
 ## Omissions
 
