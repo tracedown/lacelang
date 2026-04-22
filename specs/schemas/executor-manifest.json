@@ -43,7 +43,7 @@
       "type": "object",
       "additionalProperties": false,
       "description": "Command templates for the three CLI subcommands. Each template is a shell command with placeholders `{script}`, `{vars}`, `{vars_list}`, `{context}`, `{prev}`, `{config}`. The testkit substitutes paths for placeholders and invokes the command, captures stdout, parses as JSON, and diffs against expected.",
-      "required": ["parse", "validate", "run"],
+      "required": ["parse", "validate"],
       "properties": {
         "parse": {
           "type": "string",

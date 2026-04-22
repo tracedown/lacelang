@@ -259,8 +259,8 @@ executor_manifest_t *manifest_load(const char *path) {
     free(cur_section);
     free(text);
 
-    if (ok && (!m->name || !m->parse_template || !m->validate_template || !m->run_template)) {
-        fprintf(stderr, "manifest: missing required fields (executor.name / adapter.parse / validate / run)\n");
+    if (ok && (!m->name || !m->parse_template || !m->validate_template)) {
+        fprintf(stderr, "manifest: missing required fields (executor.name / adapter.parse / adapter.validate)\n");
         ok = 0;
     }
     if (!ok) { manifest_free(m); return NULL; }

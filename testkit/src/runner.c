@@ -963,10 +963,18 @@ static int run_execute_vector_common(
 }
 
 static int run_execute_vector(const vector_t *v, const runner_config_t *cfg) {
+    if (!cfg->manifest || !cfg->manifest->run_template) {
+        report_skip(v, "no adapter.run in manifest", cfg);
+        return RUNNER_SKIP;
+    }
     return run_execute_vector_common(v, cfg, false);
 }
 
 static int run_extension_vector(const vector_t *v, const runner_config_t *cfg) {
+    if (!cfg->manifest || !cfg->manifest->run_template) {
+        report_skip(v, "no adapter.run in manifest", cfg);
+        return RUNNER_SKIP;
+    }
     return run_execute_vector_common(v, cfg, true);
 }
 
