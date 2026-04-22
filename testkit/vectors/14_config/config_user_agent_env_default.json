@@ -39,7 +39,6 @@
             "headers": {
               "User-Agent": "fallback-ua"
             },
-            "bodyPath": null
           },
           "response": "IGNORED",
           "redirects": [],
@@ -56,7 +55,7 @@
       "endedAt",
       "calls[*].startedAt",
       "calls[*].endedAt",
-      "calls[*].request.bodyPath",
+
       "calls[*].response",
       "calls[*].assertions",
       "calls[*].config"

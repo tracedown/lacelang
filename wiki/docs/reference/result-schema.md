@@ -2,7 +2,7 @@
 
 The `ProbeResult` is the wire format returned by every Lace executor. Conforms to `lace-spec.md` section 9. Extension-defined fields appear under `actions.{key}` (arrays) and `runVars` (scalars with `{extension_name}.` prefix).
 
-Spec version: 0.9.0
+Spec version: 0.9.1
 
 ## Top-Level Fields
 
@@ -45,7 +45,6 @@ Spec version: 0.9.0
 | `url` | string | Yes | Resolved URL after variable interpolation. |
 | `method` | `"get"` \| `"post"` \| `"put"` \| `"patch"` \| `"delete"` | Yes | |
 | `headers` | object (string values) | Yes | Resolved headers sent on the wire. |
-| `bodyPath` | string \| null | Yes | Absolute path to request body file on shared storage. Null if no body. |
 
 ## ResponseRecord
 

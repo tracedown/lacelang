@@ -1,8 +1,8 @@
 {
   "id": "cookies_config_field",
-  "description": "Call config `cookies: { ... }` parses to a map of name \u2192 expression on config.cookies (spec \u00a73.2).",
+  "description": "Call config `cookies: { ... }` parses to a map of name → expression on config.cookies (spec §3.2).",
   "spec_refs": [
-    "lace-spec.md \u00a73.2"
+    "lace-spec.md §3.2"
   ],
   "type": "parse",
   "input": {
@@ -10,7 +10,7 @@
   },
   "expected": {
     "ast": {
-      "version": "0.9.0",
+      "version": "0.9.1",
       "calls": [
         {
           "method": "get",

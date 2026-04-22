@@ -2,7 +2,7 @@
 
 Built-in primitive functions provided by the executor's rule interpreter. Available in all extension rule bodies and functions. All implementations provide these identically.
 
-Spec version: 0.9.0 (source: `lace-extensions.md` section 7)
+Spec version: 0.9.1 (source: `lace-extensions.md` section 7)
 
 ## `compare(a, b) -> string | null`
 

@@ -39,7 +39,6 @@
             "headers": {
               "x-token": "abc123"
             },
-            "bodyPath": null
           },
           "response": "IGNORED",
           "redirects": [],
@@ -66,7 +65,7 @@
       "endedAt",
       "calls[*].startedAt",
       "calls[*].endedAt",
-      "calls[*].request.bodyPath",
+
       "calls[*].response",
       "calls[*].config"
     ]

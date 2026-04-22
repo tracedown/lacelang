@@ -46,7 +46,6 @@
             "url": "http://127.0.0.1:{port}/login",
             "method": "post",
             "headers": {},
-            "bodyPath": null
           },
           "response": "IGNORED",
           "redirects": [],

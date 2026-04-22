@@ -1,8 +1,8 @@
 {
   "id": "redirects_scope_with_match",
-  "description": "The redirects scope accepts match: 'first' | 'last' | 'any' (spec \u00a74.3). Full form carries `value` and `match`; op defaults to 'eq'.",
+  "description": "The redirects scope accepts match: 'first' | 'last' | 'any' (spec §4.3). Full form carries `value` and `match`; op defaults to 'eq'.",
   "spec_refs": [
-    "lace-spec.md \u00a74.3"
+    "lace-spec.md §4.3"
   ],
   "type": "parse",
   "input": {
@@ -10,7 +10,7 @@
   },
   "expected": {
     "ast": {
-      "version": "0.9.0",
+      "version": "0.9.1",
       "calls": [
         {
           "method": "get",

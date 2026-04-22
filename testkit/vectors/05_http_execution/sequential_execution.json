@@ -47,14 +47,12 @@
           "request": {
             "url": "http://127.0.0.1:{port}/a",
             "method": "get",
-            "headers": {},
-            "bodyPath": null
+            "headers": {}
           },
           "response": {
             "status": 200,
             "statusText": "OK",
             "headers": {},
-            "bodyPath": null,
             "bodyNotCapturedReason": "notRequested",
             "responseTimeMs": 0,
             "dnsMs": 0,
@@ -88,14 +86,12 @@
           "request": {
             "url": "http://127.0.0.1:{port}/b",
             "method": "get",
-            "headers": {},
-            "bodyPath": null
+            "headers": {}
           },
           "response": {
             "status": 201,
             "statusText": "Created",
             "headers": {},
-            "bodyPath": null,
             "bodyNotCapturedReason": "notRequested",
             "responseTimeMs": 0,
             "dnsMs": 0,
@@ -129,14 +125,12 @@
           "request": {
             "url": "http://127.0.0.1:{port}/c",
             "method": "get",
-            "headers": {},
-            "bodyPath": null
+            "headers": {}
           },
           "response": {
             "status": 204,
             "statusText": "No Content",
             "headers": {},
-            "bodyPath": null,
             "bodyNotCapturedReason": "notRequested",
             "responseTimeMs": 0,
             "dnsMs": 0,
@@ -170,7 +164,7 @@
       "endedAt",
       "calls[*].startedAt",
       "calls[*].endedAt",
-      "calls[*].request.bodyPath",
+
       "calls[*].response.bodyPath",
       "calls[*].response.responseTimeMs",
       "calls[*].response.dnsMs",

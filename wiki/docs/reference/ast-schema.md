@@ -5,13 +5,13 @@ The Lace AST is the canonical in-memory representation produced by parsers from 
 !!! note
     The AST is an implementation detail and is not a stable wire format. However, this schema is the canonical shape used by the testkit's `parse` conformance tests -- every executor's `parse` subcommand must serialise its internal AST to this shape for the testkit to compare against expected outputs.
 
-Spec version: 0.9.0
+Spec version: 0.9.1
 
 ## Top-Level
 
 | Field | Type | Required | Description |
 |---|---|---|---|
-| `version` | `"0.9.0"` | Yes | AST schema version. Bumped on breaking changes. |
+| `version` | `"0.9.1"` | Yes | AST schema version. Bumped on breaking changes. |
 | `calls` | array of [Call](#call) (min 1) | Yes | Ordered HTTP calls. Validator enforces minimum 1 call. |
 
 ## Call

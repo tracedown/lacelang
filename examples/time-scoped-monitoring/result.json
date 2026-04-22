@@ -16,8 +16,7 @@
         "headers": {
           "Accept": "text/html",
           "User-Agent": "lace-probe/0.1.0 (lacelang-python)"
-        },
-        "bodyPath": null
+        }
       },
       "response": {
         "status": 200,

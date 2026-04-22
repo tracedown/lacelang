@@ -2,7 +2,7 @@
 
 Core helper functions available in Lace expressions. These are the only functions permitted in core expression contexts (outside extension-registered option fields).
 
-Spec version: 0.9.0
+Spec version: 0.9.1
 
 ## `json(object) -> string`
 

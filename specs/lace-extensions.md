@@ -1,6 +1,6 @@
-# Lace — Extension System v0.9.0
+# Lace — Extension System v0.9.1
 
-> Status: Initial release (v0.9.0)
+> Status: Initial release (v0.9.1)
 > Referenced by: lace-spec.md §10
 
 ---
@@ -849,7 +849,7 @@ Fires before/after all chain methods on a single HTTP call complete.
 | Name | Type | Description |
 |---|---|---|
 | `call.index` | int | Zero-based call index |
-| `call.request` | object | Resolved request: `url`, `method`, `headers`, `bodyPath` |
+| `call.request` | object | Resolved request: `url`, `method`, `headers` |
 | `call.config` | object | Resolved call config including all extension fields |
 | `prev` | object \| null | Previous result |
 
@@ -1121,4 +1121,4 @@ Moved to **[checklist-extensions.md](./checklist-extensions.md)** for maintainab
 
 ---
 
-*End of Lace extension system v0.9.0*
+*End of Lace extension system v0.9.1*

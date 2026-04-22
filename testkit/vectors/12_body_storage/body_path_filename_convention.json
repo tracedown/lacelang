@@ -1,6 +1,6 @@
 {
   "id": "body_path_filename_convention",
-  "description": "When a call has both a request body and a response body, calls[0].request.bodyPath and calls[0].response.bodyPath are both non-null file paths (spec \u00a79.4, \u00a715.12). The exact path is runtime-dependent; the testkit can only assert the fields are non-null via the NON_NULL sentinel. Together with the `index`-in-filename convention described in spec \u00a715.12 ({run_base_dir}/call_{index}_{request|response}.{ext}), populating both confirms the executor writes one file per direction per call.",
+  "description": "When body saving is enabled and a response body is received, calls[0].response.bodyPath is a non-null file path (spec \u00a79.4, \u00a715.12). The exact path is runtime-dependent; the testkit can only assert the field is non-null via the NON_NULL sentinel. The filename follows the convention described in spec \u00a715.12 ({run_base_dir}/call_{index}_response.{ext}).",
   "spec_refs": [
     "lace-spec.md \u00a79.4",
     "lace-spec.md \u00a715.12"
@@ -36,8 +36,7 @@
           "request": {
             "url": "http://127.0.0.1:{port}/echo",
             "method": "post",
-            "headers": "IGNORED",
-            "bodyPath": "NON_NULL"
+            "headers": "IGNORED"
           },
           "response": {
             "status": 200,

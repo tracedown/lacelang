@@ -24,7 +24,6 @@
             "url": "http://example/prior",
             "method": "get",
             "headers": {},
-            "bodyPath": null
           },
           "response": {
             "status": 200,

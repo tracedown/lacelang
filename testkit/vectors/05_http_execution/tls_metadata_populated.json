@@ -47,7 +47,7 @@
       "endedAt",
       "calls[*].startedAt",
       "calls[*].endedAt",
-      "calls[*].request.bodyPath",
+
       "calls[*].response.bodyPath",
       "calls[*].response.responseTimeMs",
       "calls[*].response.dnsMs",

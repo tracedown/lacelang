@@ -31,8 +31,7 @@
           "request": {
             "url": "http://127.0.0.1:{port}/slow",
             "method": "get",
-            "headers": {},
-            "bodyPath": null
+            "headers": {}
           },
           "response": null,
           "redirects": [],
@@ -49,7 +48,7 @@
       "endedAt",
       "calls[*].startedAt",
       "calls[*].endedAt",
-      "calls[*].request.bodyPath",
+
       "calls[*].config",
       "calls[*].error"
     ]

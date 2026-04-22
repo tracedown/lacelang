@@ -5,7 +5,7 @@ complete outcome of a probe run: timing, per-call details, assertion verdicts, a
 write-back actions.
 
 The schema is defined in
-[`schemas/result.json`](https://lacelang.dev/schemas/result/0.9.0) and specified in
+[`schemas/result.json`](https://lacelang.dev/schemas/result/0.9.1) and specified in
 lace-spec.md section 9.
 
 ---
@@ -97,8 +97,7 @@ A probe with a single GET call, one status assertion, and no stored variables:
             "method": "get",
             "headers": {
               "user-agent": "Lace/0.9"
-            },
-            "bodyPath": null
+            }
           },
           "response": {
             "status": 200,

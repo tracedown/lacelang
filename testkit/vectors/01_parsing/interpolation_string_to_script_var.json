@@ -1,8 +1,8 @@
 {
   "id": "interpolation_string_to_script_var",
-  "description": "A string literal that is *exactly* `$name` collapses at parse time to a scriptVar node, not a string literal (spec \u00a73.5).",
+  "description": "A string literal that is *exactly* `$name` collapses at parse time to a scriptVar node, not a string literal (spec §3.5).",
   "spec_refs": [
-    "lace-spec.md \u00a73.5"
+    "lace-spec.md §3.5"
   ],
   "type": "parse",
   "input": {
@@ -10,7 +10,7 @@
   },
   "expected": {
     "ast": {
-      "version": "0.9.0",
+      "version": "0.9.1",
       "calls": [
         {
           "method": "get",

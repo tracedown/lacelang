@@ -1,6 +1,6 @@
 # Extension System Compatibility Checklist
 
-> Spec version: 0.9.0
+> Spec version: 0.9.1
 > Companion to: [lace-extensions.md](./lace-extensions.md)
 
 An executor implementation is considered **Lace Extension Compatible** when it satisfies all items in this checklist. Partial compatibility must be documented — an executor may declare which sections it supports.

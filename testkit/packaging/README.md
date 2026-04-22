@@ -36,7 +36,7 @@ For embedded/gateway deployments where the Lace runner itself is a C
 executor, the testkit can be shipped as an `.ipk`:
 
 ```bash
-opkg-utils build packaging/opkg .    # outputs lacelang-testkit_0.9.0_all.ipk
+opkg-utils build packaging/opkg .    # outputs lacelang-testkit_0.9.1_all.ipk
 ```
 
 ## Release checklist

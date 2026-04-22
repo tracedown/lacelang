@@ -1,6 +1,6 @@
 {
   "id": "body_not_captured_timeout",
-  "description": "On a hard-fail timeout (`timeout.action: \"fail\"`), no response body can be captured because no response was received. Per spec \u00a79.4 `calls[n].response` is `null` for timeout, skipped, or connection failure. Spec \u00a715.12 lists `\"timeout\"` as a valid `bodyNotCapturedReason`, but with a null `response` there is no response object to attach the reason to \u2014 so the observable shape is simply `response: null`. The request was sent but never completed, so `request.bodyPath` is also `null` (GET carries no body).",
+  "description": "On a hard-fail timeout (`timeout.action: \"fail\"`), no response body can be captured because no response was received. Per spec \u00a79.4 `calls[n].response` is `null` for timeout, skipped, or connection failure. Spec \u00a715.12 lists `\"timeout\"` as a valid `bodyNotCapturedReason`, but with a null `response` there is no response object to attach the reason to \u2014 so the observable shape is simply `response: null`.",
   "spec_refs": [
     "lace-spec.md \u00a79.4",
     "lace-spec.md \u00a715.12"
@@ -31,8 +31,7 @@
           "request": {
             "url": "http://127.0.0.1:{port}/slow",
             "method": "get",
-            "headers": {},
-            "bodyPath": null
+            "headers": {}
           },
           "response": null,
           "redirects": [],

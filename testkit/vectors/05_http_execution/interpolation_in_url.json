@@ -37,7 +37,6 @@
             "url": "http://127.0.0.1:{port}/hello",
             "method": "get",
             "headers": "IGNORED",
-            "bodyPath": null
           },
           "response": "IGNORED",
           "redirects": [],
@@ -64,7 +63,7 @@
       "endedAt",
       "calls[*].startedAt",
       "calls[*].endedAt",
-      "calls[*].request.bodyPath",
+
       "calls[*].response",
       "calls[*].config"
     ]

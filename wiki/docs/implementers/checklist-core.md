@@ -4,7 +4,7 @@ An executor implementation is considered **Lace Core Compatible** when it satisf
 
 This checklist covers the core language only. Extension system compatibility is defined separately in the [Extension Checklist](checklist-extensions.md).
 
-Spec version: 0.9.0
+Spec version: 0.9.1
 
 ---
 
@@ -210,7 +210,7 @@ All validation rules from lace-spec.md section 12 must be enforced. The followin
 - [ ] `runVars` is a flat object containing all assigned `$$var` keys and their final values
 - [ ] `calls` contains one record per call in script order, including skipped calls
 - [ ] Each call record contains: `index`, `outcome`, `startedAt`, `endedAt`, `request`, `response`, `assertions`, `config`, `warnings`, `error`
-- [ ] `request` contains: `url` (resolved), `method`, `headers` (resolved), `bodyPath`
+- [ ] `request` contains: `url` (resolved), `method`, `headers` (resolved)
 - [ ] `response` is `null` for skipped, timeout (no response received), or connection failure
 - [ ] `response` contains: `status`, `statusText`, `headers`, `bodyPath`, and all timing fields
 - [ ] `assertions` contains one entry per evaluated scope and condition, in evaluation order
@@ -227,14 +227,15 @@ All validation rules from lace-spec.md section 12 must be enforced. The followin
 
 ## 12. Body Storage
 
-- [ ] Writes request body to a file on the shared filesystem volume before sending the request
-- [ ] Writes response body to a file on the shared filesystem volume after receiving the response
-- [ ] File paths follow the convention: `{run_base_dir}/call_{index}_{request|response}.{ext}`
-- [ ] Result JSON contains absolute file paths in `request.bodyPath` and `response.bodyPath`
+- [ ] When `result.bodies.dir` is a path string`, writes response body to a file on the shared filesystem volume after receiving the response
+- [ ] When `result.bodies.dir` is `false` (default), no body files are written and `response.bodyPath` is always `null` with `bodyNotCapturedReason: "notRequested"`
+- [ ] File paths follow the convention: `{run_base_dir}/call_{index}_response.{ext}`
+- [ ] Result JSON contains absolute file paths in `response.bodyPath` when body saving is enabled
 - [ ] No body bytes appear in the result JSON itself
-- [ ] `bodyPath` is `null` when a body was not captured
-- [ ] When `bodyPath` is `null`, `bodyNotCapturedReason` is present on the containing object with value `"bodyTooLarge"`, `"notRequested"`, or `"timeout"`
+- [ ] `response.bodyPath` is `null` when a body was not captured
+- [ ] When `response.bodyPath` is `null`, `bodyNotCapturedReason` is present with value `"bodyTooLarge"`, `"notRequested"`, or `"timeout"`
 - [ ] Run base directory is taken from execution context (configured via `result.bodies.dir`)
+- [ ] `--save-body` CLI flag sets `result.bodies.dir to the result path` for a single run
 
 ---
 

@@ -1,6 +1,6 @@
 # Grammar Reference
 
-Lace v0.9.0 grammar. The ANTLR4 grammar (`lacelang.g4`) is the authoritative syntax definition. The EBNF below is the human-readable mirror from the spec.
+Lace v0.9.1 grammar. The ANTLR4 grammar (`lacelang.g4`) is the authoritative syntax definition. The EBNF below is the human-readable mirror from the spec.
 
 ## Formal Grammar (EBNF)
 

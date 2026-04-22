@@ -1,8 +1,8 @@
 {
   "id": "null_and_float_literals",
-  "description": "null and floating-point literals both parse; null emits value_type:'null' and float emits value_type:'float' (spec \u00a72.1, \u00a72.2).",
+  "description": "null and floating-point literals both parse; null emits value_type:'null' and float emits value_type:'float' (spec §2.1, §2.2).",
   "spec_refs": [
-    "lace-spec.md \u00a72.1"
+    "lace-spec.md §2.1"
   ],
   "type": "parse",
   "input": {
@@ -10,7 +10,7 @@
   },
   "expected": {
     "ast": {
-      "version": "0.9.0",
+      "version": "0.9.1",
       "calls": [
         {
           "method": "get",
