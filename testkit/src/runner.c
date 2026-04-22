@@ -962,6 +962,11 @@ static int run_execute_vector_common(
     return result;
 }
 
+/* Sentinel returned by per-type runners when the vector was skipped (TLS
+ * unavailable, cert missing, no adapter.run, …). Distinct from 0 (pass)
+ * and 1 (fail) so runner_run_all can account for it in the summary. */
+#define RUNNER_SKIP 2
+
 static int run_execute_vector(const vector_t *v, const runner_config_t *cfg) {
     if (!cfg->manifest || !cfg->manifest->run_template) {
         report_skip(v, "no adapter.run in manifest", cfg);
@@ -980,10 +985,7 @@ static int run_extension_vector(const vector_t *v, const runner_config_t *cfg) {
 
 /* ── entrypoint ───────────────────────────────────────────────────── */
 
-/* Sentinel returned by per-type runners when the vector was skipped (TLS
- * unavailable, cert missing, …). Distinct from 0 (pass) and 1 (fail) so
- * runner_run_all can account for it in the summary. */
-#define RUNNER_SKIP 2
+/* (RUNNER_SKIP moved above run_execute_vector) */
 
 /* Return the first feature name in the vector's `requires` that also appears
  * in the cfg's omit list, or NULL. */
