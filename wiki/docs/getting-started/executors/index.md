@@ -98,5 +98,6 @@ Each implementation splits into a **validator** (parser + semantic checks, zero 
 |---|---|---|
 | `lacelang-validator` | Python | [tracedown/lacelang-python-validator](https://github.com/tracedown/lacelang-python-validator) |
 | `@lacelang/validator` | TypeScript | [tracedown/lacelang-js-validator](https://github.com/tracedown/lacelang-js-validator) |
+| `lacelang-kt-validator` | Kotlin | [tracedown/lacelang-kt-validator](https://github.com/tracedown/lacelang-kt-validator) |
 
 See the [Python Executor](python-executor.md) and [TypeScript Executor](ts-executor.md) pages for installation, CLI usage, and the programmatic API.

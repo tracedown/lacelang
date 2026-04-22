@@ -9,7 +9,7 @@ You need a Lace executor -- a program that parses `.lace` files, runs the HTTP c
 
     - **Python** (canonical reference) -- [`lacelang-executor`](https://github.com/tracedown/lacelang-python-executor) + [`lacelang-validator`](https://github.com/tracedown/lacelang-python-validator)
     - **TypeScript** (conformant) -- [`@lacelang/executor`](https://github.com/tracedown/lacelang-js-executor) + [`@lacelang/validator`](https://github.com/tracedown/lacelang-js-validator)
-    - Kotlin -- TBD
+    - **Kotlin** (validator only, conformant) -- [`lacelang-kt-validator`](https://github.com/tracedown/lacelang-kt-validator)
 
     Any executor that passes the [conformance test suite](../implementers/checklist-core.md) is a valid Lace executor.
 

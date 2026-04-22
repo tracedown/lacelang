@@ -38,8 +38,9 @@ live in separate repositories and conform to this spec by passing the test suite
 | `lacelang-validator` | Python | Canonical | 0.9.0 | [tracedown/lacelang-python-validator](https://github.com/tracedown/lacelang-python-validator) |
 | `@lacelang/executor` | TypeScript | Conformant | 0.9.0 | [tracedown/lacelang-js-executor](https://github.com/tracedown/lacelang-js-executor) |
 | `@lacelang/validator` | TypeScript | Conformant | 0.9.0 | [tracedown/lacelang-js-validator](https://github.com/tracedown/lacelang-js-validator) |
+| `lacelang-kt-validator` | Kotlin | Conformant | 0.9.0 | [tracedown/lacelang-kt-validator](https://github.com/tracedown/lacelang-kt-validator) |
 
-The Python implementation is the **canonical reference** — the spec is developed and verified against it. The TypeScript implementation passes the same 171 conformance vectors and is fully interchangeable.
+The Python implementation is the **canonical reference** — the spec is developed and verified against it. The TypeScript and Kotlin implementations pass the same conformance vectors and are fully interchangeable.
 
 ## Examples
 
