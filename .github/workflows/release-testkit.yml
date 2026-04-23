@@ -1,6 +1,7 @@
 name: Release Testkit
 
 on:
+  workflow_dispatch:
   push:
     branches: [main]
     paths:
