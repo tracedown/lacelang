@@ -121,6 +121,7 @@ jobs:
       - name: Build deb package
         run: |
           cd testkit
+          ln -s packaging/debian debian
           dpkg-buildpackage -us -uc -b
 
       - name: Upload deb to release
