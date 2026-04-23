@@ -126,7 +126,7 @@ jobs:
 
       - name: Upload deb to release
         run: |
-          gh release upload "testkit-v${{ needs.check.outputs.version }}" ../lacelang-testkit_*.deb
+          gh release upload "testkit-v${{ needs.check.outputs.version }}" lacelang-testkit_*.deb
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
