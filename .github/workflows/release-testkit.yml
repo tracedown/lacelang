@@ -116,7 +116,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Install build deps
-        run: sudo apt-get update && sudo apt-get install -y libssl-dev dpkg-dev debhelper
+        run: sudo apt-get update && sudo apt-get install -y libssl-dev dpkg-dev debhelper build-essential
 
       - name: Build deb package
         run: |
