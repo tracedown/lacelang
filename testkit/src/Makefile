@@ -11,6 +11,19 @@ CFLAGS  ?= -std=c99 -Wall -Wextra -Wpedantic -O2 -D_POSIX_C_SOURCE=200809L -D_GN
 CFLAGS  += -Ithird_party/cjson
 CFLAGS  += -DLACE_CONFORMANCE_VERSION='"$(LACE_VERSION)"'
 LDFLAGS ?= -lpthread
+
+# macOS needs _DARWIN_C_SOURCE for mkdtemp(3) and friends.
+UNAME_S := $(shell uname -s)
+ifeq ($(UNAME_S),Darwin)
+CFLAGS += -D_DARWIN_C_SOURCE
+endif
+
+# Extra include/lib paths (e.g. Homebrew OpenSSL on macOS).
+# Pass OPENSSL_PREFIX=/opt/homebrew/opt/openssl@3 to set both at once.
+ifdef OPENSSL_PREFIX
+CFLAGS  += -I$(OPENSSL_PREFIX)/include
+LDFLAGS += -L$(OPENSSL_PREFIX)/lib
+endif
 BUILD   := build
 
 # Opt-in compile-time vector snapshot. When set, vectors/ is transcoded to

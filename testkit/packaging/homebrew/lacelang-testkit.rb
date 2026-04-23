@@ -4,11 +4,11 @@
 
 class LacelangTestkit < Formula
   desc "Canonical conformance test harness for Lace executors"
-  homepage "https://github.com/lacelang/lacelang"
-  url "https://github.com/lacelang/lacelang/archive/refs/tags/testkit-v0.1.0.tar.gz"
+  homepage "https://github.com/tracedown/lacelang"
+  url "https://github.com/tracedown/lacelang/archive/refs/tags/testkit-v0.1.0.tar.gz"
   sha256 "UPDATE_ON_RELEASE"
   license "MIT"
-  head "https://github.com/lacelang/lacelang.git", branch: "main"
+  head "https://github.com/tracedown/lacelang.git", branch: "main"
 
   depends_on "openssl@3"
   depends_on "python@3.12" => :build

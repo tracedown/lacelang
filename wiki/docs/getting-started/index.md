@@ -15,14 +15,8 @@ You need a Lace executor -- a program that parses `.lace` files, runs the HTTP c
 
 ## Installing the Python reference executor
 
-Not published to PyPI yet. Install from source:
-
 ```bash
-# 1. Install the validator (required dependency)
-pip install git+https://github.com/tracedown/lacelang-python-validator.git
-
-# 2. Install the executor
-pip install git+https://github.com/tracedown/lacelang-python-executor.git
+pip install lacelang-executor
 ```
 
 This installs the `lacelang-executor` CLI and the `lacelang-validator` dependency (parser + semantic checks, no network dependencies).
