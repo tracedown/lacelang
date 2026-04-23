@@ -1,0 +1,29 @@
+name: Testkit CI
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'testkit/**'
+      - 'extensions/**'
+      - 'VERSION'
+
+jobs:
+  build:
+    if: github.repository == 'tracedown/lacelang' && !startsWith(github.event.pull_request.title, 'WIP:')
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install OpenSSL dev (Linux)
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y libssl-dev
+
+      - name: Build
+        run: cd testkit/src && make EMBED_VECTORS=1
+
+      - name: Smoke test
+        run: cd testkit/src && make test

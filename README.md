@@ -34,10 +34,10 @@ live in separate repositories and conform to this spec by passing the test suite
 
 | Package | Language | Conformance | Spec Version | Repository |
 |---|---|---|---|---|
-| `lacelang-executor` | Python | Canonical | 0.9.1 | [tracedown/lacelang-python-executor](https://github.com/tracedown/lacelang-python-executor) |
-| `lacelang-validator` | Python | Canonical | 0.9.1 | [tracedown/lacelang-python-validator](https://github.com/tracedown/lacelang-python-validator) |
-| `@lacelang/executor` | TypeScript | Conformant | 0.9.1 | [tracedown/lacelang-js-executor](https://github.com/tracedown/lacelang-js-executor) |
-| `@lacelang/validator` | TypeScript | Conformant | 0.9.1 | [tracedown/lacelang-js-validator](https://github.com/tracedown/lacelang-js-validator) |
+| [`lacelang-executor`](https://pypi.org/project/lacelang-executor/) | Python | Canonical | 0.9.1 | [tracedown/lacelang-python-executor](https://github.com/tracedown/lacelang-python-executor) |
+| [`lacelang-validator`](https://pypi.org/project/lacelang-validator/) | Python | Canonical | 0.9.1 | [tracedown/lacelang-python-validator](https://github.com/tracedown/lacelang-python-validator) |
+| [`@lacelang/executor`](https://www.npmjs.com/package/@lacelang/executor) | TypeScript | Conformant | 0.9.1 | [tracedown/lacelang-js-executor](https://github.com/tracedown/lacelang-js-executor) |
+| [`@lacelang/validator`](https://www.npmjs.com/package/@lacelang/validator) | TypeScript | Conformant | 0.9.1 | [tracedown/lacelang-js-validator](https://github.com/tracedown/lacelang-js-validator) |
 | `lacelang-kt-validator` | Kotlin | Conformant | 0.9.1 | [tracedown/lacelang-kt-validator](https://github.com/tracedown/lacelang-kt-validator) |
 
 The Python implementation is the **canonical reference** — the spec is developed and verified against it. The TypeScript and Kotlin implementations pass the same conformance vectors and are fully interchangeable.

@@ -18,24 +18,16 @@ Requires Node.js **18+**.
 
 ## Installation
 
-Not published to npm yet. Install from GitHub:
-
 ```bash
-# 1. Install the validator (required dependency)
-npm install git+https://github.com/tracedown/lacelang-js-validator.git
-
-# 2. Install the executor
-npm install git+https://github.com/tracedown/lacelang-js-executor.git
+npm install @lacelang/executor
 ```
 
-Or from local clones:
+This automatically installs `@lacelang/validator` as a dependency.
+
+Or from source:
 
 ```bash
-git clone https://github.com/tracedown/lacelang-js-validator.git
-git clone https://github.com/tracedown/lacelang-js-executor.git
-
-npm install ./lacelang-js-validator
-npm install ./lacelang-js-executor
+npm install git+https://github.com/tracedown/lacelang-js-executor.git
 ```
 
 ---
