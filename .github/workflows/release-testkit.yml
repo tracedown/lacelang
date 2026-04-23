@@ -2,11 +2,48 @@ name: Release Testkit
 
 on:
   push:
-    tags: ["testkit-v*"]
+    branches: [main]
+    paths:
+      - 'testkit/**'
+      - 'extensions/**'
+      - 'VERSION'
 
 jobs:
-  build:
+  check:
     if: github.repository == 'tracedown/lacelang'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    outputs:
+      should_release: ${{ steps.tag.outputs.created }}
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Read version
+        id: version
+        run: |
+          version=$(cat VERSION)
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "tag=testkit-v$version" >> "$GITHUB_OUTPUT"
+
+      - name: Create tag if new
+        id: tag
+        run: |
+          if git rev-parse "${{ steps.version.outputs.tag }}" >/dev/null 2>&1; then
+            echo "Tag ${{ steps.version.outputs.tag }} already exists"
+            echo "created=false" >> "$GITHUB_OUTPUT"
+          else
+            git tag "${{ steps.version.outputs.tag }}"
+            git push origin "${{ steps.version.outputs.tag }}"
+            echo "created=true" >> "$GITHUB_OUTPUT"
+          fi
+
+  build:
+    needs: check
+    if: needs.check.outputs.should_release == 'true'
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -44,7 +81,7 @@ jobs:
           path: ${{ matrix.artifact }}
 
   release:
-    needs: build
+    needs: [check, build]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -61,8 +98,8 @@ jobs:
 
       - name: Create GitHub Release
         run: |
-          gh release create "${{ github.ref_name }}" \
-            --title "${{ github.ref_name }}" \
+          gh release create "testkit-v${{ needs.check.outputs.version }}" \
+            --title "testkit-v${{ needs.check.outputs.version }}" \
             --generate-notes \
             artifacts/*
         env:
@@ -70,7 +107,7 @@ jobs:
           GH_REPO: ${{ github.repository }}
 
   build-deb:
-    needs: build
+    needs: [check, release]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -87,7 +124,7 @@ jobs:
 
       - name: Upload deb to release
         run: |
-          gh release upload "${{ github.ref_name }}" ../lacelang-testkit_*.deb
+          gh release upload "testkit-v${{ needs.check.outputs.version }}" ../lacelang-testkit_*.deb
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
