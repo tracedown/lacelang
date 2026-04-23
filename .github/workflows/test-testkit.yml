@@ -22,8 +22,20 @@ jobs:
         if: runner.os == 'Linux'
         run: sudo apt-get update && sudo apt-get install -y libssl-dev
 
-      - name: Build
+      - name: Install OpenSSL (macOS)
+        if: runner.os == 'macOS'
+        run: brew install openssl@3
+
+      - name: Build (Linux)
+        if: runner.os == 'Linux'
         run: cd testkit/src && make EMBED_VECTORS=1
+
+      - name: Build (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          cd testkit/src && make EMBED_VECTORS=1 \
+            CFLAGS="-std=c99 -Wall -Wextra -Wpedantic -O2 -D_POSIX_C_SOURCE=200809L -D_GNU_SOURCE -Ithird_party/cjson -DLACE_CONFORMANCE_VERSION='\"$(cat ../../VERSION)\"' -DWITH_TLS -Wno-overlength-strings -I$(brew --prefix openssl@3)/include" \
+            LDFLAGS="-L$(brew --prefix openssl@3)/lib -lpthread -lssl -lcrypto"
 
       - name: Smoke test
         run: cd testkit/src && make test
