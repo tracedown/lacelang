@@ -26,16 +26,17 @@ jobs:
         if: runner.os == 'macOS'
         run: brew install openssl@3
 
-      - name: Build (Linux)
-        if: runner.os == 'Linux'
-        run: cd testkit/src && make EMBED_VECTORS=1
-
-      - name: Build (macOS)
+      - name: Set OpenSSL paths (macOS)
         if: runner.os == 'macOS'
         run: |
-          cd testkit/src && make EMBED_VECTORS=1 \
-            CFLAGS="-std=c99 -Wall -Wextra -Wpedantic -O2 -D_POSIX_C_SOURCE=200809L -D_GNU_SOURCE -Ithird_party/cjson -DLACE_CONFORMANCE_VERSION='\"$(cat ../../VERSION)\"' -DWITH_TLS -Wno-overlength-strings -I$(brew --prefix openssl@3)/include" \
-            LDFLAGS="-L$(brew --prefix openssl@3)/lib -lpthread -lssl -lcrypto"
+          echo "CFLAGS_SSL=-I$(brew --prefix openssl@3)/include" >> "$GITHUB_ENV"
+          echo "LDFLAGS_SSL=-L$(brew --prefix openssl@3)/lib" >> "$GITHUB_ENV"
+
+      - name: Build
+        run: |
+          cd testkit/src && make clean && make EMBED_VECTORS=1 \
+            CFLAGS="-std=c99 -Wall -Wextra -Wpedantic -O2 -D_POSIX_C_SOURCE=200809L -D_GNU_SOURCE -Ithird_party/cjson -DLACE_CONFORMANCE_VERSION='\"$(cat ../../VERSION)\"' -DWITH_TLS -Wno-overlength-strings $CFLAGS_SSL" \
+            LDFLAGS="$LDFLAGS_SSL -lpthread -lssl -lcrypto"
 
       - name: Rename binary
         run: cp testkit/src/build/lace-conformance ${{ matrix.artifact }}
