@@ -17,20 +17,20 @@ expected results.
 | Dir                          | Section                        | Type        | Count |
 |------------------------------|--------------------------------|-------------|-------|
 | `vectors/01_parsing/`        | Parsing                        | `parse`     | 27    |
-| `vectors/02_validation/`     | Validation                     | `validate`  | 25    |
+| `vectors/02_validation/`     | Validation                     | `validate`  | 24    |
 | `vectors/03_variables/`      | Variable handling              | `execute`   | 4     |
 | `vectors/04_null_semantics/` | Null semantics                 | `execute`   | 10    |
 | `vectors/05_http_execution/` | HTTP/HTTPS execution           | `execute`   | 26    |
 | `vectors/06_cookie_jar/`     | Cookie jar                     | `execute`   | 7     |
 | `vectors/07_chain_methods/`  | Chain method execution         | `execute`   | 10    |
-| `vectors/08_body_matching/`  | Body matching                  | `execute`   | 5     |
+| `vectors/08_body_matching/`  | Body matching                  | `execute`   | 8     |
 | `vectors/09_prev_access/`    | prev access                    | `execute`   | 5     |
 | `vectors/10_failure_cascade/`| Failure cascade                | `execute`   | 4     |
-| `vectors/11_result_structure/`| Result structure              | `execute`   | 11    |
-| `vectors/12_body_storage/`   | Body storage                   | `execute`   | 4     |
+| `vectors/11_result_structure/`| Result structure              | `execute`   | 13    |
+| `vectors/12_body_storage/`   | Body storage                   | `execute`   | 5     |
 | `vectors/13_extension_core/` | Extension interface (core)     | `extension` | 7     |
 | `vectors/14_config/`         | Configuration                  | `execute`   | 10    |
-| **Core total**               |                                |             | **155** |
+| **Core total**               |                                |             | **160** |
 
 ### Extension-owned vectors
 

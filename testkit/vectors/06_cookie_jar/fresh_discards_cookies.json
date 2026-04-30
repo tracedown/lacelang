@@ -1,9 +1,9 @@
 {
   "id": "fresh_discards_cookies",
-  "description": "cookieJar: \"fresh\" discards cookies from the previous call and starts empty (spec \u00a73.3, \u00a715.6). Call 0 sets sid=abc123. Call 1 uses a fresh jar \u2014 no cookies sent \u2014 so the echo body is empty.",
+  "description": "cookieJar: \"fresh\" discards cookies from the previous call and starts empty (spec §3.3, §15.6). Call 0 sets sid=abc123. Call 1 uses a fresh jar — no cookies sent — so the echo body is empty.",
   "spec_refs": [
-    "lace-spec.md \u00a73.3",
-    "lace-spec.md \u00a715.6"
+    "lace-spec.md §3.3",
+    "lace-spec.md §15.6"
   ],
   "type": "execute",
   "input": {
@@ -45,7 +45,7 @@
           "request": {
             "url": "http://127.0.0.1:{port}/login",
             "method": "post",
-            "headers": {},
+            "headers": {}
           },
           "response": "IGNORED",
           "redirects": [],

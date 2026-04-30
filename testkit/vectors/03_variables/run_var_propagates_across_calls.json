@@ -2,8 +2,8 @@
   "id": "run_var_propagates_across_calls",
   "description": "$$var assigned in call 0's .store() is available in call 1's expressions and string interpolation. runVars in the final result contains the assigned value.",
   "spec_refs": [
-    "lace-spec.md \u00a75.2",
-    "lace-spec.md \u00a715.3"
+    "lace-spec.md §5.2",
+    "lace-spec.md §15.3"
   ],
   "type": "execute",
   "input": {
@@ -45,7 +45,7 @@
           "request": {
             "url": "http://127.0.0.1:{port}/first",
             "method": "get",
-            "headers": {},
+            "headers": {}
           },
           "response": {
             "status": 200,
@@ -88,7 +88,7 @@
             "method": "get",
             "headers": {
               "Authorization": "Bearer abc123"
-            },
+            }
           },
           "response": {
             "status": 200,
@@ -128,7 +128,6 @@
       "endedAt",
       "calls[*].startedAt",
       "calls[*].endedAt",
-
       "calls[*].response.bodyPath",
       "calls[*].response.responseTimeMs",
       "calls[*].response.dnsMs",

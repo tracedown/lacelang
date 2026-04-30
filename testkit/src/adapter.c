@@ -251,8 +251,9 @@ static int invoke_via_manifest(
     );
     if (!argv) goto fail;
 
-    /* Append per-vector extra CLI args (input.cli_args) to the manifest
-     * argv. We rebuild the argv into a fresh array so manifest_argv_free
+    /* Append per-vector extra CLI args (input.cli_args) AND extension
+     * flags (--enable-extension <name>) to the manifest argv.
+     * We rebuild the argv into a fresh array so manifest_argv_free
      * still owns argv[0]'s contiguous buffer. The appended tokens are
      * pointed into the caller's string storage — no extra ownership. */
     char **final_argv = argv;
@@ -262,13 +263,23 @@ static int invoke_via_manifest(
     if (inv->extra_cli_args) {
         while (inv->extra_cli_args[extra_cli_n]) extra_cli_n++;
     }
-    if (extra_cli_n > 0) {
-        final_argv = calloc(argc + extra_cli_n + 1, sizeof(char *));
+    size_t ext_n = 0;
+    if (inv->extensions) {
+        while (inv->extensions[ext_n]) ext_n++;
+    }
+    size_t append_total = extra_cli_n + ext_n * 2; /* each ext = --enable-extension + name */
+    if (append_total > 0) {
+        final_argv = calloc(argc + append_total + 1, sizeof(char *));
         if (!final_argv) { manifest_argv_free(argv); goto fail; }
         for (size_t i = 0; i < argc; i++) final_argv[i] = argv[i];
+        size_t p = argc;
         for (size_t i = 0; i < extra_cli_n; i++)
-            final_argv[argc + i] = (char *)inv->extra_cli_args[i];
-        final_argv[argc + extra_cli_n] = NULL;
+            final_argv[p++] = (char *)inv->extra_cli_args[i];
+        for (size_t i = 0; i < ext_n; i++) {
+            final_argv[p++] = (char *)"--enable-extension";
+            final_argv[p++] = (char *)inv->extensions[i];
+        }
+        final_argv[p] = NULL;
     }
 
     int rc = run_subprocess((const char *const *)final_argv, timeout,

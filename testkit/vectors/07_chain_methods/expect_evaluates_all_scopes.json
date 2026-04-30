@@ -1,9 +1,9 @@
 {
   "id": "expect_evaluates_all_scopes",
-  "description": "Spec \u00a74.1: .expect() evaluates ALL scopes before triggering the hard-fail cascade. With status mismatch and ttfb violation in the same .expect(), both must appear in the assertions array \u2014 the cascade does not short-circuit at the first failure.",
+  "description": "Spec §4.1: .expect() evaluates ALL scopes before triggering the hard-fail cascade. With status mismatch and ttfb violation in the same .expect(), both must appear in the assertions array — the cascade does not short-circuit at the first failure.",
   "spec_refs": [
-    "lace-spec.md \u00a74.1",
-    "lace-spec.md \u00a715.7"
+    "lace-spec.md §4.1",
+    "lace-spec.md §15.7"
   ],
   "type": "execute",
   "input": {
@@ -39,7 +39,7 @@
           "request": {
             "url": "http://127.0.0.1:{port}/x",
             "method": "get",
-            "headers": {},
+            "headers": {}
           },
           "response": {
             "status": 500,
@@ -89,7 +89,6 @@
       "endedAt",
       "calls[*].startedAt",
       "calls[*].endedAt",
-
       "calls[*].response.bodyPath",
       "calls[*].response.responseTimeMs",
       "calls[*].response.dnsMs",

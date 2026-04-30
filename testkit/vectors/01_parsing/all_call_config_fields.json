@@ -1,0 +1,78 @@
+{
+  "id": "all_call_config_fields",
+  "description": "All call config fields — headers, body, cookies, cookieJar, timeout (ms/action/retries), redirects (follow/max), security (rejectInvalidCerts) — parse into the expected AST shape (spec §3.2).",
+  "spec_refs": [
+    "lace-spec.md §3.2"
+  ],
+  "type": "parse",
+  "input": {
+    "source": "get(\"http://example.com\", {\n  headers: { \"Authorization\": \"Bearer tok\" },\n  body: json({ key: \"val\" }),\n  cookies: { \"sid\": \"abc\" },\n  cookieJar: \"fresh\",\n  timeout: { ms: 5000, action: \"retry\", retries: 2 },\n  redirects: { follow: false, max: 3 },\n  security: { rejectInvalidCerts: false }\n}).expect(status: 200)\n"
+  },
+  "expected": {
+    "ast": {
+      "version": "0.9.1",
+      "calls": [
+        {
+          "method": "get",
+          "url": "http://example.com",
+          "config": {
+            "headers": {
+              "Authorization": {
+                "kind": "literal",
+                "valueType": "string",
+                "value": "Bearer tok"
+              }
+            },
+            "body": {
+              "type": "json",
+              "value": {
+                "kind": "objectLit",
+                "entries": [
+                  {
+                    "key": "key",
+                    "value": {
+                      "kind": "literal",
+                      "valueType": "string",
+                      "value": "val"
+                    }
+                  }
+                ]
+              }
+            },
+            "cookies": {
+              "sid": {
+                "kind": "literal",
+                "valueType": "string",
+                "value": "abc"
+              }
+            },
+            "cookieJar": "fresh",
+            "timeout": {
+              "ms": 5000,
+              "action": "retry",
+              "retries": 2
+            },
+            "redirects": {
+              "follow": false,
+              "max": 3
+            },
+            "security": {
+              "rejectInvalidCerts": false
+            }
+          },
+          "chain": {
+            "expect": {
+              "status": {
+                "value": {
+                  "kind": "literal",
+                  "valueType": "int",
+                  "value": 200
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

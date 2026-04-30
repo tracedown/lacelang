@@ -1,9 +1,9 @@
 {
   "id": "interpolation_in_url",
-  "description": "Variable interpolation in the request URL: `$path` in the URL string is replaced with the value of the injected script variable `path` before the request is issued (spec \u00a73.5, \u00a715.5). The resolved URL appears on calls[0].request.url.",
+  "description": "Variable interpolation in the request URL: `$path` in the URL string is replaced with the value of the injected script variable `path` before the request is issued (spec §3.5, §15.5). The resolved URL appears on calls[0].request.url.",
   "spec_refs": [
-    "lace-spec.md \u00a73.5",
-    "lace-spec.md \u00a715.5"
+    "lace-spec.md §3.5",
+    "lace-spec.md §15.5"
   ],
   "type": "execute",
   "input": {
@@ -36,7 +36,7 @@
           "request": {
             "url": "http://127.0.0.1:{port}/hello",
             "method": "get",
-            "headers": "IGNORED",
+            "headers": "IGNORED"
           },
           "response": "IGNORED",
           "redirects": [],
@@ -63,7 +63,6 @@
       "endedAt",
       "calls[*].startedAt",
       "calls[*].endedAt",
-
       "calls[*].response",
       "calls[*].config"
     ]

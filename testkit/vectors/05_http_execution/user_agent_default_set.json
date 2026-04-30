@@ -1,8 +1,8 @@
 {
   "id": "user_agent_default_set",
-  "description": "Executors must set a default User-Agent header (spec \u00a73.6). The request record must include a User-Agent; the exact value is deployment-specific and ignored by the testkit default ignore list.",
+  "description": "Executors must set a default User-Agent header (spec §3.6). The request record must include a User-Agent; the exact value is deployment-specific and ignored by the testkit default ignore list.",
   "spec_refs": [
-    "lace-spec.md \u00a73.6"
+    "lace-spec.md §3.6"
   ],
   "type": "execute",
   "input": {
@@ -33,7 +33,7 @@
           "request": {
             "url": "http://127.0.0.1:{port}/x",
             "method": "get",
-            "headers": "NON_NULL",
+            "headers": "NON_NULL"
           },
           "response": "IGNORED",
           "redirects": [],
@@ -50,7 +50,6 @@
       "endedAt",
       "calls[*].startedAt",
       "calls[*].endedAt",
-
       "calls[*].response.bodyPath",
       "calls[*].response.responseTimeMs",
       "calls[*].response.dnsMs",

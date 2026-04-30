@@ -1,10 +1,10 @@
 {
   "id": "config_user_agent_from_env",
-  "description": "lace.config [executor].user_agent = \"env:MY_UA\" resolves the User-Agent from the MY_UA environment variable at startup (spec \u00a711 'env:VARNAME' syntax + \u00a73.6 user_agent override). The outgoing request's User-Agent header equals the env var's value. (spec \u00a711, \u00a715.13, \u00a73.6)",
+  "description": "lace.config [executor].user_agent = \"env:MY_UA\" resolves the User-Agent from the MY_UA environment variable at startup (spec §11 'env:VARNAME' syntax + §3.6 user_agent override). The outgoing request's User-Agent header equals the env var's value. (spec §11, §15.13, §3.6)",
   "spec_refs": [
-    "lace-spec.md \u00a711",
-    "lace-spec.md \u00a715.13",
-    "lace-spec.md \u00a73.6"
+    "lace-spec.md §11",
+    "lace-spec.md §15.13",
+    "lace-spec.md §3.6"
   ],
   "type": "execute",
   "input": {
@@ -41,7 +41,7 @@
             "method": "get",
             "headers": {
               "User-Agent": "fleet-probe/7.1 (monitor-east)"
-            },
+            }
           },
           "response": "IGNORED",
           "redirects": [],
@@ -58,7 +58,6 @@
       "endedAt",
       "calls[*].startedAt",
       "calls[*].endedAt",
-
       "calls[*].response",
       "calls[*].assertions",
       "calls[*].config"

@@ -1,9 +1,9 @@
 {
   "id": "bodyPath_populated",
-  "description": "When a response body is captured, response.bodyPath is a non-null file path and bodyNotCapturedReason is absent (spec \u00a79.4, \u00a715.12). The testkit normalises the actual path to a sentinel; this vector asserts the field is non-null by using a non-string placeholder in the expected.",
+  "description": "When a response body is captured, response.bodyPath is a non-null file path and bodyNotCapturedReason is absent (spec §9.4, §15.12). The testkit normalises the actual path to a sentinel; this vector asserts the field is non-null by using a non-string placeholder in the expected.",
   "spec_refs": [
-    "lace-spec.md \u00a79.4",
-    "lace-spec.md \u00a715.12"
+    "lace-spec.md §9.4",
+    "lace-spec.md §15.12"
   ],
   "type": "execute",
   "input": {
@@ -36,7 +36,7 @@
           "request": {
             "url": "http://127.0.0.1:{port}/x",
             "method": "get",
-            "headers": {},
+            "headers": {}
           },
           "response": {
             "status": 200,
@@ -77,7 +77,6 @@
       "endedAt",
       "calls[*].startedAt",
       "calls[*].endedAt",
-
       "calls[*].response.responseTimeMs",
       "calls[*].response.dnsMs",
       "calls[*].response.connectMs",

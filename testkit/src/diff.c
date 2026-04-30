@@ -206,7 +206,13 @@ static void strip_path(cJSON *root, const char *raw) {
 }
 
 void diff_strip_ignores(cJSON *node, const char *const *extra, size_t extra_n) {
-    for (size_t i = 0; DEFAULT_IGNORES[i]; i++) strip_path(node, DEFAULT_IGNORES[i]);
+    diff_strip_ignores_ex(node, extra, extra_n, true);
+}
+
+void diff_strip_ignores_ex(cJSON *node, const char *const *extra, size_t extra_n, bool apply_defaults) {
+    if (apply_defaults) {
+        for (size_t i = 0; DEFAULT_IGNORES[i]; i++) strip_path(node, DEFAULT_IGNORES[i]);
+    }
     for (size_t i = 0; i < extra_n; i++) if (extra[i]) strip_path(node, extra[i]);
 }
 

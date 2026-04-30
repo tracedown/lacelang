@@ -3,7 +3,7 @@ site_description: Documentation for the Lace HTTP probing scripting language
 site_url: https://lacelang.dev/
 
 repo_url: https://github.com/tracedown/lacelang
-repo_name: tracedown/lacelang v0.9.1
+repo_name: tracedown/lacelang
 
 theme:
   name: material

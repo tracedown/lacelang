@@ -1,0 +1,70 @@
+{
+  "id": "schema_strict_rejects_extra_fields",
+  "description": "body: schema($schemaVar) { mode: \"strict\" } fails when the response body has extra fields not declared in the schema's properties (spec §4.5.1). Equivalent to additionalProperties:false.",
+  "spec_refs": [
+    "lace-spec.md §4.5.1"
+  ],
+  "type": "execute",
+  "input": {
+    "source": "get(\"http://127.0.0.1:{port}/x\").expect(status: 200, body: { value: schema($schemaVar), mode: \"strict\" })\n",
+    "variables": {
+      "schemaVar": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" }
+        },
+        "required": ["id"]
+      }
+    },
+    "http_mock": [
+      {
+        "callIndex": 0,
+        "outcome": "response",
+        "status": 200,
+        "headers": { "content-type": "application/json" },
+        "body": "{\"id\": 1, \"extraField\": true}"
+      }
+    ]
+  },
+  "expected": {
+    "result": {
+      "outcome": "failure",
+      "runVars": {},
+      "calls": [
+        {
+          "index": 0,
+          "outcome": "failure",
+          "assertions": [
+            {
+              "method": "expect",
+              "scope": "status",
+              "op": "eq",
+              "outcome": "passed",
+              "actual": 200,
+              "expected": 200,
+              "options": null
+            },
+            {
+              "method": "expect",
+              "scope": "body",
+              "op": "eq",
+              "outcome": "failed",
+              "actual": "IGNORED",
+              "expected": "IGNORED",
+              "options": null
+            }
+          ]
+        }
+      ],
+      "actions": {}
+    },
+    "ignore": [
+      "calls[*].config",
+      "calls[*].request",
+      "calls[*].response",
+      "calls[*].redirects",
+      "calls[*].warnings",
+      "calls[*].error"
+    ]
+  }
+}

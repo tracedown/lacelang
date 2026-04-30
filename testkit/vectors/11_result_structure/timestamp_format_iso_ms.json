@@ -1,0 +1,46 @@
+{
+  "id": "timestamp_format_iso_ms",
+  "description": "startedAt and endedAt must be ISO-8601 with exactly three decimal places (millisecond precision) and trailing Z: YYYY-MM-DDTHH:MM:SS.mmmZ (spec §9.1).",
+  "spec_refs": [
+    "lace-spec.md §9.1"
+  ],
+  "type": "execute",
+  "input": {
+    "source": "get(\"http://127.0.0.1:{port}/x\").expect(status: 200)\n",
+    "http_mock": [
+      {
+        "callIndex": 0,
+        "outcome": "response",
+        "status": 200,
+        "headers": { "content-type": "text/plain" },
+        "body": "ok"
+      }
+    ]
+  },
+  "expected": {
+    "no_default_ignores": true,
+    "result": {
+      "outcome": "success",
+      "startedAt": "MATCH:/^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$/",
+      "endedAt": "MATCH:/^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$/",
+      "elapsedMs": "IGNORED",
+      "runVars": {},
+      "calls": [
+        {
+          "index": 0,
+          "outcome": "success",
+          "startedAt": "MATCH:/^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$/",
+          "endedAt": "MATCH:/^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$/",
+          "request": "IGNORED",
+          "response": "IGNORED",
+          "redirects": [],
+          "assertions": "IGNORED",
+          "config": "IGNORED",
+          "warnings": "IGNORED",
+          "error": null
+        }
+      ],
+      "actions": {}
+    }
+  }
+}

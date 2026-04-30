@@ -1,7 +1,7 @@
 # TypeScript Executor
 
 Reference TypeScript implementation of Lace, conformant to spec version
-**0.9.1** (171/171 conformance vectors). Passes the same test suite as the
+**0.9.1** (178/178 conformance vectors). Passes the same test suite as the
 canonical Python executor and is fully interchangeable.
 
 The implementation is split into two packages following the

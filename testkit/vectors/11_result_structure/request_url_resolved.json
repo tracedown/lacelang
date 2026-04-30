@@ -1,8 +1,8 @@
 {
   "id": "request_url_resolved",
-  "description": "Spec \u00a715.11: calls[].request.url in the result is the fully-resolved URL string after variable interpolation, not the template.",
+  "description": "Spec §15.11: calls[].request.url in the result is the fully-resolved URL string after variable interpolation, not the template.",
   "spec_refs": [
-    "lace-spec.md \u00a715.11"
+    "lace-spec.md §15.11"
   ],
   "type": "execute",
   "input": {
@@ -35,7 +35,7 @@
           "request": {
             "url": "http://127.0.0.1:{port}/hello",
             "method": "get",
-            "headers": {},
+            "headers": {}
           },
           "response": "IGNORED",
           "redirects": [],
@@ -52,7 +52,6 @@
       "endedAt",
       "calls[*].startedAt",
       "calls[*].endedAt",
-
       "calls[*].request.headers",
       "calls[*].response",
       "calls[*].assertions",

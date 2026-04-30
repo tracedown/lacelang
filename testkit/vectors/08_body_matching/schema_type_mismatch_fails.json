@@ -1,0 +1,71 @@
+{
+  "id": "schema_type_mismatch_fails",
+  "description": "body: schema($schemaVar) fails when the response body is valid JSON but does not satisfy the schema — here the schema expects type:string but the body is an integer (spec §15.8, §4.5).",
+  "spec_refs": [
+    "lace-spec.md §15.8",
+    "lace-spec.md §4.5"
+  ],
+  "type": "execute",
+  "input": {
+    "source": "get(\"http://127.0.0.1:{port}/x\").expect(status: 200, body: schema($schemaVar))\n",
+    "variables": {
+      "schemaVar": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" }
+        },
+        "required": ["name"]
+      }
+    },
+    "http_mock": [
+      {
+        "callIndex": 0,
+        "outcome": "response",
+        "status": 200,
+        "headers": { "content-type": "application/json" },
+        "body": "{\"name\": 42}"
+      }
+    ]
+  },
+  "expected": {
+    "result": {
+      "outcome": "failure",
+      "runVars": {},
+      "calls": [
+        {
+          "index": 0,
+          "outcome": "failure",
+          "assertions": [
+            {
+              "method": "expect",
+              "scope": "status",
+              "op": "eq",
+              "outcome": "passed",
+              "actual": 200,
+              "expected": 200,
+              "options": null
+            },
+            {
+              "method": "expect",
+              "scope": "body",
+              "op": "eq",
+              "outcome": "failed",
+              "actual": "IGNORED",
+              "expected": "IGNORED",
+              "options": null
+            }
+          ]
+        }
+      ],
+      "actions": {}
+    },
+    "ignore": [
+      "calls[*].config",
+      "calls[*].request",
+      "calls[*].response",
+      "calls[*].redirects",
+      "calls[*].warnings",
+      "calls[*].error"
+    ]
+  }
+}

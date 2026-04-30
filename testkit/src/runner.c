@@ -15,6 +15,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <dirent.h>
+#include <regex.h>
 #include <unistd.h>
 
 /* ── writing script to a temp file ─────────────────────────────────── */
@@ -498,13 +499,16 @@ static void substitute_port_in_json(cJSON *node, int port) {
 }
 
 /* Walk the expected tree mirroring the actual tree. For every leaf string in
- * expected that equals "IGNORED" or "NON_NULL", mutate the expected tree so
- * the diff will match:
- *   "IGNORED"  → replace with a deep copy of the corresponding actual node
- *                (always matches).
- *   "NON_NULL" → if actual is non-null, replace expected with a copy of it;
- *                if actual is null, leave "NON_NULL" in place so the diff
- *                fails meaningfully.
+ * expected that equals "IGNORED", "NON_NULL", or "MATCH:/regex/", mutate the
+ * expected tree so the diff will match:
+ *   "IGNORED"      → replace with a deep copy of the corresponding actual node
+ *                    (always matches).
+ *   "NON_NULL"     → if actual is non-null, replace expected with a copy of it;
+ *                    if actual is null, leave "NON_NULL" in place so the diff
+ *                    fails meaningfully.
+ *   "MATCH:/pat/"  → if actual is a string matching the POSIX extended regex
+ *                    `pat`, replace expected with a copy of actual (match).
+ *                    Otherwise leave the sentinel in place (diff fails).
  */
 static void apply_wildcard_sentinels(cJSON *expected, const cJSON *actual) {
     if (!expected || !actual) return;
@@ -542,6 +546,30 @@ static void apply_wildcard_sentinels(cJSON *expected, const cJSON *actual) {
             while (walker) { walker->prev = walker->prev; walker = walker->next; }
             cJSON_Delete(copy);
             return;
+        }
+        /* MATCH:/regex/ — validate actual against a POSIX extended regex. */
+        if (strncmp(expected->valuestring, "MATCH:/", 7) == 0) {
+            size_t len = strlen(expected->valuestring);
+            if (len > 8 && expected->valuestring[len - 1] == '/') {
+                char pat[1024];
+                size_t plen = len - 8; /* strip "MATCH:/" and trailing "/" */
+                if (plen >= sizeof(pat)) plen = sizeof(pat) - 1;
+                memcpy(pat, expected->valuestring + 7, plen);
+                pat[plen] = '\0';
+                regex_t re;
+                if (regcomp(&re, pat, REG_EXTENDED | REG_NOSUB) == 0) {
+                    if (cJSON_IsString(actual) &&
+                        regexec(&re, actual->valuestring, 0, NULL, 0) == 0) {
+                        /* Match: replace expected with actual so diff passes. */
+                        free(expected->valuestring);
+                        expected->valuestring = strdup(actual->valuestring);
+                    }
+                    /* else: leave "MATCH:/.../" in place → diff fails with
+                     * a clear "expected MATCH:/.../, got <actual>" message. */
+                    regfree(&re);
+                }
+                return;
+            }
         }
     }
     if (cJSON_IsObject(expected) && cJSON_IsObject(actual)) {
@@ -943,8 +971,10 @@ static int run_execute_vector_common(
     /* Apply path-based ignores. */
     const char **ig = NULL;
     size_t ign = extract_ignore_paths(exp, &ig);
-    diff_strip_ignores(exp_copy, ig, ign);
-    diff_strip_ignores(act_copy, ig, ign);
+    const cJSON *no_defaults = cJSON_GetObjectItem(exp, "no_default_ignores");
+    bool apply_defaults = !(no_defaults && cJSON_IsTrue(no_defaults));
+    diff_strip_ignores_ex(exp_copy, ig, ign, apply_defaults);
+    diff_strip_ignores_ex(act_copy, ig, ign, apply_defaults);
     free(ig);
 
     diff_report_t rep; diff_report_init(&rep);
