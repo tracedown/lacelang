@@ -1,10 +1,10 @@
 {
   "id": "store_skipped_after_expect_fail",
-  "description": "Spec \u00a74.6 + \u00a77: .store() is skipped when any preceding chain method on the same call hard-failed. With expect(status: 200) failing, the .store() entries must NOT appear in runVars or actions.variables.",
+  "description": "Spec §4.6 + §7: .store() is skipped when any preceding chain method on the same call hard-failed. With expect(status: 200) failing, the .store() entries must NOT appear in runVars or actions.variables.",
   "spec_refs": [
-    "lace-spec.md \u00a74.6",
-    "lace-spec.md \u00a77",
-    "lace-spec.md \u00a715.7"
+    "lace-spec.md §4.6",
+    "lace-spec.md §7",
+    "lace-spec.md §15.7"
   ],
   "type": "execute",
   "input": {
@@ -39,7 +39,7 @@
           "request": {
             "url": "http://127.0.0.1:{port}/x",
             "method": "get",
-            "headers": {},
+            "headers": {}
           },
           "response": {
             "status": 500,
@@ -80,7 +80,6 @@
       "endedAt",
       "calls[*].startedAt",
       "calls[*].endedAt",
-
       "calls[*].response.bodyPath",
       "calls[*].response.responseTimeMs",
       "calls[*].response.dnsMs",

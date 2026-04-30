@@ -1,8 +1,8 @@
 {
   "id": "request_headers_resolved",
-  "description": "Spec \u00a715.11: calls[].request.headers in the result contains resolved header values after variable interpolation.",
+  "description": "Spec §15.11: calls[].request.headers in the result contains resolved header values after variable interpolation.",
   "spec_refs": [
-    "lace-spec.md \u00a715.11"
+    "lace-spec.md §15.11"
   ],
   "type": "execute",
   "input": {
@@ -37,7 +37,7 @@
             "method": "get",
             "headers": {
               "x": "resolved-value"
-            },
+            }
           },
           "response": "IGNORED",
           "redirects": [],
@@ -54,7 +54,6 @@
       "endedAt",
       "calls[*].startedAt",
       "calls[*].endedAt",
-
       "calls[*].response",
       "calls[*].assertions",
       "calls[*].config"

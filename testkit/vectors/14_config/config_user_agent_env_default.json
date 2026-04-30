@@ -1,10 +1,10 @@
 {
   "id": "config_user_agent_env_default",
-  "description": "lace.config [executor].user_agent = \"env:MY_UA:fallback-ua\": when MY_UA is NOT set in the environment, the configured value resolves to the default literal 'fallback-ua'. The outgoing request's User-Agent header is the fallback value (spec \u00a711 'env:VARNAME:default' syntax + \u00a73.6). (spec \u00a711, \u00a715.13, \u00a73.6)",
+  "description": "lace.config [executor].user_agent = \"env:MY_UA:fallback-ua\": when MY_UA is NOT set in the environment, the configured value resolves to the default literal 'fallback-ua'. The outgoing request's User-Agent header is the fallback value (spec §11 'env:VARNAME:default' syntax + §3.6). (spec §11, §15.13, §3.6)",
   "spec_refs": [
-    "lace-spec.md \u00a711",
-    "lace-spec.md \u00a715.13",
-    "lace-spec.md \u00a73.6"
+    "lace-spec.md §11",
+    "lace-spec.md §15.13",
+    "lace-spec.md §3.6"
   ],
   "type": "execute",
   "input": {
@@ -38,7 +38,7 @@
             "method": "get",
             "headers": {
               "User-Agent": "fallback-ua"
-            },
+            }
           },
           "response": "IGNORED",
           "redirects": [],
@@ -55,7 +55,6 @@
       "endedAt",
       "calls[*].startedAt",
       "calls[*].endedAt",
-
       "calls[*].response",
       "calls[*].assertions",
       "calls[*].config"

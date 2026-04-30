@@ -1,9 +1,9 @@
 {
   "id": "interpolation_in_header",
-  "description": "Variable interpolation in a request header value: `$token` in `headers: { \"x-token\": \"$token\" }` is replaced with the injected script variable before the request is issued (spec \u00a73.5, \u00a715.5). The resolved header appears on calls[0].request.headers with the interpolated value `abc123`.",
+  "description": "Variable interpolation in a request header value: `$token` in `headers: { \"x-token\": \"$token\" }` is replaced with the injected script variable before the request is issued (spec §3.5, §15.5). The resolved header appears on calls[0].request.headers with the interpolated value `abc123`.",
   "spec_refs": [
-    "lace-spec.md \u00a73.5",
-    "lace-spec.md \u00a715.5"
+    "lace-spec.md §3.5",
+    "lace-spec.md §15.5"
   ],
   "type": "execute",
   "input": {
@@ -38,7 +38,7 @@
             "method": "get",
             "headers": {
               "x-token": "abc123"
-            },
+            }
           },
           "response": "IGNORED",
           "redirects": [],
@@ -65,7 +65,6 @@
       "endedAt",
       "calls[*].startedAt",
       "calls[*].endedAt",
-
       "calls[*].response",
       "calls[*].config"
     ]

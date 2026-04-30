@@ -39,6 +39,7 @@ typedef struct {
  * contain `[*]` wildcards. `extra_ignores` is a NULL-terminated array
  * of additional paths (from vector.expected.ignore). */
 void diff_strip_ignores(cJSON *node, const char *const *extra_ignores, size_t extra_n);
+void diff_strip_ignores_ex(cJSON *node, const char *const *extra_ignores, size_t extra_n, bool apply_defaults);
 
 /* Compare two JSON trees after ignore stripping. Populate `report` with
  * mismatches. Returns 0 if equal, 1 if mismatches, -1 on internal error. */

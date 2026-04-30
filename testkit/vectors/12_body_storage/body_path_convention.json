@@ -1,0 +1,61 @@
+{
+  "id": "body_path_convention",
+  "description": "When body storage is enabled, bodyPath must follow the 'call_{index}_response.{ext}' convention per spec §15.12. Extension is derived from content-type.",
+  "spec_refs": [
+    "lace-spec.md §15.12"
+  ],
+  "type": "execute",
+  "input": {
+    "source": "get(\"http://127.0.0.1:{port}/x\").expect(status: 200)\n",
+    "http_mock": [
+      {
+        "callIndex": 0,
+        "outcome": "response",
+        "status": 200,
+        "headers": { "content-type": "application/json" },
+        "body": "{\"ok\":true}"
+      }
+    ],
+    "cli_args": ["--save-body", "--bodies-dir", "/tmp/lace-bodies-test"]
+  },
+  "expected": {
+    "no_default_ignores": true,
+    "result": {
+      "outcome": "success",
+      "startedAt": "IGNORED",
+      "endedAt": "IGNORED",
+      "elapsedMs": "IGNORED",
+      "runVars": {},
+      "calls": [
+        {
+          "index": 0,
+          "outcome": "success",
+          "startedAt": "IGNORED",
+          "endedAt": "IGNORED",
+          "request": "IGNORED",
+          "response": {
+            "status": 200,
+            "statusText": "IGNORED",
+            "headers": "IGNORED",
+            "bodyPath": "MATCH:/call_0_response\\.json$/",
+            "responseTimeMs": "IGNORED",
+            "dnsMs": "IGNORED",
+            "connectMs": "IGNORED",
+            "tlsMs": "IGNORED",
+            "ttfbMs": "IGNORED",
+            "transferMs": "IGNORED",
+            "sizeBytes": "IGNORED",
+            "dns": "IGNORED",
+            "tls": "IGNORED"
+          },
+          "redirects": [],
+          "assertions": "IGNORED",
+          "config": "IGNORED",
+          "warnings": "IGNORED",
+          "error": null
+        }
+      ],
+      "actions": {}
+    }
+  }
+}

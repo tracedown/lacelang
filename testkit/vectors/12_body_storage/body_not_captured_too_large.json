@@ -1,10 +1,10 @@
 {
   "id": "body_not_captured_too_large",
-  "description": "Per spec \u00a74.2 / \u00a79.4 / \u00a715.12, the `bodySize` scope also gates response-body capture: a response whose body exceeds the threshold is not written to `bodyPath` and the call records `bodyNotCapturedReason: \"bodyTooLarge\"` on the response object. Here we assert against a 10-byte threshold but the mock returns a 100-byte body, so the executor must skip body capture and record the reason. The scope itself fails (`.expect(bodySize: \"10\")`), which cascades to call outcome `failure` and result outcome `failure`.",
+  "description": "Per spec §4.2 / §9.4 / §15.12, the `bodySize` scope also gates response-body capture: a response whose body exceeds the threshold is not written to `bodyPath` and the call records `bodyNotCapturedReason: \"bodyTooLarge\"` on the response object. Here we assert against a 10-byte threshold but the mock returns a 100-byte body, so the executor must skip body capture and record the reason. The scope itself fails (`.expect(bodySize: \"10\")`), which cascades to call outcome `failure` and result outcome `failure`.",
   "spec_refs": [
-    "lace-spec.md \u00a74.2",
-    "lace-spec.md \u00a79.4",
-    "lace-spec.md \u00a715.12"
+    "lace-spec.md §4.2",
+    "lace-spec.md §9.4",
+    "lace-spec.md §15.12"
   ],
   "type": "execute",
   "input": {
@@ -37,7 +37,7 @@
           "request": {
             "url": "http://127.0.0.1:{port}/big",
             "method": "get",
-            "headers": {},
+            "headers": {}
           },
           "response": {
             "status": 200,
@@ -69,7 +69,6 @@
       "endedAt",
       "calls[*].startedAt",
       "calls[*].endedAt",
-
       "calls[*].response.responseTimeMs",
       "calls[*].response.dnsMs",
       "calls[*].response.connectMs",

@@ -1,9 +1,9 @@
 {
   "id": "named_selective_clear",
-  "description": "`cookieJar: \"api:selective_clear\"` with `clearCookies: [\"tok\"]` targets the named `api` jar and clears only the `tok` key from that jar, leaving the default jar untouched (spec \u00a715.6). Call 0 primes the `api` jar with tok=xyz. Call 1 uses `api:selective_clear` with `clearCookies: [\"tok\"]` \u2014 the outgoing Cookie header is empty (no cookies remain in the `api` jar).",
+  "description": "`cookieJar: \"api:selective_clear\"` with `clearCookies: [\"tok\"]` targets the named `api` jar and clears only the `tok` key from that jar, leaving the default jar untouched (spec §15.6). Call 0 primes the `api` jar with tok=xyz. Call 1 uses `api:selective_clear` with `clearCookies: [\"tok\"]` — the outgoing Cookie header is empty (no cookies remain in the `api` jar).",
   "spec_refs": [
-    "lace-spec.md \u00a73.3",
-    "lace-spec.md \u00a715.6"
+    "lace-spec.md §3.3",
+    "lace-spec.md §15.6"
   ],
   "type": "execute",
   "input": {
@@ -66,7 +66,7 @@
           "request": {
             "url": "http://127.0.0.1:{port}/after",
             "method": "get",
-            "headers": {},
+            "headers": {}
           },
           "response": "IGNORED",
           "redirects": [],
@@ -96,7 +96,6 @@
       "calls[0].request",
       "calls[0].response",
       "calls[1].response",
-
       "calls[*].config"
     ]
   }

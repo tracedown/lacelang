@@ -1,9 +1,9 @@
 {
   "id": "inherit_carries_cookies_across_calls",
-  "description": "cookieJar: \"inherit\" (the default) carries Set-Cookie headers from call 0 to the jar used by call 1 (spec \u00a73.3, \u00a715.6). Test server echoes 'Cookie:' back in the response body; call 1's response must contain the session cookie set by call 0.",
+  "description": "cookieJar: \"inherit\" (the default) carries Set-Cookie headers from call 0 to the jar used by call 1 (spec §3.3, §15.6). Test server echoes 'Cookie:' back in the response body; call 1's response must contain the session cookie set by call 0.",
   "spec_refs": [
-    "lace-spec.md \u00a73.3",
-    "lace-spec.md \u00a715.6"
+    "lace-spec.md §3.3",
+    "lace-spec.md §15.6"
   ],
   "type": "execute",
   "input": {
@@ -45,7 +45,7 @@
           "request": {
             "url": "http://127.0.0.1:{port}/login",
             "method": "post",
-            "headers": {},
+            "headers": {}
           },
           "response": "IGNORED",
           "redirects": [],

@@ -58,7 +58,7 @@ it test scripts, and diffs the output against expected results:
 lace-conformance -c "lacelang-executor"
 ```
 
-The test suite covers 155+ core vectors across parsing, validation,
+The test suite covers 160+ core vectors across parsing, validation,
 variable handling, null semantics, HTTP execution, cookie jars, chain
 methods, body matching, previous results, failure cascade, result
 structure, body storage, and configuration.
@@ -90,7 +90,7 @@ The maintainers will review your implementation and verify conformance.
 | `lacelang-executor` | Python | **Canonical** | 0.9.1 | [tracedown/lacelang-python-executor](https://github.com/tracedown/lacelang-python-executor) |
 | `@lacelang/executor` | TypeScript | **Conformant** | 0.9.1 | [tracedown/lacelang-js-executor](https://github.com/tracedown/lacelang-js-executor) |
 
-Both implementations pass the full 171-vector conformance suite. The Python executor is the **canonical reference** — the spec is developed and verified against it. The TypeScript executor is fully interchangeable and targets the same spec version.
+Both implementations pass the full 178-vector conformance suite. The Python executor is the **canonical reference** — the spec is developed and verified against it. The TypeScript executor is fully interchangeable and targets the same spec version.
 
 Each implementation splits into a **validator** (parser + semantic checks, zero network dependencies) and an **executor** (HTTP runtime). See the [packaging rules](../../implementers/packaging.md) for why.
 

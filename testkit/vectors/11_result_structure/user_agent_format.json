@@ -1,0 +1,53 @@
+{
+  "id": "user_agent_format",
+  "description": "The default User-Agent header should match 'lace-probe/<version> (<impl-name>)' per spec §3.6 (recommended, not required). When no script or config override is set, the executor's default UA is used.",
+  "optional": true,
+  "spec_refs": [
+    "lace-spec.md §3.6"
+  ],
+  "type": "execute",
+  "input": {
+    "source": "get(\"http://127.0.0.1:{port}/x\").expect(status: 200)\n",
+    "http_mock": [
+      {
+        "callIndex": 0,
+        "outcome": "response",
+        "status": 200,
+        "headers": { "content-type": "text/plain" },
+        "body": "ok"
+      }
+    ]
+  },
+  "expected": {
+    "no_default_ignores": true,
+    "result": {
+      "outcome": "success",
+      "startedAt": "IGNORED",
+      "endedAt": "IGNORED",
+      "elapsedMs": "IGNORED",
+      "runVars": {},
+      "calls": [
+        {
+          "index": 0,
+          "outcome": "success",
+          "startedAt": "IGNORED",
+          "endedAt": "IGNORED",
+          "request": {
+            "url": "IGNORED",
+            "method": "get",
+            "headers": {
+              "User-Agent": "MATCH:/^lace-probe\\/[0-9]+\\.[0-9]+\\.[0-9]+ \\([a-z].*\\)$/"
+            }
+          },
+          "response": "IGNORED",
+          "redirects": [],
+          "assertions": "IGNORED",
+          "config": "IGNORED",
+          "warnings": "IGNORED",
+          "error": null
+        }
+      ],
+      "actions": {}
+    }
+  }
+}

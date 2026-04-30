@@ -1,9 +1,9 @@
 {
   "id": "prev_calls_index_response_status",
-  "description": "prev.calls[N].response.status reads a field from a specific call of the previous result (spec \u00a715.9). The prior run's first call returned 200 and the assertion passes.",
+  "description": "prev.calls[N].response.status reads a field from a specific call of the previous result (spec §15.9). The prior run's first call returned 200 and the assertion passes.",
   "spec_refs": [
-    "lace-spec.md \u00a715.9",
-    "lace-spec.md \u00a76"
+    "lace-spec.md §15.9",
+    "lace-spec.md §6"
   ],
   "type": "execute",
   "input": {
@@ -23,7 +23,7 @@
           "request": {
             "url": "http://example/prior",
             "method": "get",
-            "headers": {},
+            "headers": {}
           },
           "response": {
             "status": 200,
