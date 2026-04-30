@@ -60,6 +60,7 @@ nav:
       - getting-started/executors/index.md
       - Python Executor: getting-started/executors/python-executor.md
       - TypeScript Executor: getting-started/executors/ts-executor.md
+      - Kotlin Executor: getting-started/executors/kt-executor.md
     - Why Lace: getting-started/why-lace.md
     - Examples: getting-started/examples.md
   - Language:
