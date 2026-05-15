@@ -4,7 +4,7 @@ An executor implementation is considered **Lace Core Compatible** when it satisf
 
 This checklist covers the core language only. Extension system compatibility is defined separately in the [Extension Checklist](checklist-extensions.md).
 
-Spec version: 0.9.1
+Spec version: 0.9.2<!-- sv -->
 
 ---
 

@@ -1,0 +1,64 @@
+{
+  "id": "silent_on_repeat_null_options",
+  "description": "When assertion options are null (no explicit silentOnRepeat), repeated failures are silenced by default. The is_silent() function treats null options as silentOnRepeat=true.",
+  "spec_refs": ["lace-extensions.md §12"],
+  "type": "extension",
+  "requires": ["extensions", "actions"],
+  "input": {
+    "source": "get(\"http://127.0.0.1:{port}/fail\").expect(status: 200)\n",
+    "variables": {},
+    "extensions": ["laceNotifications"],
+    "prev_results": {
+      "outcome": "failure",
+      "startedAt": "1970-01-01T00:00:00Z",
+      "endedAt": "1970-01-01T00:00:00Z",
+      "runVars": {},
+      "calls": [
+        {
+          "index": 0,
+          "outcome": "failure",
+          "request": { "url": "http://127.0.0.1:9999/fail", "method": "get", "headers": {} },
+          "response": { "status": 503, "headers": {}, "responseTimeMs": 100 },
+          "redirects": [],
+          "assertions": [
+            { "method": "expect", "scope": "status", "op": "eq", "outcome": "failed", "actual": 503, "expected": 200, "options": null }
+          ],
+          "config": {},
+          "warnings": [],
+          "error": null
+        }
+      ],
+      "actions": {
+        "notifications": [
+          {
+            "callIndex": 0,
+            "conditionIndex": -1,
+            "trigger": "expect",
+            "scope": "status",
+            "notification": { "tag": "structured", "data": { "scope": "status", "op": "eq", "expected": 200, "actual": 503 } }
+          }
+        ]
+      }
+    },
+    "http_mock": [
+      {
+        "callIndex": 0,
+        "outcome": "response",
+        "status": 503,
+        "headers": {},
+        "body": ""
+      }
+    ]
+  },
+  "expected": {
+    "result": {
+      "outcome": "failure",
+      "startedAt": "1970-01-01T00:00:00Z",
+      "endedAt": "1970-01-01T00:00:00Z",
+      "runVars": {},
+      "calls": "IGNORED",
+      "actions": {}
+    },
+    "ignore": ["startedAt", "endedAt", "calls"]
+  }
+}

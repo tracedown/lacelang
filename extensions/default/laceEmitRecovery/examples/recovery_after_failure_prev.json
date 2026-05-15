@@ -1,0 +1,46 @@
+{
+  "outcome": "failure",
+  "startedAt": "2026-05-13T08:00:00Z",
+  "endedAt": "2026-05-13T08:00:01Z",
+  "elapsedMs": 850,
+  "runVars": {},
+  "calls": [
+    {
+      "index": 0,
+      "outcome": "failure",
+      "request": {
+        "url": "https://httpbin.org/status/503",
+        "method": "get",
+        "headers": {}
+      },
+      "response": {
+        "status": 503,
+        "statusText": "SERVICE UNAVAILABLE",
+        "headers": {},
+        "responseTimeMs": 850,
+        "dnsMs": 10,
+        "connectMs": 20,
+        "tlsMs": 30,
+        "ttfbMs": 800,
+        "transferMs": 0,
+        "sizeBytes": 0
+      },
+      "redirects": [],
+      "assertions": [
+        {
+          "method": "expect",
+          "scope": "status",
+          "op": "eq",
+          "outcome": "failed",
+          "actual": 503,
+          "expected": 200,
+          "options": null
+        }
+      ],
+      "config": {},
+      "warnings": [],
+      "error": null
+    }
+  ],
+  "actions": {}
+}

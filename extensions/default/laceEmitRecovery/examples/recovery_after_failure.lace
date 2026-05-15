@@ -1,0 +1,22 @@
+// laceEmitRecovery example: recovery notification after failure.
+//
+// When the previous run failed and the current run succeeds,
+// laceEmitRecovery emits a "recovered" notification. This
+// complements laceNotifications which handles the "went down"
+// direction via assertion failure notifications.
+//
+// Step 1 — simulate a previous failure:
+//   The mock prev result (recovery_after_failure_prev.json) has
+//   outcome "failure" from a 503 status code.
+//
+// Step 2 — run recovery (success):
+//
+//   lacelang-executor run recovery_after_failure.lace \
+//     --enable-extension laceNotifications \
+//     --enable-extension laceEmitRecovery \
+//     --prev recovery_after_failure_prev.json --pretty
+//
+// Expected: 1 notification with trigger "recovered".
+
+get("https://httpbin.org/get")
+.expect(status: 200)

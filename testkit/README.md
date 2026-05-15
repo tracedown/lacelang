@@ -188,6 +188,22 @@ Placeholders: `{script}` `{vars}` `{vars_list}` `{context}` `{prev}`
 doesn't declare the underlying input, the testkit writes the appropriate
 empty JSON (`{}`, `[]`, `null`) to the temp path.
 
+## Bumping the spec version
+
+The `VERSION` file at the repo root is the single source of truth.
+`bump-version.sh` increments it and propagates to all conformance
+vectors that contain `expected.ast.version`:
+
+```bash
+bash testkit/bump-version.sh          # patch bump (0.9.1 -> 0.9.2)
+bash testkit/bump-version.sh 1.0.0    # explicit new version
+```
+
+Markdown documentation uses `0.9.2<!-- sv -->` placeholders that are
+auto-filled by the git clean/smudge filter (same mechanism as
+`184<!-- vc -->`). See `.gitattributes` and the setup section in
+`vector-count-filter.sh`.
+
 ## Adding new vectors
 
 1. Pick the right category directory under `vectors/`.

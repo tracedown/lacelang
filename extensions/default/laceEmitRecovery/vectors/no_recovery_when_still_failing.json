@@ -1,0 +1,54 @@
+{
+  "id": "no_recovery_when_still_failing",
+  "description": "When previous outcome was failure and current is also failure, no recovery notification fires — the service is still down.",
+  "spec_refs": ["lace-extensions.md §12"],
+  "type": "extension",
+  "requires": ["extensions", "actions"],
+  "input": {
+    "source": "get(\"http://127.0.0.1:{port}/fail\").expect(status: 200)\n",
+    "variables": {},
+    "extensions": ["laceNotifications", "laceEmitRecovery"],
+    "prev_results": {
+      "outcome": "failure",
+      "startedAt": "1970-01-01T00:00:00Z",
+      "endedAt": "1970-01-01T00:00:00Z",
+      "runVars": {},
+      "calls": [
+        {
+          "index": 0,
+          "outcome": "failure",
+          "request": { "url": "http://127.0.0.1:9999/fail", "method": "get", "headers": {} },
+          "response": { "status": 503, "headers": {}, "responseTimeMs": 100 },
+          "redirects": [],
+          "assertions": [
+            { "method": "expect", "scope": "status", "op": "eq", "outcome": "failed", "actual": 503, "expected": 200, "options": null }
+          ],
+          "config": {},
+          "warnings": [],
+          "error": null
+        }
+      ],
+      "actions": {}
+    },
+    "http_mock": [
+      {
+        "callIndex": 0,
+        "outcome": "response",
+        "status": 503,
+        "headers": {},
+        "body": ""
+      }
+    ]
+  },
+  "expected": {
+    "result": {
+      "outcome": "failure",
+      "startedAt": "1970-01-01T00:00:00Z",
+      "endedAt": "1970-01-01T00:00:00Z",
+      "runVars": {},
+      "calls": "IGNORED",
+      "actions": {}
+    },
+    "ignore": ["startedAt", "endedAt", "calls"]
+  }
+}

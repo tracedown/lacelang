@@ -1,0 +1,46 @@
+{
+  "outcome": "success",
+  "startedAt": "2026-05-13T08:00:00Z",
+  "endedAt": "2026-05-13T08:00:01Z",
+  "elapsedMs": 450,
+  "runVars": {},
+  "calls": [
+    {
+      "index": 0,
+      "outcome": "success",
+      "request": {
+        "url": "https://httpbin.org/get",
+        "method": "get",
+        "headers": {}
+      },
+      "response": {
+        "status": 200,
+        "statusText": "OK",
+        "headers": {},
+        "responseTimeMs": 450,
+        "dnsMs": 10,
+        "connectMs": 20,
+        "tlsMs": 30,
+        "ttfbMs": 400,
+        "transferMs": 5,
+        "sizeBytes": 256
+      },
+      "redirects": [],
+      "assertions": [
+        {
+          "method": "expect",
+          "scope": "status",
+          "op": "eq",
+          "outcome": "passed",
+          "actual": 200,
+          "expected": 200,
+          "options": null
+        }
+      ],
+      "config": {},
+      "warnings": [],
+      "error": null
+    }
+  ],
+  "actions": {}
+}

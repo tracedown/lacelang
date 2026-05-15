@@ -1,7 +1,7 @@
 # Python Executor
 
 The canonical reference implementation of Lace, conformant to spec version
-**0.9.1**. The Lace specification is developed and verified against this
+**0.9.2<!-- sv -->**. The Lace specification is developed and verified against this
 implementation — conformance vectors, error codes, and wire-format schemas
 are tested here before each spec release.
 

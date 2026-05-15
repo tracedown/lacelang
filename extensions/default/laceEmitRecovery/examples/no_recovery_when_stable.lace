@@ -1,0 +1,15 @@
+// laceEmitRecovery example: no notification when already healthy.
+//
+// When the previous run was also successful, no recovery
+// notification fires — there is no transition to report.
+//
+// Run:
+//   lacelang-executor run no_recovery_when_stable.lace \
+//     --enable-extension laceNotifications \
+//     --enable-extension laceEmitRecovery \
+//     --prev no_recovery_when_stable_prev.json --pretty
+//
+// Expected: 0 notifications.
+
+get("https://httpbin.org/get")
+.expect(status: 200)

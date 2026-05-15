@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.9.2 - laceNotifications, laceEmitRecovery
+
+- Fixed laceNotifications `silentOnRepeat` default behavior
+- Extended laceNotifications tests to cover the `silentOnRepeat` functionality
+- Added `laceEmitRecovery` extension with test coverage
+
 ## 0.9.1 — Body saving changes
 
 - Removed `bodyPath` from the request record schema; request bodies are no longer saved to disk (they are already present in the AST)
@@ -16,7 +22,7 @@ First public release of the Lace probe scripting language.
 - ANTLR4 grammars (`lacelang.g4`, `laceext.g4`)
 - JSON schemas for AST, ProbeResult, `.laceext`, `lace.config`, executor manifest, and conformance vectors
 - Error code registry (`error-codes.json`)
-- Conformance testkit with C harness and 178 test vectors
+- Conformance testkit with C harness and 184<!-- vc --> test vectors
 - Extension DSL with `set` statement for mutable bindings in function bodies
 - Bundled default extensions: `laceNotifications`, `laceBaseline`
 - Test extensions: `hookTrace`, `notifRelay`, `notifCounter`, `notifWatch`, `badNamespace`, `configDemo`
