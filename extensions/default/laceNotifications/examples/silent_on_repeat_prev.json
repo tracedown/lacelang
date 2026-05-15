@@ -1,29 +1,75 @@
 {
   "outcome": "failure",
-  "startedAt": "2026-05-13T08:00:00Z",
-  "endedAt": "2026-05-13T08:00:01Z",
-  "elapsedMs": 850,
+  "startedAt": "2026-05-15T08:21:05.030Z",
+  "endedAt": "2026-05-15T08:21:05.763Z",
+  "elapsedMs": 733,
   "runVars": {},
   "calls": [
     {
       "index": 0,
       "outcome": "failure",
+      "startedAt": "2026-05-15T08:21:05.030Z",
+      "endedAt": "2026-05-15T08:21:05.763Z",
       "request": {
         "url": "https://httpbin.org/status/503",
         "method": "get",
-        "headers": {}
+        "headers": {
+          "User-Agent": "lace-probe/0.1.0 (lacelang-python)"
+        }
       },
       "response": {
         "status": 503,
         "statusText": "SERVICE UNAVAILABLE",
-        "headers": {},
-        "responseTimeMs": 850,
-        "dnsMs": 10,
-        "connectMs": 20,
-        "tlsMs": 30,
-        "ttfbMs": 800,
+        "headers": {
+          "date": "Fri, 15 May 2026 08:21:05 GMT",
+          "content-type": "text/html; charset=utf-8",
+          "content-length": "0",
+          "connection": "keep-alive",
+          "server": "gunicorn/19.9.0",
+          "access-control-allow-origin": "*",
+          "access-control-allow-credentials": "true"
+        },
+        "bodyPath": null,
+        "responseTimeMs": 732,
+        "dnsMs": 26,
+        "connectMs": 135,
+        "tlsMs": 224,
+        "ttfbMs": 708,
         "transferMs": 0,
-        "sizeBytes": 0
+        "sizeBytes": 0,
+        "dns": {
+          "resolvedIps": [
+            "192.0.2.10",
+            "192.0.2.11",
+            "192.0.2.12",
+            "198.51.100.10",
+            "198.51.100.11",
+            "198.51.100.12",
+            "203.0.113.10",
+            "203.0.113.11"
+          ],
+          "resolvedIp": "192.0.2.10"
+        },
+        "tls": {
+          "protocol": "TLSv1.2",
+          "cipher": "ECDHE-RSA-AES128-GCM-SHA256",
+          "alpn": "http/1.1",
+          "certificate": {
+            "subject": {
+              "cn": "httpbin.org"
+            },
+            "subjectAltNames": [
+              "DNS:httpbin.org",
+              "DNS:*.httpbin.org"
+            ],
+            "issuer": {
+              "cn": "Amazon RSA 2048 M03"
+            },
+            "notBefore": "2025-07-20T00:00:00Z",
+            "notAfter": "2026-08-17T23:59:59Z"
+          }
+        },
+        "bodyNotCapturedReason": "notRequested"
       },
       "redirects": [],
       "assertions": [
@@ -37,7 +83,20 @@
           "options": null
         }
       ],
-      "config": {},
+      "config": {
+        "timeout": {
+          "ms": 30000,
+          "action": "fail",
+          "retries": 0
+        },
+        "redirects": {
+          "follow": true,
+          "max": 10
+        },
+        "security": {
+          "rejectInvalidCerts": true
+        }
+      },
       "warnings": [],
       "error": null
     }
