@@ -1,6 +1,6 @@
 # Built-in Extensions
 
-Lace ships two built-in extensions with every executor distribution. They are bundled as `.laceext` files and referenced in `lace.config` with the `builtin:` prefix.
+Lace ships three built-in extensions with every executor distribution. They are bundled as `.laceext` files and referenced in `lace.config` with the `builtin:` prefix.
 
 ## What "built-in" means
 
@@ -11,6 +11,9 @@ Built-in extensions are **not active by default**. They must be listed in `lace.
 ```toml
 [extensions.laceNotifications]
 laceext = "builtin:laceNotifications"
+
+[extensions.laceEmitRecovery]
+laceext = "builtin:laceEmitRecovery"
 
 [extensions.laceBaseline]
 laceext = "builtin:laceBaseline"
@@ -29,6 +32,18 @@ Key features:
 - Supports `op_map` for conditional notification selection based on failure type
 - Exposes `pushNotification()` for other extensions to inject notifications
 - Suppresses repeated alerts with `silentOnRepeat` (default: true)
+
+### [laceEmitRecovery](emit-recovery.md)
+
+Recovery notification on failure-to-success transitions. When the previous run failed or timed out and the current run succeeds, this extension emits a notification via `laceNotifications.pushNotification()`.
+
+Key features:
+
+- Emits `text()` notification with `trigger: "recovered"` on recovery
+- Treats `timeout` the same as `failure` for transition detection
+- Skips first run (no previous result to compare)
+- Configurable notification: `recovery_message` for default text, or `notification` for `template()`/`text()` override
+- Depends on `laceNotifications` for dispatch
 
 ### [laceBaseline](baseline.md)
 

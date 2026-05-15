@@ -91,6 +91,7 @@ nav:
     - Built-in Extensions:
       - extensions/built-in/index.md
       - laceNotifications: extensions/built-in/notifications.md
+      - laceEmitRecovery: extensions/built-in/emit-recovery.md
       - laceBaseline: extensions/built-in/baseline.md
   - Reference:
     - reference/grammar.md
