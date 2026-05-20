@@ -58,7 +58,7 @@ it test scripts, and diffs the output against expected results:
 lace-conformance -c "lacelang-executor"
 ```
 
-The test suite covers 160+ core vectors across parsing, validation,
+The test suite covers core vectors across parsing, validation,
 variable handling, null semantics, HTTP execution, cookie jars, chain
 methods, body matching, previous results, failure cascade, result
 structure, body storage, and configuration.

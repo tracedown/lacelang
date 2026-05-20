@@ -1,6 +1,6 @@
-# Lace — Extension System v0.9.1
+# Lace — Extension System v0.9.2<!-- sv -->
 
-> Status: Initial release (v0.9.1)
+> Status: Initial release (v0.9.2<!-- sv -->)
 > Referenced by: lace-spec.md §10
 
 ---
@@ -1121,4 +1121,4 @@ Moved to **[checklist-extensions.md](./checklist-extensions.md)** for maintainab
 
 ---
 
-*End of Lace extension system v0.9.1*
+*End of Lace extension system v0.9.2<!-- sv -->*

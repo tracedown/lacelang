@@ -16,21 +16,25 @@ expected results.
 
 | Dir                          | Section                        | Type        | Count |
 |------------------------------|--------------------------------|-------------|-------|
-| `vectors/01_parsing/`        | Parsing                        | `parse`     | 27    |
-| `vectors/02_validation/`     | Validation                     | `validate`  | 24    |
-| `vectors/03_variables/`      | Variable handling              | `execute`   | 4     |
-| `vectors/04_null_semantics/` | Null semantics                 | `execute`   | 10    |
-| `vectors/05_http_execution/` | HTTP/HTTPS execution           | `execute`   | 26    |
-| `vectors/06_cookie_jar/`     | Cookie jar                     | `execute`   | 7     |
-| `vectors/07_chain_methods/`  | Chain method execution         | `execute`   | 10    |
-| `vectors/08_body_matching/`  | Body matching                  | `execute`   | 8     |
-| `vectors/09_prev_access/`    | prev access                    | `execute`   | 5     |
-| `vectors/10_failure_cascade/`| Failure cascade                | `execute`   | 4     |
-| `vectors/11_result_structure/`| Result structure              | `execute`   | 13    |
-| `vectors/12_body_storage/`   | Body storage                   | `execute`   | 5     |
-| `vectors/13_extension_core/` | Extension interface (core)     | `extension` | 7     |
-| `vectors/14_config/`         | Configuration                  | `execute`   | 10    |
-| **Core total**               |                                |             | **160** |
+| `vectors/01_parsing/`        | Parsing                        | `parse`     | 27<!-- vc:01_parsing -->    |
+| `vectors/02_validation/`     | Validation                     | `validate`  | 24<!-- vc:02_validation -->    |
+| `vectors/03_variables/`      | Variable handling              | `execute`   | 4<!-- vc:03_variables -->    |
+| `vectors/04_null_semantics/` | Null semantics                 | `execute`   | 10<!-- vc:04_null_semantics -->    |
+| `vectors/05_http_execution/` | HTTP/HTTPS execution           | `execute`   | 26<!-- vc:05_http_execution -->    |
+| `vectors/06_cookie_jar/`     | Cookie jar                     | `execute`   | 7<!-- vc:06_cookie_jar -->    |
+| `vectors/07_chain_methods/`  | Chain method execution         | `execute`   | 10<!-- vc:07_chain_methods -->    |
+| `vectors/08_body_matching/`  | Body matching                  | `execute`   | 8<!-- vc:08_body_matching -->    |
+| `vectors/09_prev_access/`    | prev access                    | `execute`   | 5<!-- vc:09_prev_access -->    |
+| `vectors/10_failure_cascade/`| Failure cascade                | `execute`   | 4<!-- vc:10_failure_cascade -->    |
+| `vectors/11_result_structure/`| Result structure              | `execute`   | 13<!-- vc:11_result_structure -->    |
+| `vectors/12_body_storage/`   | Body storage                   | `execute`   | 5<!-- vc:12_body_storage -->    |
+| `vectors/13_extension_core/` | Extension interface (core)     | `extension` | 7<!-- vc:13_extension_core -->    |
+| `vectors/14_config/`         | Configuration                  | `execute`   | 10<!-- vc:14_config -->    |
+| **Core total**               |                                |             | **160<!-- vc:core -->** |
+
+Counts are sourced from per-dir `COUNT` files maintained by
+`testkit/update-counts.sh` and rendered by the `vector-count-filter.sh`
+git filter — run the update script after adding or removing vectors.
 
 ### Extension-owned vectors
 
@@ -40,11 +44,12 @@ into the vectors tree.
 
 | Extension          | Count | Type        |
 |--------------------|-------|-------------|
-| laceNotifications  | 8     | `extension` |
-| laceBaseline       | 7     | `extension` |
-| configDemo (test)  | 2     | `extension` |
-| hookTrace (test)   | 1     | `extension` |
-| **Extension total**| **18**|             |
+| laceNotifications  | 9<!-- vc:ext.laceNotifications -->     | `extension` |
+| laceBaseline       | 7<!-- vc:ext.laceBaseline -->     | `extension` |
+| laceEmitRecovery   | 5<!-- vc:ext.laceEmitRecovery -->     | `extension` |
+| configDemo (test)  | 2<!-- vc:ext.configDemo -->     | `extension` |
+| hookTrace (test)   | 1<!-- vc:ext.hookTrace -->     | `extension` |
+| **Extension total**| **24<!-- vc:ext -->**|             |
 
 Each vector is a JSON file conforming to
 `../specs/schemas/conformance-vector.json`.
@@ -169,9 +174,9 @@ templates, and invokes the resulting argv:
 ```toml
 [executor]
 name        = "lacelang-executor"
-version     = "0.9.1"
+version     = "0.9.2"
 language    = "python"
-conforms_to = ">=0.9.1"
+conforms_to = ">=0.9.2"
 
 [adapter]
 parse    = "python3 -m lacelang_executor parse {script}"
@@ -199,10 +204,11 @@ bash testkit/bump-version.sh          # patch bump (0.9.1 -> 0.9.2)
 bash testkit/bump-version.sh 1.0.0    # explicit new version
 ```
 
-Markdown documentation uses `0.9.2<!-- sv -->` placeholders that are
-auto-filled by the git clean/smudge filter (same mechanism as
-`184<!-- vc -->`). See `.gitattributes` and the setup section in
-`vector-count-filter.sh`.
+Markdown documentation uses `0.9.2<!-- sv -->` and `{{ vectorCount[:key] }}`
+placeholders that are auto-filled by the git clean/smudge filter wired in
+`.gitattributes`. New clones configure the filter with
+`bash testkit/setup-filters.sh`; see `vector-count-filter.sh` for the
+supported placeholder forms.
 
 ## Adding new vectors
 

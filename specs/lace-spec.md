@@ -1,6 +1,6 @@
-# Lace — Specification v0.9.1
+# Lace — Specification v0.9.2<!-- sv -->
 
-> Status: Initial release (v0.9.1)
+> Status: Initial release (v0.9.2<!-- sv -->)
 > Referenced by: api-monitoring-spec.md §3
 
 ## Table of Contents
@@ -1302,4 +1302,4 @@ Process exit code: `0` for `compliant` and `compliant-partial`, `1` for `non-com
 
 ---
 
-*End of Lace specification v0.9.1*
+*End of Lace specification v0.9.2<!-- sv -->*
