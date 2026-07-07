@@ -204,7 +204,7 @@ bash testkit/bump-version.sh          # patch bump (0.9.1 -> 0.9.2)
 bash testkit/bump-version.sh 1.0.0    # explicit new version
 ```
 
-Markdown documentation uses `0.9.2<!-- sv -->` and `{{ vectorCount[:key] }}`
+Markdown documentation uses `0.9.3<!-- sv -->` and `{{ vectorCount[:key] }}`
 placeholders that are auto-filled by the git clean/smudge filter wired in
 `.gitattributes`. New clones configure the filter with
 `bash testkit/setup-filters.sh`; see `vector-count-filter.sh` for the

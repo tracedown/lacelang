@@ -1,7 +1,7 @@
 # Kotlin Executor
 
 Reference Kotlin/JVM implementation of Lace, conformant to spec version
-**0.9.2<!-- sv -->** (186<!-- vc -->/186<!-- vc --> conformance vectors). Passes the same test suite as the
+**0.9.3<!-- sv -->** (186<!-- vc -->/186<!-- vc --> conformance vectors). Passes the same test suite as the
 canonical Python executor and is fully interchangeable.
 
 The implementation is split into two packages following the

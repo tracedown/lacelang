@@ -87,9 +87,9 @@ The maintainers will review your implementation and verify conformance.
 
 | Package | Language | Conformance | Spec Version | Repository |
 |---|---|---|---|---|
-| `lacelang-executor` | Python | **Canonical** | 0.9.2<!-- sv --> | [tracedown/lacelang-python-executor](https://github.com/tracedown/lacelang-python-executor) |
-| `@lacelang/executor` | TypeScript | **Conformant** | 0.9.2<!-- sv --> | [tracedown/lacelang-js-executor](https://github.com/tracedown/lacelang-js-executor) |
-| `lacelang-kt-executor` | Kotlin/JVM | **Conformant** | 0.9.2<!-- sv --> | [tracedown/lacelang-kotlin-executor](https://github.com/tracedown/lacelang-kotlin-executor) |
+| `lacelang-executor` | Python | **Canonical** | 0.9.3<!-- sv --> | [tracedown/lacelang-python-executor](https://github.com/tracedown/lacelang-python-executor) |
+| `@lacelang/executor` | TypeScript | **Conformant** | 0.9.3<!-- sv --> | [tracedown/lacelang-js-executor](https://github.com/tracedown/lacelang-js-executor) |
+| `lacelang-kt-executor` | Kotlin/JVM | **Conformant** | 0.9.3<!-- sv --> | [tracedown/lacelang-kotlin-executor](https://github.com/tracedown/lacelang-kotlin-executor) |
 
 All three implementations pass the full 186<!-- vc -->-vector conformance suite. The Python executor is the **canonical reference** — the spec is developed and verified against it. The TypeScript and Kotlin executors are fully interchangeable and target the same spec version.
 
