@@ -20,6 +20,7 @@
 typedef enum {
     MOCK_OUTCOME_RESPONSE,   /* reply with the programmed status/headers/body */
     MOCK_OUTCOME_TIMEOUT,    /* accept the connection but never reply         */
+    MOCK_OUTCOME_ERROR,      /* abort the connection (RST) — models DNS/refused/reset-class failures */
 } mock_outcome_t;
 
 typedef struct {

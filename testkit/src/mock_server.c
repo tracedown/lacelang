@@ -314,6 +314,16 @@ static void handle_client_tls(mock_server_t *s, int client_fd) {
         tls_send_all(ssl, fallback, sizeof(fallback) - 1);
         goto done;
     }
+    if (resp->outcome == MOCK_OUTCOME_ERROR) {
+        /* Abort with RST on the underlying socket — see the plain handler. */
+        int fd = SSL_get_fd(ssl);
+        if (fd >= 0) {
+            struct linger lg = { .l_onoff = 1, .l_linger = 0 };
+            setsockopt(fd, SOL_SOCKET, SO_LINGER, &lg, sizeof(lg));
+        }
+        goto done;
+    }
+
     if (resp->outcome == MOCK_OUTCOME_TIMEOUT) {
         for (int i = 0; i < 200; i++) {
             if (s->stop_flag) break;
@@ -389,6 +399,16 @@ static void handle_client(mock_server_t *s, int client_fd) {
             "Content-Length: 0\r\n"
             "Connection: close\r\n\r\n";
         send_all(client_fd, fallback, sizeof(fallback) - 1);
+        close(client_fd);
+        return;
+    }
+
+    if (resp->outcome == MOCK_OUTCOME_ERROR) {
+        /* Abort with RST (SO_LINGER 0) so clients report a connection
+         * error rather than a clean EOF — the closest a local mock can
+         * get to DNS/refused/reset-class failures. */
+        struct linger lg = { .l_onoff = 1, .l_linger = 0 };
+        setsockopt(client_fd, SOL_SOCKET, SO_LINGER, &lg, sizeof(lg));
         close(client_fd);
         return;
     }

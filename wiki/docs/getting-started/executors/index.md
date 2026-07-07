@@ -91,7 +91,7 @@ The maintainers will review your implementation and verify conformance.
 | `@lacelang/executor` | TypeScript | **Conformant** | 0.9.2<!-- sv --> | [tracedown/lacelang-js-executor](https://github.com/tracedown/lacelang-js-executor) |
 | `lacelang-kt-executor` | Kotlin/JVM | **Conformant** | 0.9.2<!-- sv --> | [tracedown/lacelang-kotlin-executor](https://github.com/tracedown/lacelang-kotlin-executor) |
 
-All three implementations pass the full 184<!-- vc -->-vector conformance suite. The Python executor is the **canonical reference** — the spec is developed and verified against it. The TypeScript and Kotlin executors are fully interchangeable and target the same spec version.
+All three implementations pass the full 186<!-- vc -->-vector conformance suite. The Python executor is the **canonical reference** — the spec is developed and verified against it. The TypeScript and Kotlin executors are fully interchangeable and target the same spec version.
 
 Each implementation splits into a **validator** (parser + semantic checks, zero network dependencies) and an **executor** (HTTP runtime). See the [packaging rules](../../implementers/packaging.md) for why.
 

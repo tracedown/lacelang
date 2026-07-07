@@ -44,12 +44,12 @@ into the vectors tree.
 
 | Extension          | Count | Type        |
 |--------------------|-------|-------------|
-| laceNotifications  | 9<!-- vc:ext.laceNotifications -->     | `extension` |
+| laceNotifications  | 11<!-- vc:ext.laceNotifications -->     | `extension` |
 | laceBaseline       | 7<!-- vc:ext.laceBaseline -->     | `extension` |
 | laceEmitRecovery   | 5<!-- vc:ext.laceEmitRecovery -->     | `extension` |
 | configDemo (test)  | 2<!-- vc:ext.configDemo -->     | `extension` |
 | hookTrace (test)   | 1<!-- vc:ext.hookTrace -->     | `extension` |
-| **Extension total**| **24<!-- vc:ext -->**|             |
+| **Extension total**| **26<!-- vc:ext -->**|             |
 
 Each vector is a JSON file conforming to
 `../specs/schemas/conformance-vector.json`.

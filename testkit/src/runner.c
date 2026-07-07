@@ -608,6 +608,10 @@ static mock_response_t *build_mock_queue(const cJSON *mock_arr, size_t *out_coun
             r->outcome = MOCK_OUTCOME_TIMEOUT;
             continue;
         }
+        if (cJSON_IsString(oc) && strcmp(oc->valuestring, "error") == 0) {
+            r->outcome = MOCK_OUTCOME_ERROR;
+            continue;
+        }
         r->outcome = MOCK_OUTCOME_RESPONSE;
         const cJSON *st = cJSON_GetObjectItem(m, "status");
         r->status = cJSON_IsNumber(st) ? (int)st->valuedouble : 200;

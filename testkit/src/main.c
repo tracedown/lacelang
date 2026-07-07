@@ -414,6 +414,18 @@ int main(int argc, char **argv) {
             if (a.filter) fprintf(stderr, "  filter: %s", a.filter);
             fputc('\n', stderr);
         }
+        /* A previous run that exited on an error path may have left the
+         * vectors/_extensions symlink behind; the initial walk would then
+         * pick the extension vectors up here AND again after the re-link,
+         * double-counting them. Clear any stale link first. */
+        {
+            char stale_link[4096];
+            snprintf(stale_link, sizeof(stale_link), "%s/_extensions", vdir);
+            struct stat lst;
+            if (lstat(stale_link, &lst) == 0 && S_ISLNK(lst.st_mode)) {
+                unlink(stale_link);
+            }
+        }
         if (vector_load_dir(vdir, a.filter, &vectors) != 0) {
             fprintf(stderr, "Error: could not read vectors from %s\n", vdir);
             return 2;

@@ -22,7 +22,7 @@ First public release of the Lace probe scripting language.
 - ANTLR4 grammars (`lacelang.g4`, `laceext.g4`)
 - JSON schemas for AST, ProbeResult, `.laceext`, `lace.config`, executor manifest, and conformance vectors
 - Error code registry (`error-codes.json`)
-- Conformance testkit with C harness and 184<!-- vc --> test vectors
+- Conformance testkit with C harness and 186<!-- vc --> test vectors
 - Extension DSL with `set` statement for mutable bindings in function bodies
 - Bundled default extensions: `laceNotifications`, `laceBaseline`
 - Test extensions: `hookTrace`, `notifRelay`, `notifCounter`, `notifWatch`, `badNamespace`, `configDemo`

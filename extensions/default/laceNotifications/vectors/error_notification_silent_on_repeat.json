@@ -1,0 +1,62 @@
+{
+ "id": "error_notification_silent_on_repeat",
+ "description": "A connection-level call error emits no notification when the same call already errored on the previous run — the error notification fires on the transition into the error state only.",
+ "spec_refs": [
+  "lace-extensions.md §12"
+ ],
+ "type": "extension",
+ "requires": [
+  "extensions",
+  "actions"
+ ],
+ "input": {
+  "source": "get(\"http://127.0.0.1:{port}/down\").expect(status: 200)\n",
+  "variables": {},
+  "extensions": [
+   "laceNotifications"
+  ],
+  "prev_results": {
+   "outcome": "failure",
+   "startedAt": "1970-01-01T00:00:00Z",
+   "endedAt": "1970-01-01T00:00:00Z",
+   "runVars": {},
+   "calls": [
+    {
+     "index": 0,
+     "outcome": "failure",
+     "request": {
+      "url": "http://127.0.0.1:9999/down",
+      "method": "get",
+      "headers": {}
+     },
+     "response": null,
+     "redirects": [],
+     "assertions": [],
+     "error": "connection reset by peer"
+    }
+   ],
+   "actions": {}
+  },
+  "http_mock": [
+   {
+    "callIndex": 0,
+    "outcome": "error"
+   }
+  ]
+ },
+ "expected": {
+  "result": {
+   "outcome": "failure",
+   "startedAt": "1970-01-01T00:00:00Z",
+   "endedAt": "1970-01-01T00:00:00Z",
+   "runVars": {},
+   "calls": "IGNORED",
+   "actions": {}
+  },
+  "ignore": [
+   "startedAt",
+   "endedAt",
+   "calls"
+  ]
+ }
+}

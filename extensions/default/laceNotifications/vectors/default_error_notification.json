@@ -1,0 +1,54 @@
+{
+ "id": "default_error_notification",
+ "description": "A connection-level call error (no response, assertions never evaluate) emits a default structured error notification with trigger \"error\" when the previous run's call did not error (here: no previous run).",
+ "spec_refs": [
+  "lace-extensions.md §12"
+ ],
+ "type": "extension",
+ "requires": [
+  "extensions",
+  "actions"
+ ],
+ "input": {
+  "source": "get(\"http://127.0.0.1:{port}/down\").expect(status: 200)\n",
+  "variables": {},
+  "extensions": [
+   "laceNotifications"
+  ],
+  "http_mock": [
+   {
+    "callIndex": 0,
+    "outcome": "error"
+   }
+  ]
+ },
+ "expected": {
+  "result": {
+   "outcome": "failure",
+   "startedAt": "1970-01-01T00:00:00Z",
+   "endedAt": "1970-01-01T00:00:00Z",
+   "runVars": {},
+   "calls": "IGNORED",
+   "actions": {
+    "notifications": [
+     {
+      "callIndex": 0,
+      "conditionIndex": -1,
+      "trigger": "error",
+      "notification": {
+       "tag": "structured",
+       "data": {
+        "error": "NON_NULL"
+       }
+      }
+     }
+    ]
+   }
+  },
+  "ignore": [
+   "startedAt",
+   "endedAt",
+   "calls"
+  ]
+ }
+}
