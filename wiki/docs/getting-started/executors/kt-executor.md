@@ -29,6 +29,22 @@ java -jar lacelang-kt-executor.jar --version
 
 The shadow JAR bundles the validator — a single JAR is all you need.
 
+### From Maven Central
+
+To embed the executor in a JVM project, the artifacts are published under the
+`dev.lacelang` group:
+
+```kotlin
+// build.gradle.kts
+dependencies {
+    implementation("dev.lacelang:lacelang-kotlin-executor:0.1.3")
+}
+```
+
+This transitively pulls in the validator. Browse releases on Maven Central:
+[`dev.lacelang:lacelang-kotlin-executor`](https://central.sonatype.com/artifact/dev.lacelang/lacelang-kotlin-executor)
+and [`dev.lacelang:kotlin-validator`](https://central.sonatype.com/artifact/dev.lacelang/kotlin-validator).
+
 ### From source
 
 ```bash

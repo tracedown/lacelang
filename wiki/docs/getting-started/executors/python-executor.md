@@ -19,6 +19,8 @@ Requires Python **3.10+**.
 
 ## Installation
 
+Published on PyPI as [`lacelang-executor`](https://pypi.org/project/lacelang-executor/), which pulls in [`lacelang-validator`](https://pypi.org/project/lacelang-validator/):
+
 ```bash
 pip install lacelang-executor
 ```

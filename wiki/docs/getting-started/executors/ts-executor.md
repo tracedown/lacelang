@@ -18,6 +18,8 @@ Requires Node.js **18+**.
 
 ## Installation
 
+Published on npm as [`@lacelang/executor`](https://www.npmjs.com/package/@lacelang/executor), which pulls in [`@lacelang/validator`](https://www.npmjs.com/package/@lacelang/validator):
+
 ```bash
 npm install @lacelang/executor
 ```
