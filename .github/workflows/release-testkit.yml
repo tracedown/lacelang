@@ -81,8 +81,42 @@ jobs:
           name: ${{ matrix.artifact }}
           path: ${{ matrix.artifact }}
 
+  # Fully static musl build (Alpine). The default `build` job links against the
+  # runner's glibc, so its binary refuses to load on older distros — including
+  # many WSL installs ("version `GLIBC_2.xx' not found"). This build has no
+  # glibc/kernel-version dependency at all, so it runs anywhere.
+  build-linux-static:
+    needs: check
+    if: needs.check.outputs.should_release == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build static binary (musl / Alpine)
+        run: |
+          docker run --rm -v "$PWD:/src" -w /src alpine:3.19 sh -c '
+            set -e
+            apk add --no-cache build-base openssl-dev openssl-libs-static zlib-static
+            cd testkit/src
+            make EMBED_VECTORS=1 LDFLAGS="-static -lpthread -lssl -lcrypto -lz"
+          '
+
+      - name: Verify it is self-contained
+        # A musl binary that still had dynamic deps would fail to load here on
+        # the glibc runner, so a clean --version proves it is fully static.
+        run: testkit/src/build/lace-conformance --version
+
+      - name: Rename binary
+        run: cp testkit/src/build/lace-conformance lace-conformance-linux-x86_64-static
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: lace-conformance-linux-x86_64-static
+          path: lace-conformance-linux-x86_64-static
+
   release:
-    needs: [check, build]
+    needs: [check, build, build-linux-static]
     runs-on: ubuntu-latest
     permissions:
       contents: write

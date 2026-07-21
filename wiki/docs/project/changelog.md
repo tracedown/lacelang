@@ -2,7 +2,9 @@
 
 ## 0.9.3 -- Connection-Error Notifications
 
-- Notify on connection-level call errors ([#22](https://github.com/tracedown/lacelang/commit/a1702025836a0d0d70daf921bbc199d042672675))
+- `laceNotifications` now emits a default `structured` notification when a call fails with a connection-level error (DNS failure, connection refused, TLS error, etc.). These failures never reach assertion evaluation, so the existing scope and condition rules could not surface them.
+- The notification fires once on entry into the error state -- when the same call had no error on the previous run, or there is no previous run -- and stays silent while the error persists. Timeouts are unaffected; their existing rules still own that outcome.
+- Added conformance vectors covering the default error notification and its silent-on-repeat behaviour.
 
 ## 0.9.2 -- laceNotifications, laceEmitRecovery
 
