@@ -2,7 +2,7 @@
 
 An executor implementation is considered **Lace Extension Compatible** when it satisfies all items in this checklist. Partial compatibility must be documented -- an executor may declare which sections it supports.
 
-Spec version: 0.9.2<!-- sv -->
+Spec version: 0.9.3<!-- sv -->
 
 ---
 
@@ -23,7 +23,7 @@ Spec version: 0.9.2<!-- sv -->
 
 ## 3. Rule Body Language
 
-- [ ] Parses rule bodies and function bodies using the grammar in `lace-extensions.md` section 5.1
+- [ ] Parses rule bodies and function bodies using the grammar in the specification (§5.1)
 - [ ] Executes `for` iteration with named binding; skips body when collection is null
 - [ ] Executes inline `when expr` as a guard that exits current scope on false/null
 - [ ] Executes block `when expr:` as a conditional block skip
@@ -41,10 +41,10 @@ Spec version: 0.9.2<!-- sv -->
 
 ## 4. Expressions
 
-- [ ] Evaluates all arithmetic operators with correct type rules (`lace-extensions.md` section 5.3, 5.4)
+- [ ] Evaluates all arithmetic operators with correct type rules (specification §5.3, §5.4)
 - [ ] Evaluates all comparison operators with correct type rules
 - [ ] Evaluates `and`, `or`, `not` with short-circuit evaluation
-- [ ] Null propagation: field access, array index, array filter on null returns null (`lace-extensions.md` section 5.5)
+- [ ] Null propagation: field access, array index, array filter on null returns null (specification §5.5)
 - [ ] `null eq null` evaluates to `true`
 - [ ] `not null` evaluates to `true`
 - [ ] Array filter `[? condition]` returns first matching element or null
@@ -81,7 +81,7 @@ Spec version: 0.9.2<!-- sv -->
 - [ ] `on before check` / `on check` -- same as expect for `.check()`
 - [ ] `on before assert` / `on assert` fires per condition in `.assert()`
 - [ ] `on before store` / `on store` fires per entry in `.store()`
-- [ ] Rules from multiple extensions at the same hook are ordered per `lace-extensions.md` section 8.1.1 -- by explicit `after` / `before` qualifiers and implicit `after` edges from `require`, topo-sorted with ties broken deterministically (declaration order within a file, then extension name alphabetically). Executors **must not** rely on `lace.config` load order for determinism.
+- [ ] Rules from multiple extensions at the same hook are ordered per the specification (§8.1.1) -- by explicit `after` / `before` qualifiers and implicit `after` edges from `require`, topo-sorted with ties broken deterministically (declaration order within a file, then extension name alphabetically). Executors **must not** rely on `lace.config` load order for determinism.
 - [ ] Rules within a single extension run in declaration order (unless explicit ordering qualifiers say otherwise)
 
 ## 8. Extension Variables
@@ -94,9 +94,9 @@ Spec version: 0.9.2<!-- sv -->
 
 ## 9. Configuration
 
-- [ ] Loads sibling `{extName}.config` file when present (`lace-extensions.md` section 2.3); absence is not an error
+- [ ] Loads sibling `{extName}.config` file when present (specification §2.3); absence is not an error
 - [ ] Reads `[extensions.{name}]` config section from `lace.config`
-- [ ] Merges `.config` defaults with `lace.config` overrides per `lace-extensions.md` section 11.1 (overrides win, defaults preserved for absent keys)
+- [ ] Merges `.config` defaults with `lace.config` overrides per the specification (§11.1) (overrides win, defaults preserved for absent keys)
 - [ ] Provides merged `config` object to rule bodies containing the extension's config values
 - [ ] Resolves `env:VARNAME` and `env:VARNAME:default` in `lace.config` values at startup (not in `.config` defaults)
 

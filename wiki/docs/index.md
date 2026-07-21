@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/lace-logo-256.png" alt="Lace logo" width="160" height="160">
+</p>
+
 # Lace(lang)
 
 <a class="github-button" href="https://github.com/tracedown/lacelang" data-size="large" data-show-count="true" aria-label="Star tracedown/lacelang on GitHub">Star</a>
@@ -14,7 +18,7 @@ structured JSON result.
 Lace defines the language. Executors implement it. Anyone can build an
 executor in any programming language — the [conformance test suite](getting-started/executors/index.md)
 ensures they all behave identically. Three reference implementations conform
-to spec version 0.9.2<!-- sv -->: [Python](getting-started/executors/python-executor.md)
+to spec version 0.9.3<!-- sv -->: [Python](getting-started/executors/python-executor.md)
 (canonical), [TypeScript](getting-started/executors/ts-executor.md), and
 [Kotlin/JVM](getting-started/executors/kt-executor.md).
 See [Executors](getting-started/executors/index.md) for how this works.

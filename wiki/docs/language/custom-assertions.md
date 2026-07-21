@@ -8,7 +8,7 @@
 .assert({
   expect: [
     this.body.success eq true,
-    this.body.items.length gt 0
+    this.body.total gt 0
   ],
   check: [
     this.responseTime lt $sla_ms

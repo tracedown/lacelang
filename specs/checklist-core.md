@@ -1,6 +1,6 @@
 # Core Executor Compatibility Checklist
 
-> Spec version: 0.9.2<!-- sv -->
+> Spec version: 0.9.3<!-- sv -->
 > Companion to: [lace-spec.md](./lace-spec.md)
 
 An executor implementation is considered **Lace Core Compatible** when it satisfies every item in this checklist. Partial compatibility must be documented — an executor may declare which sections it supports and which it does not.

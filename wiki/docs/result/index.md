@@ -4,9 +4,8 @@ Every Lace executor returns a **ProbeResult** -- a single JSON object that captu
 complete outcome of a probe run: timing, per-call details, assertion verdicts, and
 write-back actions.
 
-The schema is defined in
-[`schemas/result.json`](https://lacelang.dev/schemas/result/0.9.1) and specified in
-lace-spec.md section 9.
+See the [Result Schema reference](../reference/result-schema.md) for the complete,
+field-by-field definition.
 
 ---
 

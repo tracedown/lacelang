@@ -21,7 +21,7 @@ Requires JDK **17+**.
 ### From GitHub Releases
 
 ```bash
-curl -sL "https://github.com/tracedown/lacelang-kotlin-executor/releases/latest/download/lacelang-kt-executor-0.1.0-all.jar" \
+curl -sL "https://github.com/tracedown/lacelang-kotlin-executor/releases/latest/download/lacelang-kt-executor-all.jar" \
     -o lacelang-kt-executor.jar
 
 java -jar lacelang-kt-executor.jar --version

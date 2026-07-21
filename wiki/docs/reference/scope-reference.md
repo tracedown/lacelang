@@ -2,7 +2,7 @@
 
 Scopes are the assertion targets used in `.expect()` and `.check()` chain methods. Each scope maps to a specific property of the HTTP response.
 
-Spec version: 0.9.2<!-- sv -->
+Spec version: 0.9.3<!-- sv -->
 
 ## Scope Table
 

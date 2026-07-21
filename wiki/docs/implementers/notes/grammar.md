@@ -1,8 +1,8 @@
 # Grammar Notes
 
-Companion to `lacelang.g4` and `lace-spec.md`. Documents intentional divergences between the ANTLR4 grammar and the spec EBNF.
+Companion to `lacelang.g4`. Documents intentional divergences between the ANTLR4 grammar and the specification's EBNF.
 
-The ANTLR4 grammar `lacelang.g4` is the authoritative syntax definition. Where it diverges from the EBNF in `lace-spec.md` section 2.1, the divergence is either an ANTLR-required adaptation that preserves spec semantics, or a permissive-parser / strict-validator choice consistent with spec section 12.
+The ANTLR4 grammar `lacelang.g4` is the authoritative syntax definition. Where it diverges from the EBNF in the specification (§2.1), the divergence is either an ANTLR-required adaptation that preserves spec semantics, or a permissive-parser / strict-validator choice consistent with the specification (§12).
 
 ---
 

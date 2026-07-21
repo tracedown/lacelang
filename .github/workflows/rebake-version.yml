@@ -1,0 +1,50 @@
+name: Re-bake spec version
+
+# The `vectorcount` git filter bakes {{ specVersion }} / {{ vectorCount }}
+# placeholders into markdown at *commit* time (see testkit/vector-count-filter.sh
+# and .gitattributes). The clean filter only rewrites files that are re-staged,
+# so a lone VERSION (or COUNT) bump leaves previously-committed markdown showing
+# the old value — which is what the published site and GitHub-rendered docs show.
+#
+# This workflow re-runs the filter across all markdown whenever VERSION or a
+# vector COUNT changes, and commits the refreshed bake.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - VERSION
+      - testkit/vectors/**/COUNT
+      - extensions/**/vectors/COUNT
+
+permissions:
+  contents: write
+
+concurrency: rebake-version
+
+jobs:
+  rebake:
+    if: github.repository == 'tracedown/lacelang'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Pushes made with the default GITHUB_TOKEN do NOT trigger other
+          # workflows, so the re-bake commit would not fire Deploy Docs. Set a
+          # repo-scoped PAT as the REBAKE_TOKEN secret to auto-redeploy the site;
+          # without it the bake still lands, it just won't trigger the deploy.
+          token: ${{ secrets.REBAKE_TOKEN || github.token }}
+
+      - name: Configure the vectorcount filter and renormalize markdown
+        run: bash testkit/setup-filters.sh
+
+      - name: Commit the refreshed bake (if anything changed)
+        run: |
+          if git diff --cached --quiet; then
+            echo "Markdown already reflects VERSION $(cat VERSION) — nothing to re-bake."
+            exit 0
+          fi
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "chore(docs): re-bake specVersion/vectorCount to $(cat VERSION)"
+          git push

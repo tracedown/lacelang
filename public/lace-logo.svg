@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="512"
+   height="512"
+   viewBox="0 0 135.46666 135.46667"
+   version="1.1"
+   id="lace-logo"
+   sodipodi:docname="lace-logo.svg"
+   inkscape:version="1.4.4 (dcaf3e7d9e, 2026-05-05)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs1" />
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:zoom="3.2890625"
+     inkscape:cx="255.84798"
+     inkscape:cy="256"
+     inkscape:window-width="3200"
+     inkscape:window-height="1928"
+     inkscape:window-x="565"
+     inkscape:window-y="1440"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="lace-mark" />
+  <title
+     id="title1">lacelang</title>
+  <g
+     id="lace-mark">
+    <circle
+       id="bg"
+       cx="67.73333"
+       cy="67.73333"
+       r="52.86594"
+       fill="#222729" />
+    <path
+       id="strand-TC-BL"
+       d="M 61.67448,50.52689 L 42.23284,84.03363 L 45.62808,86.00365 L 65.06972,52.49691 Z"
+       fill="#66a8e6"
+       stroke="#222729"
+       stroke-width="1.32306" />
+    <path
+       id="strand-TL-BC"
+       d="M 42.85014,52.49691 L 62.29178,86.00365 L 65.68702,84.03363 L 46.24538,50.52689 Z"
+       fill="#ff5e5b"
+       stroke="#222729"
+       stroke-width="1.32306" />
+    <path
+       id="strand-TR-BC"
+       d="M 89.22128,50.52689 L 69.77964,84.03363 L 73.17488,86.00365 L 92.61652,52.49691 Z"
+       fill="#ff5e5b"
+       stroke="#222729"
+       stroke-width="1.32306" />
+    <path
+       id="strand-TC-BR"
+       d="M 70.39694,52.49691 L 89.83858,86.00365 L 93.23382,84.03363 L 73.79218,50.52689 Z"
+       fill="#66a8e6"
+       stroke="#222729"
+       stroke-width="1.32306" />
+    <circle
+       id="ring-TL"
+       cx="40.18653"
+       cy="43.99553"
+       r="7.6417141"
+       fill="none"
+       stroke="#ff5e5b"
+       stroke-width="5.78334" />
+    <circle
+       id="ring-TC"
+       cx="67.73333"
+       cy="43.99553"
+       r="7.6417141"
+       fill="none"
+       stroke="#66a8e6"
+       stroke-width="5.78334" />
+    <circle
+       id="ring-TR"
+       cx="95.28013"
+       cy="43.99553"
+       r="7.6417141"
+       fill="none"
+       stroke="#ff5e5b"
+       stroke-width="5.78334" />
+    <circle
+       id="ring-BL"
+       cx="40.18653"
+       cy="91.47113"
+       r="7.6417141"
+       fill="none"
+       stroke="#66a8e6"
+       stroke-width="5.78334" />
+    <circle
+       id="ring-BC"
+       cx="67.73333"
+       cy="91.47113"
+       r="7.6417141"
+       fill="none"
+       stroke="#ff5e5b"
+       stroke-width="5.78334" />
+    <circle
+       id="ring-BR"
+       cx="95.28013"
+       cy="91.47113"
+       r="7.6417141"
+       fill="none"
+       stroke="#66a8e6"
+       stroke-width="5.78334" />
+  </g>
+</svg>

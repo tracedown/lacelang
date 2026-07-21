@@ -1,6 +1,6 @@
 # Extension Notes
 
-Companion to `schemas/laceext.json` and `lace-extensions.md`. Documents intentional choices in the extension file format and the bundled reference extensions.
+Companion to `schemas/laceext.json`. Documents intentional choices in the extension file format and the bundled reference extensions.
 
 The `.laceext` file format is canonically defined by `schemas/laceext.json`.
 
@@ -18,7 +18,7 @@ Inline `when X` is syntactic sugar for the block form `when X:` whose body compr
 
 ### Rule Body and Function Body Opacity at the Schema Level
 
-`schemas/laceext.json` treats rule bodies and function bodies as opaque strings. Their content is governed by the rule body language grammar defined in `lace-extensions.md` section 5, which is parsed by the executor's extension processor -- **not** by the `.laceext` schema validator.
+`schemas/laceext.json` treats rule bodies and function bodies as opaque strings. Their content is governed by the rule body language grammar defined in the specification (§5), which is parsed by the executor's extension processor -- **not** by the `.laceext` schema validator.
 
 **Why**: rule bodies are a small embedded language (with `for`, `when`, `let`, `set`, `emit`, `exit`, function calls, expressions). Encoding it in JSON Schema is impractical and would duplicate validation logic. The extension processor parses these strings using its own grammar.
 
@@ -26,7 +26,7 @@ Inline `when X` is syntactic sugar for the block form `when X:` whose body compr
 
 ### Extension Namespace Prefix
 
-`lace-extensions.md` section 9 requires extension `runVars` keys to be prefixed with the extension name. The schema does not enforce this -- it is a runtime concern (the extension processor rejects emits with wrong-prefix keys per error code `EXT_RUN_VAR_NAMESPACE`).
+The specification (§9) requires extension `runVars` keys to be prefixed with the extension name. The schema does not enforce this -- it is a runtime concern (the extension processor rejects emits with wrong-prefix keys per error code `EXT_RUN_VAR_NAMESPACE`).
 
 The extension's `[extension].name` field is constrained to `^[a-z][A-Za-z0-9]*$` in the schema (camelCase, no hyphens or underscores). This pattern is the source of truth for valid extension names.
 

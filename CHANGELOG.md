@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.9.3 - Connection-error notifications
+
+- Notify on connection-level call errors ([#22](https://github.com/tracedown/lacelang/commit/a1702025836a0d0d70daf921bbc199d042672675))
+
 ## 0.9.2 - laceNotifications, laceEmitRecovery
 
 - Fixed laceNotifications `silentOnRepeat` default behavior
@@ -9,7 +13,7 @@
 ## 0.9.1 — Body saving changes
 
 - Removed `bodyPath` from the request record schema; request bodies are no longer saved to disk (they are already present in the AST)
-- Added `result.bodies.save` configuration option (default `false`) to control whether response body files are written
+- Added `result.bodies.dir` configuration option (default `false`) to control whether response body files are written
 - Added `--save-body` CLI flag to enable response body file writing for a single run
 - Body file path convention simplified to `call_{index}_response.{ext}`
 

@@ -8,6 +8,8 @@ repo_name: tracedown/lacelang
 theme:
   name: material
   custom_dir: overrides
+  logo: assets/lace-logo.svg
+  favicon: assets/lace-logo-32.png
   icon:
     repo: fontawesome/brands/github
   palette:

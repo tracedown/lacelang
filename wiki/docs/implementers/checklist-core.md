@@ -4,7 +4,7 @@ An executor implementation is considered **Lace Core Compatible** when it satisf
 
 This checklist covers the core language only. Extension system compatibility is defined separately in the [Extension Checklist](checklist-extensions.md).
 
-Spec version: 0.9.2<!-- sv -->
+Spec version: 0.9.3<!-- sv -->
 
 ---
 
@@ -30,7 +30,7 @@ Spec version: 0.9.2<!-- sv -->
 
 ## 2. Validation
 
-All validation rules from lace-spec.md section 12 must be enforced. The following are the behavioural requirements:
+All validation rules from the specification (§12) must be enforced. The following are the behavioural requirements:
 
 - [ ] Reports all validation errors before execution -- does not stop at the first error
 - [ ] Distinguishes **errors** (block execution) from **warnings** (allow execution with notice)
@@ -265,6 +265,6 @@ These are the core executor's obligations toward the extension system. Full exte
 - [ ] Passes `options {}` objects through to `assertions[].options` in the result without modification
 - [ ] Passes extension-registered call config fields through to `calls[n].config` in the result without modification
 - [ ] Fires all twelve hook points at the correct moments: `on before script`, `on script`, `on before call`, `on call`, `on before expect`, `on expect`, `on before check`, `on check`, `on before assert`, `on assert`, `on before store`, `on store`
-- [ ] Provides the correct context object at each hook point as defined in `lace-extensions.md` section 8
+- [ ] Provides the correct context object at each hook point as defined in the specification (§8)
 - [ ] Enforces extension variable namespace: rejects `emit result.runVars` keys not prefixed with the extension name
 - [ ] Emits unknown-field warnings (not errors) for extension fields in source when the extension is not active

@@ -1,8 +1,8 @@
 # Result Schema
 
-The `ProbeResult` is the wire format returned by every Lace executor. Conforms to `lace-spec.md` section 9. Extension-defined fields appear under `actions.{key}` (arrays) and `runVars` (scalars with `{extension_name}.` prefix).
+The `ProbeResult` is the wire format returned by every Lace executor. Extension-defined fields appear under `actions.{key}` (arrays) and `runVars` (scalars with `{extension_name}.` prefix).
 
-Spec version: 0.9.2<!-- sv -->
+Spec version: 0.9.3<!-- sv -->
 
 ## Top-Level Fields
 
