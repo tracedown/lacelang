@@ -7,7 +7,9 @@ name: Re-bake spec version
 # the old value — which is what the published site and GitHub-rendered docs show.
 #
 # This workflow re-runs the filter across all markdown whenever VERSION or a
-# vector COUNT changes, and commits the refreshed bake.
+# vector COUNT changes, and opens a pull request with the refreshed bake.
+# `main` is protected (changes must land via a PR), so it never pushes to main
+# directly.
 
 on:
   push:
@@ -19,6 +21,7 @@ on:
 
 permissions:
   contents: write
+  pull-requests: write
 
 concurrency: rebake-version
 
@@ -29,22 +32,32 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          # Pushes made with the default GITHUB_TOKEN do NOT trigger other
-          # workflows, so the re-bake commit would not fire Deploy Docs. Set a
-          # repo-scoped PAT as the REBAKE_TOKEN secret to auto-redeploy the site;
-          # without it the bake still lands, it just won't trigger the deploy.
+          # A PR opened with the default github.token does not trigger
+          # `on: pull_request` workflows, so required checks would never start
+          # and the PR could not auto-merge. Set a repo-scoped PAT as the
+          # REBAKE_TOKEN secret if you want the bake PR's checks to run (and to
+          # let it auto-merge); without it the PR still opens for a manual merge.
           token: ${{ secrets.REBAKE_TOKEN || github.token }}
 
       - name: Configure the vectorcount filter and renormalize markdown
         run: bash testkit/setup-filters.sh
 
-      - name: Commit the refreshed bake (if anything changed)
+      - name: Open a PR with the refreshed bake (if anything changed)
+        env:
+          GH_TOKEN: ${{ secrets.REBAKE_TOKEN || github.token }}
         run: |
           if git diff --cached --quiet; then
             echo "Markdown already reflects VERSION $(cat VERSION) — nothing to re-bake."
             exit 0
           fi
+          VERSION="$(cat VERSION)"
+          # Unique per run so re-runs never need a force-push.
+          BRANCH="chore/rebake-${VERSION}-${GITHUB_RUN_ID}"
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git commit -m "chore(docs): re-bake specVersion/vectorCount to $(cat VERSION)"
-          git push
+          git switch -c "$BRANCH"
+          git commit -m "chore(docs): re-bake specVersion/vectorCount to ${VERSION}"
+          git push -u origin "$BRANCH"
+          gh pr create --base main --head "$BRANCH" \
+            --title "chore(docs): re-bake specVersion/vectorCount to ${VERSION}" \
+            --body "Automated re-bake of the \`{{ specVersion }}\` / \`{{ vectorCount }}\` markdown placeholders after a VERSION or COUNT change. Docs-only; safe to squash-merge."
