@@ -19,7 +19,7 @@
 
     { "code": "THIS_OUT_OF_SCOPE",          "severity": "error",   "blocks_activation": true,  "spec": "lace-spec.md §12",     "description": "`this` referenced outside chain methods or in a different call's chain." },
     { "code": "PREV_WITHOUT_RESULTS",       "severity": "warning", "blocks_activation": false, "spec": "lace-spec.md §12",     "description": "`prev.*` referenced but no --prev-results provided." },
-    { "code": "UNKNOWN_FUNCTION",           "severity": "error",   "blocks_activation": true,  "spec": "lace-spec.md §12, §8", "description": "Function call to a name not in the helper set (json/form/schema) outside an extension-permitted context." },
+    { "code": "UNKNOWN_FUNCTION",           "severity": "error",   "blocks_activation": true,  "spec": "lace-spec.md §12, §8", "description": "Function call to a name not in the helper set (json/form/schema, plus count/includes inside an .assert() condition) outside an extension-permitted context." },
     { "code": "EXPRESSION_SYNTAX",          "severity": "error",   "blocks_activation": true,  "spec": "lace-spec.md §12",     "description": ".assert() expression failed to parse." },
 
     { "code": "VARIABLE_UNKNOWN",           "severity": "error",   "blocks_activation": true,  "spec": "lace-spec.md §12",     "description": "$var reference does not appear in the variable registry." },
@@ -45,6 +45,6 @@
     { "code": "EXT_EMIT_FORBIDDEN_TARGET",  "severity": "error",   "blocks_activation": true,  "spec": "lace-extensions.md §10","description": "Extension rule emits to a target not declared in [result] or to a forbidden core path." },
     { "code": "EXT_RUN_VAR_NAMESPACE",      "severity": "error",   "blocks_activation": true,  "spec": "lace-extensions.md §9", "description": "Extension emit to result.run_vars uses a key not prefixed with the extension name." },
 
-    { "code": "FUNC_ARG_TYPE",              "severity": "error",   "blocks_activation": true,  "spec": "lace-spec.md §8",      "description": "Helper function called with wrong argument type (e.g. json(string) instead of json(objectLit), schema(literal) instead of schema($var))." }
+    { "code": "FUNC_ARG_TYPE",              "severity": "error",   "blocks_activation": true,  "spec": "lace-spec.md §8",      "description": "Helper function called with wrong argument type or arity (e.g. json(string) instead of json(objectLit), schema(literal) instead of schema($var), or count/includes with the wrong number of arguments)." }
   ]
 }

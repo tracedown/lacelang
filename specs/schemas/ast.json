@@ -370,7 +370,7 @@
         "kind": { "const": "funcCall" },
         "name": {
           "type": "string",
-          "description": "Function name. Core (spec §8): `json`, `form`, `schema`. Extensions register additional names; validator enforces context-appropriate restriction."
+          "description": "Function name. Core (spec §8): `json`, `form`, `schema` (any expression), plus `count`, `includes` (only inside an `.assert()` condition, §8.1). Extensions register additional names; validator enforces context-appropriate restriction."
         },
         "args": {
           "type": "array",

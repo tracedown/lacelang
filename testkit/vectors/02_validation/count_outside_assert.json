@@ -1,0 +1,30 @@
+{
+  "id": "count_outside_assert",
+  "description": "count() outside an .assert() condition (here an .expect() scope value) is UNKNOWN_FUNCTION — it is a core function only inside .assert() (spec §8.1, §12).",
+  "spec_refs": [
+    "lace-spec.md §8.1",
+    "lace-spec.md §12"
+  ],
+  "type": "validate",
+  "input": {
+    "source": "get(\"$u\").expect(status: count($items))\n",
+    "variables": [
+      "u",
+      "items"
+    ],
+    "context": {
+      "maxRedirects": 10,
+      "maxTimeoutMs": 300000
+    }
+  },
+  "expected": {
+    "errors": [
+      {
+        "code": "UNKNOWN_FUNCTION",
+        "callIndex": 0,
+        "chainMethod": "expect"
+      }
+    ],
+    "warnings": []
+  }
+}

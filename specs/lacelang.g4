@@ -312,7 +312,8 @@ runVarRef
 
 // Generic function call. The validator (spec §12) rejects calls to
 // unknown function names outside extension-permitted contexts. Allowed
-// in core: json, form, schema. Extensions register additional names
+// in core: json, form, schema everywhere, plus count/includes inside an
+// .assert() condition (§8.1). Extensions register additional names
 // (e.g. template, text from laceNotifications).
 funcCall
     : (KW_JSON | KW_FORM | KW_SCHEMA | IDENT) '(' funcArgs? ')'

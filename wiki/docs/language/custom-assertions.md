@@ -103,6 +103,29 @@ Conditions are full expressions supporting:
 - `$var` --- script variables
 - `$$var` --- run-scope variables
 - `json()`, `form()`, `schema()` --- helper functions
+- `count(x)`, `includes(search, x)` --- assert-only functions (usable **only** here)
+
+### Assert-only functions
+
+Two functions are available inside `.assert()` conditions and nowhere else:
+
+- `count(x)` --- the number of elements when `x` is an array, otherwise `1`.
+- `includes(search, x)` --- `true` when the raw-string form of `x` contains
+  `search` as a substring (a `LIKE %search%` test). A string is matched as-is;
+  an array or object is serialised to compact JSON first.
+
+```lace
+.assert({
+  expect: [
+    count(this.body.items) eq 3,
+    includes("ok", this.body.status)
+  ]
+})
+```
+
+Using either outside an `.assert()` condition is a validation error, and each
+must be called with its exact arguments --- `count` takes one, `includes` takes
+two.
 
 ## Complete Evaluation
 

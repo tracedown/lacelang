@@ -1,6 +1,6 @@
-# Lace — Specification v0.9.3<!-- sv -->
+# Lace — Specification v0.9.4<!-- sv -->
 
-> Status: Initial release (v0.9.3<!-- sv -->)
+> Status: Initial release (v0.9.4<!-- sv -->)
 > Referenced by: api-monitoring-spec.md §3
 
 ## Table of Contents
@@ -238,10 +238,11 @@ helper_call     = "json"   "(" object_lit ")"
                 | "form"   "(" object_lit ")"
                 | "schema" "(" script_var ")"
                 | IDENT "(" [ expr ("," expr)* [","] ] ")" ;
-(* Bare-IDENT calls are reserved for extension-registered helpers. The
-   parser accepts any IDENT; the validator rejects unknown identifiers
-   at §12 "Unknown expression function" when no active extension
-   registered them. *)
+(* Bare-IDENT calls cover extension-registered helpers and the two core
+   assert-only functions `count` / `includes` (§8.1). The parser accepts any
+   IDENT; the validator rejects unknown identifiers at §12 "Unknown expression
+   function" when no active extension registered them and they are not a
+   `count`/`includes` call inside an `.assert()` condition. *)
 
 size_string     = STRING matching /\d+(k|kb|m|mb|g|gb)?/i ;
 ```
@@ -676,7 +677,16 @@ Custom expression conditions. Hard (`expect`) or soft (`check`). The `options` b
 
 All `expect` conditions are evaluated before triggering a hard fail — same complete-evaluation model as `.expect()`. All `check` conditions are always evaluated.
 
-**Expressions:** arithmetic (`+`, `-`, `*`, `/`, `%`), comparison keywords (`eq`, `neq`, `lt`, `lte`, `gt`, `gte`), logical connectives (`and`, `or`, `not`), null check (`eq null`, `neq null`). Comparisons do not chain — `a eq b eq c` is a parse error; compose with `(a eq b) and (b eq c)` instead. Parentheses are the only way to override precedence. `this.*`, `prev.*`, `$var`, `$$var`, and `json()`/`form()`/`schema()` are valid. Null operands in ordered comparison or arithmetic → indeterminate (§5.4).
+**Expressions:** arithmetic (`+`, `-`, `*`, `/`, `%`), comparison keywords (`eq`, `neq`, `lt`, `lte`, `gt`, `gte`), logical connectives (`and`, `or`, `not`), null check (`eq null`, `neq null`). Comparisons do not chain — `a eq b eq c` is a parse error; compose with `(a eq b) and (b eq c)` instead. Parentheses are the only way to override precedence. `this.*`, `prev.*`, `$var`, `$$var`, and `json()`/`form()`/`schema()` are valid. The assert-only functions `count(x)` and `includes(search, x)` (§8.1) are also valid here — and only here. Null operands in ordered comparison or arithmetic → indeterminate (§5.4).
+
+```lace
+.assert({
+  expect: [
+    count(this.body.items) eq 3,
+    includes("ok", this.body.status)
+  ]
+})
+```
 
 ### 4.8 `.wait()`
 
@@ -781,6 +791,23 @@ Valid in expressions only:
 | `json({...})` | `(object) → string` | Serialise to JSON. Variable interpolation first. |
 | `form({...})` | `(object) → string` | Serialise to URL-encoded form. |
 | `schema($var)` | `(script_var) → schema_ref` | Body schema validation reference. |
+
+### 8.1 Assert-only functions
+
+Valid **only inside `.assert()` conditions** (§4.7). Used in any other expression
+position they are a validation error, identical to any unknown name (§12,
+`UNKNOWN_FUNCTION`).
+
+| Function | Signature | Description |
+|---|---|---|
+| `count(x)` | `(any) → integer` | Element count when `x` is an array; otherwise `1`. |
+| `includes(search, x)` | `(any, any) → boolean` | True when the raw-string form of `x` contains `search` as a substring (`LIKE %search%`). |
+
+`count` counts only arrays — an object, string, number, boolean, or null all
+yield `1`. `includes` coerces `x` to its raw string first: a string is used
+as-is, `null` becomes the empty string, and an array/object is serialised to
+compact JSON. Each takes exactly its listed arguments; a wrong count is a
+validation error (`FUNC_ARG_TYPE`).
 
 ---
 
@@ -1026,7 +1053,7 @@ Errors prevent enabling. Warnings allow saving and enabling.
 | Method at most once | **Error** | Each method appears at most once per call |
 | `.expect()` / `.check()` non-empty | **Error** | Method with zero scopes |
 | `this.*` scope | **Error** | `this` referenced outside a chain method body (a parser-level invariant ensures each call's chain is its own scope, so cross-call references are not constructible) |
-| Unknown expression function | **Error** | Not in `json`, `form`, `schema` |
+| Unknown expression function | **Error** | Not in `json`, `form`, `schema` (nor `count`/`includes` inside an `.assert()` condition) |
 | Variable existence | **Error** | All `$var` references in registry |
 | `$$var` write-once | **Error** | Same `$$` key assigned > once |
 | `schema()` argument | **Error** | Variable must exist in registry |
@@ -1302,4 +1329,4 @@ Process exit code: `0` for `compliant` and `compliant-partial`, `1` for `non-com
 
 ---
 
-*End of Lace specification v0.9.3<!-- sv -->*
+*End of Lace specification v0.9.4<!-- sv -->*

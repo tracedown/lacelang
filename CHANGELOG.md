@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.9.4 - count() and includes() assert functions
+
+- Added two core functions usable only inside `.assert()` conditions: `count(x)` (element count when `x` is an array, otherwise `1`) and `includes(search, x)` (true when the raw-string form of `x` contains `search`, i.e. `LIKE %search%`).
+- Outside an `.assert()` condition they are a validation error (`UNKNOWN_FUNCTION`); a wrong argument count is `FUNC_ARG_TYPE`. No grammar or AST-shape change — they parse as ordinary function calls.
+- Added conformance vectors covering the assert-context gate, arity, and execution semantics.
+
 ## 0.9.3 - Connection-error notifications
 
 - `laceNotifications` now emits a default `structured` notification when a call fails with a connection-level error (DNS failure, connection refused, TLS error, etc.). These failures never reach assertion evaluation, so the existing scope and condition rules could not surface them.
@@ -28,7 +34,7 @@ First public release of the Lace probe scripting language.
 - ANTLR4 grammars (`lacelang.g4`, `laceext.g4`)
 - JSON schemas for AST, ProbeResult, `.laceext`, `lace.config`, executor manifest, and conformance vectors
 - Error code registry (`error-codes.json`)
-- Conformance testkit with C harness and 186<!-- vc --> test vectors
+- Conformance testkit with C harness and 194<!-- vc --> test vectors
 - Extension DSL with `set` statement for mutable bindings in function bodies
 - Bundled default extensions: `laceNotifications`, `laceBaseline`
 - Test extensions: `hookTrace`, `notifRelay`, `notifCounter`, `notifWatch`, `badNamespace`, `configDemo`

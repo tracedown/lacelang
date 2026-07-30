@@ -1,6 +1,6 @@
 # Core Executor Compatibility Checklist
 
-> Spec version: 0.9.3<!-- sv -->
+> Spec version: 0.9.4<!-- sv -->
 > Companion to: [lace-spec.md](./lace-spec.md)
 
 An executor implementation is considered **Lace Core Compatible** when it satisfies every item in this checklist. Partial compatibility must be documented — an executor may declare which sections it supports and which it does not.
@@ -41,7 +41,8 @@ All validation rules from lace-spec.md §12 must be enforced. The following are 
 - [ ] Rejects duplicate chain methods on the same call
 - [ ] Rejects `.expect()` and `.check()` with zero scopes
 - [ ] Rejects `this.*` references outside a chain method body (cross-call references are not constructible — each call's chain is its own parser-level scope)
-- [ ] Rejects function calls in expressions that are not `json`, `form`, or `schema`
+- [ ] Rejects function calls in expressions that are not `json`, `form`, or `schema` — except `count`/`includes`, which are accepted only inside an `.assert()` condition
+- [ ] Rejects `count`/`includes` used outside an `.assert()` condition (`UNKNOWN_FUNCTION`), and either called with the wrong argument count (`FUNC_ARG_TYPE`: `count` takes 1, `includes` takes 2)
 - [ ] Validates all `$var` references against the provided variable registry — rejects unknown references
 - [ ] Rejects `$$var` assigned more than once across the script
 - [ ] Rejects `schema($var)` where the variable is absent from the registry
@@ -162,6 +163,8 @@ All validation rules from lace-spec.md §12 must be enforced. The following are 
 - [ ] Records `actualLhs` and `actualRhs` for each condition
 - [ ] Records `expression` string for each condition
 - [ ] Passes `options {}` per condition through to `assertions[].options` opaquely
+- [ ] Evaluates `count(x)` → element count when `x` is an array, otherwise `1`
+- [ ] Evaluates `includes(search, x)` → `true` when the raw-string form of `x` contains `search` as a substring (a string is used as-is; an array/object is serialised to compact JSON; `null` → empty string)
 - [ ] Null operand in ordered comparison or arithmetic → `"indeterminate"` outcome, no error, execution continues
 - [ ] Hard fail cascade triggers after all `expect` conditions evaluated, if any failed
 

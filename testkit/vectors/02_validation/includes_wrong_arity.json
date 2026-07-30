@@ -1,0 +1,28 @@
+{
+  "id": "includes_wrong_arity",
+  "description": "includes() with one argument inside .assert() is FUNC_ARG_TYPE — it requires exactly two (spec §8.1).",
+  "spec_refs": [
+    "lace-spec.md §8.1"
+  ],
+  "type": "validate",
+  "input": {
+    "source": "get(\"$u\").assert({ expect: [includes(\"x\")] })\n",
+    "variables": [
+      "u"
+    ],
+    "context": {
+      "maxRedirects": 10,
+      "maxTimeoutMs": 300000
+    }
+  },
+  "expected": {
+    "errors": [
+      {
+        "code": "FUNC_ARG_TYPE",
+        "callIndex": 0,
+        "chainMethod": "assert"
+      }
+    ],
+    "warnings": []
+  }
+}

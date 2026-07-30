@@ -1,0 +1,26 @@
+{
+  "id": "assert_count_includes_valid",
+  "description": "count() and includes() are valid inside an .assert() condition (spec §8.1, §4.7).",
+  "spec_refs": [
+    "lace-spec.md §8.1",
+    "lace-spec.md §4.7",
+    "lace-spec.md §12"
+  ],
+  "type": "validate",
+  "input": {
+    "source": "get(\"$u\").assert({ expect: [count($items) eq 3, includes(\"err\", $msg)] })\n",
+    "variables": [
+      "u",
+      "items",
+      "msg"
+    ],
+    "context": {
+      "maxRedirects": 10,
+      "maxTimeoutMs": 300000
+    }
+  },
+  "expected": {
+    "errors": [],
+    "warnings": []
+  }
+}

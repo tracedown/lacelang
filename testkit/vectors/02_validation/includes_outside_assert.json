@@ -1,0 +1,30 @@
+{
+  "id": "includes_outside_assert",
+  "description": "includes() outside an .assert() condition (here a .store() value) is UNKNOWN_FUNCTION — it is a core function only inside .assert() (spec §8.1, §12).",
+  "spec_refs": [
+    "lace-spec.md §8.1",
+    "lace-spec.md §12"
+  ],
+  "type": "validate",
+  "input": {
+    "source": "get(\"$u\").store({ found: includes(\"a\", $b) })\n",
+    "variables": [
+      "u",
+      "b"
+    ],
+    "context": {
+      "maxRedirects": 10,
+      "maxTimeoutMs": 300000
+    }
+  },
+  "expected": {
+    "errors": [
+      {
+        "code": "UNKNOWN_FUNCTION",
+        "callIndex": 0,
+        "chainMethod": "store"
+      }
+    ],
+    "warnings": []
+  }
+}
