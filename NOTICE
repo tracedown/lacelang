@@ -20,3 +20,11 @@ bear no liability for any misuse.
 
 By using this software, you acknowledge that you have obtained proper
 authorization for all endpoints targeted by your probes.
+
+TRADEMARKS
+
+The Lace name and the Lace logo identify this project. Unlike the
+specification and source code (Apache 2.0), they are trademarks of the
+lacelang project and are NOT covered by that license: unmodified use to
+refer to Lace is welcome; modified versions, or use as the mark of
+another language, product, or fork, are not.

@@ -16,6 +16,16 @@ The entire canonical Lace stack is licensed under the
 You may obtain a copy of the license at:
 [apache.org/licenses/LICENSE-2.0](https://www.apache.org/licenses/LICENSE-2.0)
 
+## Name & logo
+
+The Lace **name and logo** identify this project, so — unlike the
+specification and code — they are trademarks of the lacelang project and are
+**not** covered by the Apache license. Using them unmodified *to refer to
+Lace* (articles, talks, tooling that says "supports Lace", package listings)
+is welcome and needs no permission. Modified versions of the logo, or using
+the name or mark as the identity of another language, product, or fork, are
+not — a fork is welcome under the Apache license, under its own name.
+
 ## Responsible use
 
 Lace is designed for legitimate HTTP monitoring, uptime checking, and

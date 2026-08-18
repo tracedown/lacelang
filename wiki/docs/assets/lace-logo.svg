@@ -34,7 +34,9 @@
      inkscape:window-maximized="1"
      inkscape:current-layer="lace-mark" />
   <title
-     id="title1">lacelang</title>
+     id="title1">Lace</title>
+  <desc
+     id="desc1">The Lace logo. Lace is a probe scripting language for HTTP monitoring: https://lacelang.dev — source: https://github.com/tracedown/lacelang. The Lace name and logo are trademarks of the lacelang project and, unlike the Apache-2.0-licensed specification and code, are not freely licensed: unmodified use to refer to Lace is welcome; modification, or use as another product's mark, is not.</desc>
   <g
      id="lace-mark">
     <circle
