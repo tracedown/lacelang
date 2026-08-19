@@ -1,0 +1,101 @@
+{
+  "id": "recovery_option_beats_config",
+  "description": "A script-declared recovery notification wins over the extension config notification override.",
+  "spec_refs": [
+    "lace-extensions.md \u00a712"
+  ],
+  "type": "extension",
+  "requires": [
+    "extensions",
+    "actions"
+  ],
+  "input": {
+    "source": "get(\"http://127.0.0.1:{port}/ok\").expect(status: { value: 200, options: { recovery: { notification: template(\"from-script\") } } })\n",
+    "variables": {},
+    "extensions": [
+      "laceNotifications",
+      "laceEmitRecovery"
+    ],
+    "prev_results": {
+      "outcome": "failure",
+      "startedAt": "1970-01-01T00:00:00Z",
+      "endedAt": "1970-01-01T00:00:00Z",
+      "runVars": {},
+      "calls": [
+        {
+          "index": 0,
+          "outcome": "failure",
+          "request": {
+            "url": "http://127.0.0.1:9999/ok",
+            "method": "get",
+            "headers": {}
+          },
+          "response": {
+            "status": 503,
+            "headers": {},
+            "responseTimeMs": 100
+          },
+          "redirects": [],
+          "assertions": [
+            {
+              "method": "expect",
+              "scope": "status",
+              "op": "eq",
+              "outcome": "failed",
+              "actual": 503,
+              "expected": 200,
+              "options": null
+            }
+          ],
+          "config": {},
+          "warnings": [],
+          "error": null
+        }
+      ],
+      "actions": {}
+    },
+    "http_mock": [
+      {
+        "callIndex": 0,
+        "outcome": "response",
+        "status": 200,
+        "headers": {},
+        "body": ""
+      }
+    ],
+    "lace_config": "[extensions.laceEmitRecovery]\nnotification = { tag = \"template\", name = \"from-config\" }\n"
+  },
+  "expected": {
+    "result": {
+      "outcome": "success",
+      "startedAt": "1970-01-01T00:00:00Z",
+      "endedAt": "1970-01-01T00:00:00Z",
+      "runVars": {
+        "laceEmitRecovery.recoveryNotification": {
+          "tag": "template",
+          "name": "from-script"
+        }
+      },
+      "calls": "IGNORED",
+      "actions": {
+        "notifications": [
+          {
+            "callIndex": -1,
+            "conditionIndex": -1,
+            "trigger": "recovered",
+            "scope": null,
+            "notification": {
+              "tag": "template",
+              "name": "from-script"
+            }
+          }
+        ]
+      }
+    },
+    "ignore": [
+      "startedAt",
+      "endedAt",
+      "calls"
+    ]
+  }
+}

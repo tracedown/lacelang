@@ -28,12 +28,38 @@ Override in `lace.config`:
 recovery_message = "Probe is healthy again"
 ```
 
-Or use a named template:
+Or use a named template (TOML table form of a tagged notification value):
 
 ```toml
 [extensions.laceEmitRecovery]
-notification = template("recovery-alert")
+notification = { tag = "template", name = "recovery-alert" }
 ```
+
+## Script-declared recovery
+
+The script itself may name the recovery notification, on any expect/check
+scope or assert condition, via the `recovery` option:
+
+```lace
+get("$BASE_URL/health")
+.expect(status: { value: 200, options: {
+  notification: { "default": template("went-down") },
+  recovery: { notification: template("back-up") }
+} })
+```
+
+`recovery.notification` takes the same values as `notification`
+(`template(...)`, `text(...)`); a bare string is shorthand for `text(...)`.
+
+Precedence for the recovery message:
+
+1. script-declared `recovery` option (when several scopes declare one, the
+   last evaluated declaration wins),
+2. the extension config `notification` value,
+3. the extension config `recovery_message` text.
+
+The declared value is also surfaced in the run's `runVars` as
+`laceEmitRecovery.recoveryNotification`.
 
 ## Behavior
 
