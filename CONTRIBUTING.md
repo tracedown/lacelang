@@ -114,6 +114,22 @@ or updating tooling does **not** warrant a version bump. If an executor
 built against the previous version would still pass the conformance
 suite unchanged, the version stays the same.
 
+### Re-baking the docs after a bump
+
+Markdown carries `0.9.5<!-- sv -->` / `198<!-- vc -->` placeholders
+that a git clean filter bakes into concrete values at commit time. The
+filter is per-clone — configure it once after cloning:
+
+```bash
+bash testkit/setup-filters.sh
+```
+
+When you bump `VERSION` or a vector `COUNT`, re-run that script and
+commit the renormalized markdown in the **same PR** as the bump. The
+`Bake check` workflow fails any PR whose committed markdown does not
+match the current values — the bake is a manual step, deliberately:
+no automation rewrites docs behind your back.
+
 ## Review process
 
 All contributions require approval from a project maintainer before
