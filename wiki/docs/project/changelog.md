@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.9.5 -- Script-Declared Recovery Notifications
+
+- `laceEmitRecovery` 1.1.0: the recovery notification can be declared in the script itself via a `recovery` option on any expect/check scope or assert condition -- `options: { recovery: { notification: template("back-up") } }`. A bare string is shorthand for `text(...)`. Precedence: script-declared > config `notification` > config `recovery_message`.
+- Corrected the extension config docs: `notification` overrides use the TOML table form (`{ tag = "template", name = "..." }`).
+- Added four conformance vectors for the recovery option.
+
 ## 0.9.4 -- count() and includes() Assert Functions
 
 - Added two core functions usable only inside `.assert()` conditions: `count(x)` (element count when `x` is an array, otherwise `1`) and `includes(search, x)` (true when the raw-string form of `x` contains `search`, i.e. `LIKE %search%`).
@@ -34,7 +40,7 @@ First public release of the Lace probe scripting language.
 - ANTLR4 grammars (`lacelang.g4`, `laceext.g4`)
 - JSON schemas for AST, ProbeResult, `.laceext`, `lace.config`, executor manifest, and conformance vectors
 - Error code registry (`error-codes.json`)
-- Conformance testkit with C harness and 194<!-- vc --> test vectors
+- Conformance testkit with C harness and 198<!-- vc --> test vectors
 - Extension DSL with `set` statement for mutable bindings in function bodies
 - Bundled default extensions: `laceNotifications`, `laceBaseline`
 - Test extensions: `hookTrace`, `notifRelay`, `notifCounter`, `notifWatch`, `badNamespace`, `configDemo`
