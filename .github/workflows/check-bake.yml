@@ -1,0 +1,38 @@
+name: Bake check
+
+# {{ specVersion }} / {{ vectorCount }} placeholders are baked into markdown
+# at commit time by the vectorcount clean filter (testkit/vector-count-filter.sh,
+# wired per-clone by testkit/setup-filters.sh). A clone without the filter
+# configured — or a VERSION / COUNT bump without renormalizing — commits
+# markdown that shows stale values, which is exactly what the published site
+# and GitHub-rendered docs would serve.
+#
+# The bake is a manual step; this check enforces it on every PR instead of an
+# automation opening fix-up PRs after the fact. To fix a failure:
+#
+#   bash testkit/setup-filters.sh      # once per clone; renormalizes *.md
+#   git commit -am "re-bake specVersion/vectorCount"
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  check:
+    if: github.repository == 'tracedown/lacelang' && !startsWith(github.event.pull_request.title, 'WIP:')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Renormalize markdown through the vectorcount filter
+        run: bash testkit/setup-filters.sh
+
+      - name: Fail when committed markdown is stale
+        run: |
+          if git diff --cached --quiet; then
+            echo "Bake is current for VERSION $(cat VERSION)."
+            exit 0
+          fi
+          echo "::error::Committed markdown does not reflect the current VERSION / COUNT values. Run 'bash testkit/setup-filters.sh' once in your clone, then commit the renormalized files."
+          git diff --cached --stat
+          exit 1
