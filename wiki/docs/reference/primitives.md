@@ -2,7 +2,7 @@
 
 Built-in primitive functions provided by the executor's rule interpreter. Available in all extension rule bodies and functions. All implementations provide these identically.
 
-Spec version: 0.9.5<!-- sv -->
+Spec version: 0.9.6<!-- sv -->
 
 ## `compare(a, b) -> string | null`
 

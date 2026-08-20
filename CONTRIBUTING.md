@@ -116,7 +116,7 @@ suite unchanged, the version stays the same.
 
 ### Re-baking the docs after a bump
 
-Markdown carries `0.9.5<!-- sv -->` / `198<!-- vc -->` placeholders
+Markdown carries `0.9.6<!-- sv -->` / `199<!-- vc -->` placeholders
 that a git clean filter bakes into concrete values at commit time. The
 filter is per-clone — configure it once after cloning:
 

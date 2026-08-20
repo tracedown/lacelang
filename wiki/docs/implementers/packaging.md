@@ -2,7 +2,7 @@
 
 Every Lace implementation **must** ship its language validator and its runtime executor as **two distinct, independently-installable packages**. One must not force-install the other.
 
-Spec version: 0.9.5<!-- sv -->
+Spec version: 0.9.6<!-- sv -->
 
 ## Package Roles
 

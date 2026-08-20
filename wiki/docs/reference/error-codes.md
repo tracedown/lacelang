@@ -2,7 +2,7 @@
 
 Canonical error and warning codes emitted by every Lace validator. Cross-implementation conformance depends on every validator emitting the same code for the same condition.
 
-Spec version: 0.9.5<!-- sv -->
+Spec version: 0.9.6<!-- sv -->
 
 ## Parsing
 

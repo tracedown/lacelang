@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.9.6 - Assert expression strings must re-parse
+
+- The `assertions[].expression` source rendering (spec §9.2) quotes object-literal keys that are not bare identifiers (`404:`, `content-type:` were printed bare and did not re-parse). Fixes the round-trip contract of every implementation's expression formatter.
+- Added a conformance vector pinning the quoted form across executors.
+
 ## 0.9.5 - Script-declared recovery notifications
 
 - `laceEmitRecovery` 1.1.0: the recovery notification can be declared in the script itself via a `recovery` option on any expect/check scope or assert condition — `options: { recovery: { notification: template("back-up") } }`. A bare string is shorthand for `text(...)`. Precedence: script-declared > config `notification` > config `recovery_message`; when several scopes declare one, the last evaluated declaration wins. The declared value surfaces in `runVars` as `laceEmitRecovery.recoveryNotification`.
@@ -40,7 +45,7 @@ First public release of the Lace probe scripting language.
 - ANTLR4 grammars (`lacelang.g4`, `laceext.g4`)
 - JSON schemas for AST, ProbeResult, `.laceext`, `lace.config`, executor manifest, and conformance vectors
 - Error code registry (`error-codes.json`)
-- Conformance testkit with C harness and 198<!-- vc --> test vectors
+- Conformance testkit with C harness and 199<!-- vc --> test vectors
 - Extension DSL with `set` statement for mutable bindings in function bodies
 - Bundled default extensions: `laceNotifications`, `laceBaseline`
 - Test extensions: `hookTrace`, `notifRelay`, `notifCounter`, `notifWatch`, `badNamespace`, `configDemo`
