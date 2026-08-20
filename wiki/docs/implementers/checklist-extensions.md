@@ -2,7 +2,7 @@
 
 An executor implementation is considered **Lace Extension Compatible** when it satisfies all items in this checklist. Partial compatibility must be documented -- an executor may declare which sections it supports.
 
-Spec version: 0.9.5<!-- sv -->
+Spec version: 0.9.6<!-- sv -->
 
 ---
 

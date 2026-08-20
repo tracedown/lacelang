@@ -1,6 +1,6 @@
-# Lace — Specification v0.9.5<!-- sv -->
+# Lace — Specification v0.9.6<!-- sv -->
 
-> Status: Initial release (v0.9.5<!-- sv -->)
+> Status: Initial release (v0.9.6<!-- sv -->)
 > Referenced by: api-monitoring-spec.md §3
 
 ## Table of Contents
@@ -901,6 +901,11 @@ validation error (`FUNC_ARG_TYPE`).
 }
 ```
 
+`expression` is the assert condition rendered back to source form. The
+rendering must re-parse: object-literal keys that are not bare identifiers
+(`[a-zA-Z_][a-zA-Z0-9_]*`) are printed quoted — `{"content-type": 1,
+"404": 2, ok: true}` — never bare.
+
 | Field | Description |
 |---|---|
 | `outcome` | `"success"` \| `"failure"` \| `"timeout"` \| `"skipped"` |
@@ -1329,4 +1334,4 @@ Process exit code: `0` for `compliant` and `compliant-partial`, `1` for `non-com
 
 ---
 
-*End of Lace specification v0.9.5<!-- sv -->*
+*End of Lace specification v0.9.6<!-- sv -->*
