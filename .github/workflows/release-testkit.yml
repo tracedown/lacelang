@@ -19,7 +19,7 @@ jobs:
       should_release: ${{ steps.tag.outputs.created }}
       version: ${{ steps.version.outputs.version }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
@@ -54,7 +54,7 @@ jobs:
           - os: macos-latest
             artifact: lace-conformance-macos-arm64
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Install OpenSSL dev (Linux)
         if: runner.os == 'Linux'
@@ -76,7 +76,7 @@ jobs:
         run: cp testkit/src/build/lace-conformance ${{ matrix.artifact }}
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ matrix.artifact }}
           path: ${{ matrix.artifact }}
@@ -90,7 +90,7 @@ jobs:
     if: needs.check.outputs.should_release == 'true'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Build static binary (musl / Alpine)
         run: |
@@ -110,7 +110,7 @@ jobs:
         run: cp testkit/src/build/lace-conformance lace-conformance-linux-x86_64-static
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: lace-conformance-linux-x86_64-static
           path: lace-conformance-linux-x86_64-static
@@ -121,7 +121,7 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           path: artifacts
           merge-multiple: true
@@ -147,7 +147,7 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Install build deps
         run: sudo apt-get update && sudo apt-get install -y libssl-dev dpkg-dev debhelper build-essential
