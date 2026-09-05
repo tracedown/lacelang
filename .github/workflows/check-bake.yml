@@ -22,7 +22,7 @@ jobs:
     if: github.repository == 'tracedown/lacelang' && !startsWith(github.event.pull_request.title, 'WIP:')
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Renormalize markdown through the vectorcount filter
         run: bash testkit/setup-filters.sh
