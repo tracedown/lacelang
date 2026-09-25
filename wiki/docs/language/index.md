@@ -35,10 +35,10 @@ get("$BASE_URL/api/dashboard", {
 // Verify a side-effect
 get("$BASE_URL/api/metrics")
 .expect(status: 200)
-.store({ "$$visit_count": this.body.visits })
 .assert({
-  expect: [$$visit_count gt 0]
+  expect: [this.body.visits gt 0]
 })
+.store({ "$$visit_count": this.body.visits })
 ```
 
 ## Execution Model
@@ -58,7 +58,7 @@ You can use any subset of these, but the order is always the same. Each method a
 
 ## Hard Fails vs. Soft Fails
 
-When `.expect()` or `.assert({ expect: [...] })` fails, it is a **hard fail**: remaining chain methods on that call and all subsequent calls are skipped. You see every failing scope at once (all scopes evaluate before the cascade triggers), but execution stops after that call.
+When `.expect()` or `.assert({ expect: [...] })` fails, it is a **hard fail**: `.store()` and `.wait()` on that call and all subsequent calls are skipped. You see every failing assertion on the call at once (its `.expect()`, `.check()`, and `.assert()` are all evaluated before the cascade triggers), but execution stops after that call.
 
 When `.check()` or `.assert({ check: [...] })` fails, it is a **soft fail**: the failure is recorded, but execution continues normally.
 

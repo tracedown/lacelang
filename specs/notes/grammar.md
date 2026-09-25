@@ -54,8 +54,11 @@ transitively recurse through `expr`. The spec's `expr` rule includes
 values like `notification: { "lt": template(...) }` are fully expressible.
 
 The validator restricts function names: in core expression contexts, only
-`json`/`form`/`schema` are valid. In option and extension-registered
-field contexts, extension-registered function names are also valid.
+`json`/`form`/`schema` are valid — plus the assert-only `count`/`includes`
+inside an `.assert()` condition (spec §8.1). In option and
+extension-registered field contexts, extension-registered function names
+(including tag constructors such as `template`, `text`, `op_map`) are also
+valid.
 
 ### Function-call argument types
 
@@ -80,6 +83,26 @@ The validator enforces.
 Spec restricts to `lt | lte | eq | neq | gte | gt`. Grammar accepts any
 STRING. The validator enforces.
 
+### `match` / `mode` values in `scopeObjField`
+
+Spec restricts `match` to `first | last | any` and `mode` to
+`loose | strict`. Grammar accepts any STRING. No error code covers an
+invalid value yet; validators treat it as `OP_VALUE_INVALID`-style
+rejection at their discretion until one is registered.
+
+### Bare `$name` store keys
+
+Spec §2.1 `store_key` admits `run_var | script_var | IDENT | string`; the
+grammar's `storeKey` accepts the `SCRIPT_VAR` token for the `$name`
+write-back form (§4.6).
+
+### Extension-field values
+
+The EBNF writes extension fallthroughs as `IDENT ":" expr`. The grammar's
+`optionsValue` additionally admits object and array literals directly, so
+`notification: { "404": template("x") }` parses without going through
+`expr`.
+
 ### Extension-field key restriction
 
 `callField`, `redirectsField`, `securityField`, `timeoutField`, and
@@ -96,12 +119,13 @@ keywords and gives correct parse errors for wrong-typed built-in fields.
 ### Empty blocks in `.expect()`, `.check()`, `.store()`
 
 The parser accepts empty blocks (e.g. `.store({})`, `.expect()` with no
-scopes). The AST schema requires `minProperties: 1` on `ScopeBlock` and
-`StoreBlock`. The validator rejects these with `EMPTY_SCOPE_BLOCK` or
-`EMPTY_STORE_BLOCK` error codes.
+scopes, `expect: []`). The validator rejects these with
+`EMPTY_SCOPE_BLOCK`, `EMPTY_STORE_BLOCK` or `EMPTY_ASSERT_BLOCK`.
 
 This is consistent with the permissive-parser / strict-validator
-architecture: the parser produces a valid AST node, and the validator
-enforces the semantic constraint. The grammar rule itself uses `*`
-(zero or more) for block entries; the "at least one" requirement is a
-validator concern (spec §12).
+architecture: the parser produces an AST node, and the validator enforces
+the semantic constraint. The grammar rules `scopeList`, `assertClause`
+and `storeMethod` make their entry lists optional for this reason; the
+"at least one" requirement is a validator concern (spec §12), and the
+conformance vectors `02_validation/empty_*_block.json` require the empty
+forms to parse.

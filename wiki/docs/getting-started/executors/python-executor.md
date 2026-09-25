@@ -1,7 +1,7 @@
 # Python Executor
 
 The canonical reference implementation of Lace, conformant to spec version
-**0.9.6<!-- sv -->**. The Lace specification is developed and verified against this
+**0.9.7<!-- sv -->**. The Lace specification is developed and verified against this
 implementation — conformance vectors, error codes, and wire-format schemas
 are tested here before each spec release.
 
@@ -13,7 +13,7 @@ The implementation is split into two packages following the
 | `lacelang-validator` | [tracedown/lacelang-python-validator](https://github.com/tracedown/lacelang-python-validator) | Lexer, parser, semantic validator. Zero network dependencies. |
 | `lacelang-executor` | [tracedown/lacelang-python-executor](https://github.com/tracedown/lacelang-python-executor) | HTTP runtime, assertion evaluation, cookie jars, extension dispatch. Depends on the validator. |
 
-Requires Python **3.10+**.
+Requires Python **3.11+**.
 
 ---
 
@@ -52,12 +52,15 @@ Outputs the AST as JSON. Parsing is delegated to `lacelang-validator`.
 
 ```bash
 lacelang-executor validate script.lace \
-    --vars-list vars.json \
+    --vars-list declared.json \
     --context context.json
 ```
 
 Runs the parser and semantic validator. Reports structured errors and
-warnings. No HTTP calls are made.
+warnings. No HTTP calls are made. `--vars-list` takes a JSON array of the
+declared variable names (e.g. `["BASE_URL", "API_KEY"]`), not their values;
+`--context` takes a JSON object with the validator context (e.g.
+`maxRedirects`, `maxTimeoutMs`).
 
 ### `run` -- full execution
 
@@ -80,9 +83,10 @@ Parses, validates, executes, and emits a
 | `--prev-results <file>` | Previous result JSON, making `prev` available in expressions. `--prev` is a short alias. |
 | `--config <file>` | Explicit path to a `lace.config` TOML file. |
 | `--env <name>` | Select `[lace.config.<name>]` section (overrides `LACE_ENV`). |
-| `--enable-extension <name>` | Activate a built-in extension (repeatable). |
+| `--enable-extension <name>` | Activate an extension for this run, as if listed in `[executor].extensions` (repeatable). |
 | `--save-to <path>` | Persist the result to disk. Directory: timestamped JSON. File: overwrite. `"false"`: skip. |
-| `--bodies-dir <path>` | Directory for request/response body files. |
+| `--save-body` | Save response bodies for this run (sets `result.bodies.dir` to the result path). |
+| `--bodies-dir <path>` | Directory for response body files (implies body saving). Request bodies are never saved. |
 | `--pretty` | Pretty-print the result JSON. |
 
 #### Examples
@@ -126,15 +130,17 @@ my-project/
     scripts/
       health/
         health.lace                  # script (name = directory name)
-        vars.json                    # default variables
-        vars.staging.json            # env-specific variables
+        vars.json                    # variables (pass explicitly via vars=)
+        vars.staging.json            # env-specific variables (ditto)
       auth-flow/
         auth-flow.lace
         vars.json
 ```
 
 All paths are overridable at runtime -- the layout is a convention,
-not a requirement.
+not a requirement. Only `lace.config` is discovered automatically;
+`vars*.json` files are never loaded implicitly -- pass them to
+`run(vars=...)`.
 
 ### `LaceExecutor`
 
@@ -266,7 +272,7 @@ maxTimeoutMs = 60000           # overridden
 
 [lace.config.production]
 [lace.config.production.executor]
-user_agent = "lace-probe/0.9.1 (acme-platform)"
+user_agent = "acme-platform/2026.09"
 ```
 
 ### Resolution by constructor arguments
@@ -347,8 +353,11 @@ lacelang-validator                    lacelang-executor
 │  validator.py   │                  │  config.py           │
 │  errors.py      │                  │  laceext/            │
 │  ast_fmt.py     │                  │    loader.py         │
-│  cli.py         │                  │    dsl_parser.py     │
-└─────────────────┘                  │    dsl_evaluator.py  │
+│  cli.py         │                  │    dsl_lexer.py      │
+└─────────────────┘                  │    dsl_parser.py     │
+                                     │    interpreter.py    │
+                                     │    primitives.py     │
+                                     │    registry.py       │
                                      │  api.py (LaceExecutor)│
                                      │  cli.py              │
                                      └──────────────────────┘

@@ -24,8 +24,15 @@ on   = ["call after laceNotifications"]
 body = """
 when call.outcome eq "success"
 when not is_null(call.response)
-// ...
+# ...
 """
+```
+
+After-hooks are named by the block alone; before-hooks take a `before ` prefix:
+
+```toml
+on = ["call"]           # on call
+on = ["before call"]    # on before call
 ```
 
 A rule can register on multiple hooks:
@@ -58,7 +65,7 @@ Fires once per run at the outer script boundary.
 | `result.runVars` | object | Final `runVars` map |
 | `result.actions` | object | Accumulated actions from all extensions |
 
-`on script` fires even when the run fails early, so extensions can flush state reliably.
+`on script` is the last extension hook in a run and fires even when the run hard-failed early or was cut short, so extensions can flush state reliably -- do it here rather than from an `on call` rule on the last call, which may be skipped. It is also the one hook where an extension can read back its own `runVars` (`result.runVars`).
 
 ### `on before call` / `on call`
 
@@ -69,7 +76,7 @@ Fires before/after each HTTP call.
 | Name | Type | Description |
 |---|---|---|
 | `call.index` | int | Zero-based call index |
-| `call.request` | object | Resolved request: `url`, `method`, `headers`, `bodyPath` |
+| `call.request` | object | Resolved request: `url`, `method`, `headers` |
 | `call.config` | object | Resolved call config including extension fields |
 | `prev` | object or null | Previous result |
 
@@ -80,6 +87,9 @@ Fires before/after each HTTP call.
 | `call.outcome` | string | `"success"`, `"failure"`, `"timeout"`, or `"skipped"` |
 | `call.response` | object or null | Full response or null |
 | `call.assertions` | array | All assertion records from this call |
+| `call.error` | string or null | Non-assertion failure detail (connection, TLS, redirect limit, timeout) -- `null` otherwise |
+
+`call.config` carries extension-registered call-config fields under an `extensions` sub-object of their owning object: a `timeout.notification` is read as `call.config.timeout?.extensions?.notification`, a root-level field as `call.config.extensions?.<field>` (see [Schema Additions](schema-additions.md#where-registered-fields-land)).
 
 ### `on before expect` / `on expect`
 
@@ -118,7 +128,7 @@ Fires before/after each condition in `.assert()`.
 |---|---|---|
 | `condition.index` | int | Index within the assert array |
 | `condition.kind` | string | `"expect"` or `"check"` |
-| `condition.expression` | string | Expression as written in source |
+| `condition.expression` | string | Condition rendered back to source form -- re-parseable, with non-identifier object keys quoted |
 | `condition.options` | object or null | The `options {}` object |
 | `call.index` | int | Call index |
 | `this` | object | Current response |
@@ -183,9 +193,16 @@ At each hook, the executor resolves rule order:
 1. **Gather** -- collect all rules registered for this hook.
 2. **Expand defaults** -- for each rule in extension B with `require = [A]`, add an implicit `after A` when A has rules on this hook.
 3. **Name-resolve** -- every name in `after X` / `before X` must be a loaded extension (not necessarily in `require`).
-4. **Drop unfulfillable** -- if a rule says `after X` but X has no rules on this hook, the constraint is silently dropped (and may cascade).
-5. **Topological sort** -- the surviving rules form a DAG. A cycle is a startup error.
-6. **Execute** -- rules run in topological order. Ties break by declaration order within a file, then by extension name alphabetically.
+4. **Drop unfulfillable** -- if a rule has an explicit `after X` or `before X` and X contributes no rules to this hook, the **rule itself** is silently removed from this hook's run set. This can cascade: rules ordered against the dropped rule re-evaluate and may drop too.
+5. **Topological sort** -- the surviving rules form a DAG. A cycle is a startup error reporting the edge chain.
+6. **Execute** -- rules run in a topo-consistent order. Ties break by declaration order within a file, then by extension name alphabetically.
+
+Notes:
+
+- The implicit `after A` from `require` is added only at hooks where A has rules; an explicit constraint on the same pair overrides it.
+- Ordering is **per hook** -- a rule can be `after X` at one hook and `before X` at another.
+- Within a single extension, rules keep their declaration order unless an explicit constraint says otherwise.
+- A rule with no qualifiers and no `require` runs in free order -- anywhere consistent with other rules' constraints. `lace.config` load order carries no ordering semantics; never rely on it.
 
 ### Example
 

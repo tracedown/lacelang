@@ -4,13 +4,13 @@ The `prev` reference gives your script access to the result of the **previous ru
 
 ## Providing Previous Results
 
-Previous results are loaded from a JSON file via the CLI or config:
+Previous results are supplied per run, from a JSON file passed on the CLI (`--prev` is a short alias):
 
 ```bash
-lace run script.lace --vars vars.json --prev-results last_result.json
+lacelang-executor run script.lace --vars vars.json --prev-results last_result.json
 ```
 
-The file must contain a result JSON from a prior run of the same script (see the result structure in the spec).
+The file must contain a result JSON from a prior run of the same script (see the [result structure](../result/index.md)). The library APIs of the reference executors can also feed each probe's last result back in automatically.
 
 ## Access Syntax
 
@@ -84,14 +84,14 @@ get("$BASE_URL/health")
 ```lace
 get("$BASE_URL/api/metrics")
 .expect(status: 200)
-.store({ "$$current_count": this.body.count })
 .assert({
   check: [
     // Verify count hasn't decreased since last run
-    $$current_count gte prev.runVars.current_count
+    this.body.count gte prev.runVars.current_count
   ]
 })
+.store({ "$$current_count": this.body.count })
 ```
 
 !!! note "Validator warning"
-    The validator emits a warning if your script uses `prev` references but `--prev-results` was not provided. The script will still run --- `prev` will just be `null`.
+    The validator emits a warning (`PREV_WITHOUT_RESULTS`) if your script uses `prev` references but `--prev-results` was not provided. The script will still run --- `prev` will just be `null`.

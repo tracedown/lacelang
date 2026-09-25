@@ -1,6 +1,11 @@
 // laceNotifications example: default structured notification on failure.
 // When no custom notification option is set, laceNotifications emits a
 // structured() notification with machine-readable failure details.
+// The .check() scope is still evaluated after the failed .expect() —
+// all assertion blocks on a call run before the hard-fail cascade
+// (lace-spec.md §4.1) — so two notifications are emitted.
+//
+// Expected: 2 notifications (expect/status and check/totalDelayMs).
 //
 // Run: lacelang-executor run default_structured_notification.lace \
 //        --enable-extension laceNotifications --pretty

@@ -1,5 +1,5 @@
 {
-  "id": "tlsMs_zero_for_http",
+  "id": "tls_ms_zero_for_http",
   "description": "For plain HTTP calls, response.tlsMs is 0 (spec \u00a73.4, \u00a715.5).",
   "spec_refs": [
     "lace-spec.md \u00a73.4",

@@ -1,17 +1,17 @@
 # AST Schema
 
-The Lace AST is the canonical in-memory representation produced by parsers from `.lace` source text.
+The Lace AST is the canonical representation produced by parsers from `.lace` source text (`specs/schemas/ast.json`).
 
 !!! note
-    The AST is an implementation detail and is not a stable wire format. However, this schema is the canonical shape used by the testkit's `parse` conformance tests -- every executor's `parse` subcommand must serialise its internal AST to this shape for the testkit to compare against expected outputs.
+    The AST is the wire format between validator and executor, and the shape the testkit compares in `parse` conformance vectors -- every implementation's `parse` subcommand must serialise its AST to this shape. It must be JSON-serialisable, with no language-specific sentinels.
 
-Spec version: 0.9.6<!-- sv -->
+Spec version: 0.9.7<!-- sv -->
 
 ## Top-Level
 
 | Field | Type | Required | Description |
 |---|---|---|---|
-| `version` | `"0.9.6<!-- sv -->"` | Yes | AST schema version. Bumped on breaking changes. |
+| `version` | `"0.9.4"` | Yes | AST format version. It changes only when the AST shape changes, independently of the spec version -- so it can lag the spec version shown above. |
 | `calls` | array of [Call](#call) (min 1) | Yes | Ordered HTTP calls. Validator enforces minimum 1 call. |
 
 ## Call
@@ -19,7 +19,7 @@ Spec version: 0.9.6<!-- sv -->
 | Field | Type | Required | Description |
 |---|---|---|---|
 | `method` | `"get"` \| `"post"` \| `"put"` \| `"patch"` \| `"delete"` | Yes | HTTP method. |
-| `url` | string (min 1 char) | Yes | Request URL with optional variable interpolation. |
+| `url` | string (min 1 char) | Yes | Request URL with optional variable interpolation (left in the string, resolved at evaluation time). |
 | `config` | [CallConfig](#callconfig) | No | Resolved request config. |
 | `chain` | [Chain](#chain) | Yes | Chain methods. At least one must be present. |
 
@@ -54,7 +54,7 @@ Discriminated by `type`:
 | Field | Type | Description |
 |---|---|---|
 | `follow` | boolean | Whether to follow redirects. |
-| `max` | integer (0-10) | Maximum redirect hops. |
+| `max` | integer (>= 0) | Maximum redirect hops. Validated against the context system maximum (`executor.maxRedirects`, default 10) -- `REDIRECTS_MAX_LIMIT`. |
 | `extensions` | object (string keys -> Expr) | Extension-registered fields. |
 
 ## Security
@@ -75,7 +75,7 @@ Discriminated by `type`:
 
 ## Chain
 
-Fixed order enforced by parser: `.expect` -> `.check` -> `.assert` -> `.store` -> `.wait`. Each appears at most once. At least one must be present.
+Fixed order enforced by the validator (`CHAIN_ORDER`): `.expect` -> `.check` -> `.assert` -> `.store` -> `.wait`. Each appears at most once. At least one must be present.
 
 | Field | Type | Description |
 |---|---|---|
@@ -87,7 +87,7 @@ Fixed order enforced by parser: `.expect` -> `.check` -> `.assert` -> `.store` -
 
 ## ScopeBlock
 
-Object with scope names as keys. Each scope appears at most once. Must have at least one entry.
+Object with scope names as keys. Each scope appears at most once. Must have at least one entry -- the parser accepts an empty block and the validator rejects it (`EMPTY_SCOPE_BLOCK`).
 
 Scope names: `status`, `body`, `headers`, `bodySize`, `totalDelayMs`, `dns`, `connect`, `tls`, `ttfb`, `transfer`, `size`, `redirects`.
 
@@ -110,7 +110,7 @@ Each scope value is a [ScopeValue](#scopevalue).
 | `expect` | array of [Condition](#condition) | Hard-fail conditions. |
 | `check` | array of [Condition](#condition) | Soft-fail conditions. |
 
-At least one of `expect` or `check` must be present.
+At least one of `expect` or `check` must be present. A clause with zero conditions (`expect: []`) parses and is rejected by the validator (`EMPTY_ASSERT_BLOCK`).
 
 ## Condition
 
@@ -121,7 +121,7 @@ At least one of `expect` or `check` must be present.
 
 ## StoreBlock
 
-Object mapping store keys to [StoreEntry](#storeentry) values. Must have at least one entry. Source keys are preserved as-is (e.g. `$$token`, `$cursor`, or `last_count`).
+Object mapping store keys to [StoreEntry](#storeentry) values. Must have at least one entry -- the validator rejects an empty `.store({})` (`EMPTY_STORE_BLOCK`). Source keys are preserved as-is (e.g. `$$token`, `$cursor`, or `last_count`).
 
 ## StoreEntry
 
@@ -140,10 +140,10 @@ Expressions are discriminated by `kind`. All are recursive.
 | `unary` | Unary operation | `op` (`not`, `-`), `operand` |
 | `thisRef` | Response field access | `path` (array of strings, e.g. `["body", "token"]`) |
 | `prevRef` | Previous result access | `path` (array of field/index segments) |
-| `funcCall` | Function call | `name`, `args` (array of Expr) |
+| `funcCall` | Function call | `name`, `args` (array of Expr). Core names: `json`, `form`, `schema` (any expression), plus `count`, `includes` (only inside an `.assert()` condition). Extensions register additional names; the validator enforces the context-appropriate restriction. |
 | `scriptVar` | Script variable (`$name`) | `name` (without `$`), optional `path` |
 | `runVar` | Run variable (`$$name`) | `name` (without `$$`), optional `path` |
-| `literal` | Literal value | `valueType` (`string`, `int`, `float`, `bool`, `null`), `value` |
+| `literal` | Literal value | `valueType` (`string`, `int`, `float`, `bool`, `null`), `value`. String values carry the unescaped content; interpolation references stay in the string and are re-scanned at evaluation time. |
 | `objectLit` | Object literal | `entries` (ordered key-value pairs) |
 | `arrayLit` | Array literal | `items` (array of Expr) |
 

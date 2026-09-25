@@ -2,7 +2,7 @@
   "outcome": "success",
   "startedAt": "1970-01-01T00:00:00.000Z",
   "endedAt": "1970-01-01T00:00:00.000Z",
-  "elapsedMs": 1181,
+  "elapsedMs": 1253,
   "runVars": {
     "origin": "203.0.113.1"
   },
@@ -17,7 +17,7 @@
         "method": "post",
         "headers": {
           "Content-Type": "application/json",
-          "User-Agent": "lace-probe/0.1.0 (lacelang-python)"
+          "User-Agent": "lace-probe/0.2.0 (lacelang-python)"
         }
       },
       "response": {
@@ -26,26 +26,32 @@
         "headers": {
           "date": "Thu, 01 Jan 1970 00:00:00 GMT",
           "content-type": "application/json",
-          "content-length": "539",
+          "content-length": "540",
           "connection": "keep-alive",
           "server": "gunicorn/19.9.0",
           "access-control-allow-origin": "*",
           "access-control-allow-credentials": "true"
         },
-        "bodyPath": "bodies/call_0_response.json",
-        "responseTimeMs": 659,
-        "dnsMs": 16,
-        "connectMs": 114,
-        "tlsMs": 240,
-        "ttfbMs": 637,
+        "bodyPath": null,
+        "responseTimeMs": 710,
+        "dnsMs": 23,
+        "connectMs": 147,
+        "tlsMs": 244,
+        "ttfbMs": 666,
         "transferMs": 0,
-        "sizeBytes": 539,
+        "sizeBytes": 540,
         "dns": {
           "resolvedIps": [
-            "203.0.113.1",
-            "203.0.113.2"
+            "203.0.113.2",
+            "203.0.113.3",
+            "203.0.113.4",
+            "203.0.113.5",
+            "203.0.113.6",
+            "203.0.113.7",
+            "203.0.113.8",
+            "203.0.113.9"
           ],
-          "resolvedIp": "203.0.113.1"
+          "resolvedIp": "203.0.113.2"
         },
         "tls": {
           "protocol": "TLSv1.2",
@@ -60,12 +66,13 @@
               "DNS:*.httpbin.org"
             ],
             "issuer": {
-              "cn": "Amazon RSA 2048 M03"
+              "cn": "Amazon RSA 2048 M01"
             },
             "notBefore": "1970-01-01T00:00:00.000Z",
             "notAfter": "1970-01-01T00:00:00.000Z"
           }
-        }
+        },
+        "bodyNotCapturedReason": "notRequested"
       },
       "redirects": [],
       "assertions": [
@@ -82,7 +89,22 @@
       "config": {
         "body": {
           "type": "json",
-          "value": "{email: \"user@example.com\", action: \"login\"}"
+          "value": {
+            "email": "user@example.com",
+            "action": "login"
+          }
+        },
+        "timeout": {
+          "ms": 30000,
+          "action": "fail",
+          "retries": 0
+        },
+        "redirects": {
+          "follow": true,
+          "max": 10
+        },
+        "security": {
+          "rejectInvalidCerts": true
         }
       },
       "warnings": [],
@@ -98,7 +120,7 @@
         "method": "get",
         "headers": {
           "Origin": "203.0.113.1",
-          "User-Agent": "lace-probe/0.1.0 (lacelang-python)"
+          "User-Agent": "lace-probe/0.2.0 (lacelang-python)"
         }
       },
       "response": {
@@ -107,26 +129,32 @@
         "headers": {
           "date": "Thu, 01 Jan 1970 00:00:00 GMT",
           "content-type": "application/json",
-          "content-length": "324",
+          "content-length": "326",
           "connection": "keep-alive",
           "server": "gunicorn/19.9.0",
           "access-control-allow-origin": "203.0.113.1",
           "access-control-allow-credentials": "true"
         },
-        "bodyPath": "bodies/call_1_response.json",
-        "responseTimeMs": 507,
-        "dnsMs": 0,
-        "connectMs": 117,
-        "tlsMs": 245,
-        "ttfbMs": 491,
+        "bodyPath": null,
+        "responseTimeMs": 539,
+        "dnsMs": 22,
+        "connectMs": 109,
+        "tlsMs": 221,
+        "ttfbMs": 482,
         "transferMs": 0,
-        "sizeBytes": 324,
+        "sizeBytes": 326,
         "dns": {
           "resolvedIps": [
-            "203.0.113.1",
-            "203.0.113.2"
+            "203.0.113.3",
+            "203.0.113.9",
+            "203.0.113.5",
+            "203.0.113.8",
+            "203.0.113.6",
+            "203.0.113.7",
+            "203.0.113.2",
+            "203.0.113.4"
           ],
-          "resolvedIp": "203.0.113.1"
+          "resolvedIp": "203.0.113.3"
         },
         "tls": {
           "protocol": "TLSv1.2",
@@ -141,12 +169,13 @@
               "DNS:*.httpbin.org"
             ],
             "issuer": {
-              "cn": "Amazon RSA 2048 M03"
+              "cn": "Amazon RSA 2048 M01"
             },
             "notBefore": "1970-01-01T00:00:00.000Z",
             "notAfter": "1970-01-01T00:00:00.000Z"
           }
-        }
+        },
+        "bodyNotCapturedReason": "notRequested"
       },
       "redirects": [],
       "assertions": [
@@ -164,14 +193,26 @@
           "scope": "totalDelayMs",
           "op": "lt",
           "outcome": "passed",
-          "actual": 507,
+          "actual": 539,
           "expected": 1000,
           "options": null
         }
       ],
       "config": {
         "headers": {
-          "Origin": "$$origin"
+          "Origin": "203.0.113.1"
+        },
+        "timeout": {
+          "ms": 30000,
+          "action": "fail",
+          "retries": 0
+        },
+        "redirects": {
+          "follow": true,
+          "max": 10
+        },
+        "security": {
+          "rejectInvalidCerts": true
         }
       },
       "warnings": [],

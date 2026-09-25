@@ -1,0 +1,8 @@
+pyproject.toml
+pygments_lace/__init__.py
+pygments_lace.egg-info/PKG-INFO
+pygments_lace.egg-info/SOURCES.txt
+pygments_lace.egg-info/dependency_links.txt
+pygments_lace.egg-info/entry_points.txt
+pygments_lace.egg-info/requires.txt
+pygments_lace.egg-info/top_level.txt

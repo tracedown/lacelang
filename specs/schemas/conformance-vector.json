@@ -1,12 +1,17 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://lacelang.dev/schemas/conformance-vector/0.9.1",
+  "$id": "https://lacelang.dev/schemas/conformance-vector/0.9.7",
   "title": "Lace conformance test vector",
   "description": "A single conformance test case, distributed in lacelang-testkit and consumed by every executor's CLI under test. Discriminated by `type`. The testkit reads vectors from disk, invokes the executor's `parse` / `validate` / `run` subcommand per the executor manifest, normalises the actual output (stripping fields listed in `expected.ignore`), and diffs against `expected`.",
-
   "type": "object",
   "additionalProperties": false,
-  "required": ["id", "description", "type", "input", "expected"],
+  "required": [
+    "id",
+    "description",
+    "type",
+    "input",
+    "expected"
+  ],
   "properties": {
     "id": {
       "type": "string",
@@ -20,16 +25,29 @@
     },
     "spec_refs": {
       "type": "array",
-      "items": { "type": "string" },
+      "items": {
+        "type": "string"
+      },
       "description": "Optional spec section references (e.g. 'lace-spec.md §4.1'). Documentation only."
     },
     "type": {
       "type": "string",
-      "enum": ["parse", "validate", "execute", "extension"]
+      "enum": [
+        "parse",
+        "validate",
+        "execute",
+        "extension"
+      ]
     },
     "requires": {
       "type": "array",
-      "items": { "type": "string", "enum": ["extensions", "actions"] },
+      "items": {
+        "type": "string",
+        "enum": [
+          "extensions",
+          "actions"
+        ]
+      },
       "uniqueItems": true,
       "description": "Feature areas this vector exercises. When the testkit is run with `--omit` (or a manifest declares `[conformance].omit`), any vector whose `requires` intersects the omit set is skipped with reason 'omitted: <feature>'. Vectors without a `requires` list are always runnable. See lace-spec.md §16."
     },
@@ -38,176 +56,297 @@
     },
     "expected": {
       "description": "Expected output shape; varies by `type`."
+    },
+    "optional": {
+      "type": "boolean",
+      "default": false,
+      "description": "When true, a failure of this vector is reported but does not make the run non-compliant."
     }
   },
-
   "oneOf": [
     {
       "properties": {
-        "type":     { "const": "parse" },
-        "input":    { "$ref": "#/definitions/ParseInput" },
-        "expected": { "$ref": "#/definitions/ParseExpected" }
+        "type": {
+          "const": "parse"
+        },
+        "input": {
+          "$ref": "#/definitions/ParseInput"
+        },
+        "expected": {
+          "$ref": "#/definitions/ParseExpected"
+        }
       }
     },
     {
       "properties": {
-        "type":     { "const": "validate" },
-        "input":    { "$ref": "#/definitions/ValidateInput" },
-        "expected": { "$ref": "#/definitions/ValidateExpected" }
+        "type": {
+          "const": "validate"
+        },
+        "input": {
+          "$ref": "#/definitions/ValidateInput"
+        },
+        "expected": {
+          "$ref": "#/definitions/ValidateExpected"
+        }
       }
     },
     {
       "properties": {
-        "type":     { "const": "execute" },
-        "input":    { "$ref": "#/definitions/ExecuteInput" },
-        "expected": { "$ref": "#/definitions/ExecuteExpected" }
+        "type": {
+          "const": "execute"
+        },
+        "input": {
+          "$ref": "#/definitions/ExecuteInput"
+        },
+        "expected": {
+          "$ref": "#/definitions/ExecuteExpected"
+        }
       }
     },
     {
       "properties": {
-        "type":     { "const": "extension" },
-        "input":    { "$ref": "#/definitions/ExtensionInput" },
-        "expected": { "$ref": "#/definitions/ExecuteExpected" }
+        "type": {
+          "const": "extension"
+        },
+        "input": {
+          "$ref": "#/definitions/ExtensionInput"
+        },
+        "expected": {
+          "$ref": "#/definitions/ExecuteExpected"
+        }
       }
     }
   ],
-
   "definitions": {
-
     "ParseInput": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["source"],
+      "required": [
+        "source"
+      ],
       "properties": {
-        "source": { "type": "string" }
+        "source": {
+          "type": "string"
+        }
       }
     },
-
     "ParseExpected": {
       "description": "Either a successful AST or a list of parse errors.",
       "oneOf": [
         {
           "type": "object",
           "additionalProperties": false,
-          "required": ["ast"],
+          "required": [
+            "ast"
+          ],
           "properties": {
             "ast": {
               "type": "object",
               "description": "Expected AST template. Must conform to ast.schema.json in practice, but typed as generic object here so `ignore` paths can contain placeholders. Actual AST emitted by the executor's `parse` subcommand is validated against the full ast schema at test time."
             },
-            "ignore": { "$ref": "#/definitions/IgnorePaths" }
+            "ignore": {
+              "$ref": "#/definitions/IgnorePaths"
+            }
           }
         },
         {
           "type": "object",
           "additionalProperties": false,
-          "required": ["errors"],
+          "required": [
+            "errors"
+          ],
           "properties": {
             "errors": {
               "type": "array",
               "minItems": 1,
-              "items": { "$ref": "#/definitions/ExpectedError" },
+              "items": {
+                "$ref": "#/definitions/ExpectedError"
+              },
               "description": "Expected parse errors. Order-insensitive; testkit treats this as a multiset match."
             }
           }
         }
       ]
     },
-
     "ValidateInput": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["source"],
+      "required": [
+        "source"
+      ],
       "properties": {
-        "source":    { "type": "string" },
+        "source": {
+          "type": "string"
+        },
         "variables": {
           "type": "array",
-          "items": { "type": "string", "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$" },
+          "items": {
+            "type": "string",
+            "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$"
+          },
           "description": "Names of declared $vars. Values are not needed for validation."
         },
-        "context": { "$ref": "#/definitions/ValidationContext" },
+        "context": {
+          "$ref": "#/definitions/ValidationContext"
+        },
         "extensions": {
           "type": "array",
-          "items": { "type": "string" },
+          "items": {
+            "type": "string"
+          },
           "description": "Extension names assumed active for this validation. The testkit configures the executor accordingly."
         }
       }
     },
-
     "ValidateExpected": {
       "type": "object",
       "additionalProperties": false,
       "properties": {
         "errors": {
           "type": "array",
-          "items": { "$ref": "#/definitions/ExpectedError" },
+          "items": {
+            "$ref": "#/definitions/ExpectedError"
+          },
           "description": "Expected validation errors. Order-insensitive multiset match."
         },
         "warnings": {
           "type": "array",
-          "items": { "$ref": "#/definitions/ExpectedError" },
+          "items": {
+            "$ref": "#/definitions/ExpectedError"
+          },
           "description": "Expected validation warnings."
         }
       }
     },
-
     "ValidationContext": {
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "maxRedirects": { "type": "integer", "minimum": 0, "default": 10 },
-        "maxTimeoutMs": { "type": "integer", "minimum": 1, "default": 300000 }
+        "maxRedirects": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 10
+        },
+        "maxTimeoutMs": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 300000
+        }
       },
       "description": "Validator-facing system limits from lace.config. Does not include recurrence — Lace has no recurrence context; wait-ceiling is a platform-level check (spec §12)."
     },
-
     "ExecuteInput": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["source", "http_mock"],
+      "required": [
+        "source"
+      ],
       "properties": {
-        "source": { "type": "string" },
+        "source": {
+          "type": "string"
+        },
         "variables": {
           "type": "object",
           "additionalProperties": {
-            "type": ["string", "integer", "number", "boolean", "null"]
+            "type": [
+              "string",
+              "integer",
+              "number",
+              "boolean",
+              "null",
+              "object",
+              "array"
+            ]
           },
-          "description": "Flat variable map injected as $var resolutions."
+          "description": "Flat variable map injected as $var resolutions. Values may be structured (a JSON Schema object for schema($var), a subtree for path access)."
         },
         "prev_results": {
           "oneOf": [
-            { "type": "object" },
-            { "type": "null" }
+            {
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
           ],
           "description": "Previous run result injected via --prev-results. Typed as generic object here so vectors can supply minimal prev payloads with just the fields the test's expressions reference."
         },
         "http_mock": {
           "type": "array",
-          "items": { "$ref": "#/definitions/MockResponse" },
+          "items": {
+            "$ref": "#/definitions/MockResponse"
+          },
           "description": "Indexed by call_index. Tells the testkit's bundled HTTP server how to respond. Test server does TLS too — see also tls_scenario."
         },
         "tls_scenario": {
           "type": "string",
-          "enum": ["valid", "expired", "wrong_host", "self_signed"],
+          "enum": [
+            "valid",
+            "expired",
+            "wrong_host",
+            "self_signed"
+          ],
           "description": "Cert scenario for HTTPS calls. Defaults to `valid`. Other values use bundled bad certs."
+        },
+        "extensions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Names of extensions to activate for the run (`--enable-extension`). Bundled or test extensions resolved by the executor; the harness symlinks the repo's extensions/ tree next to the vectors."
+        },
+        "lace_config": {
+          "type": "string",
+          "description": "Inline TOML written to lace.config in the script's temp directory before the run. `{port}` is substituted with the mock server port."
+        },
+        "env": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Extra environment variables for the executor subprocess (e.g. LACE_ENV, values referenced by env: config)."
+        },
+        "cli_args": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Extra CLI arguments appended to the run invocation. `{port}` and `{script_dir}` are substituted."
         }
-      }
+      },
+      "description": "Input for `execute` vectors. `http_mock` may be omitted when the call is expected not to reach the mock server (connection failure to a closed port)."
     },
-
     "MockResponse": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["callIndex", "outcome"],
+      "required": [
+        "callIndex",
+        "outcome"
+      ],
       "properties": {
-        "callIndex": { "type": "integer", "minimum": 0 },
+        "callIndex": {
+          "type": "integer",
+          "minimum": 0
+        },
         "outcome": {
           "type": "string",
-          "enum": ["response", "timeout", "connection_error", "tls_error"]
+          "enum": [
+            "response",
+            "timeout",
+            "connection_error",
+            "tls_error"
+          ]
         },
-        "status":  { "type": "integer", "minimum": 100, "maximum": 599 },
+        "status": {
+          "type": "integer",
+          "minimum": 100,
+          "maximum": 599
+        },
         "headers": {
           "type": "object",
-          "additionalProperties": { "type": "string" }
+          "additionalProperties": {
+            "type": "string"
+          }
         },
         "body": {
           "type": "string",
@@ -229,76 +368,123 @@
         }
       }
     },
-
     "ExtensionInput": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["source", "http_mock", "extensions"],
+      "required": [
+        "source",
+        "extensions"
+      ],
+      "description": "Input for `extension` vectors — the same shape as ExecuteInput with `extensions` mandatory.",
       "properties": {
-        "source":      { "type": "string" },
-        "variables":   {
+        "source": {
+          "type": "string"
+        },
+        "variables": {
           "type": "object",
           "additionalProperties": {
-            "type": ["string", "integer", "number", "boolean", "null"]
-          }
+            "type": [
+              "string",
+              "integer",
+              "number",
+              "boolean",
+              "null",
+              "object",
+              "array"
+            ]
+          },
+          "description": "Flat variable map injected as $var resolutions. Values may be structured (a JSON Schema object for schema($var), a subtree for path access)."
         },
         "prev_results": {
           "oneOf": [
-            { "type": "object" },
-            { "type": "null" }
+            {
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
           ],
           "description": "Previous run result injected via --prev-results. Typed as generic object here so vectors can supply minimal prev payloads with just the fields the test's expressions reference."
         },
-        "http_mock":   {
+        "http_mock": {
           "type": "array",
-          "items": { "$ref": "#/definitions/MockResponse" }
+          "items": {
+            "$ref": "#/definitions/MockResponse"
+          },
+          "description": "Indexed by call_index. Tells the testkit's bundled HTTP server how to respond. Test server does TLS too — see also tls_scenario."
         },
         "tls_scenario": {
           "type": "string",
-          "enum": ["valid", "expired", "wrong_host", "self_signed"]
+          "enum": [
+            "valid",
+            "expired",
+            "wrong_host",
+            "self_signed"
+          ],
+          "description": "Cert scenario for HTTPS calls. Defaults to `valid`. Other values use bundled bad certs."
         },
         "extensions": {
           "type": "array",
-          "minItems": 1,
           "items": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": ["name", "content"],
-            "properties": {
-              "name":    { "type": "string" },
-              "content": {
-                "type": "string",
-                "description": "Inline TOML body of the .laceext file. The testkit writes it to a temp file before invoking the executor."
-              }
-            }
-          }
+            "type": "string"
+          },
+          "description": "Names of extensions to activate for the run (`--enable-extension`). Bundled or test extensions resolved by the executor; the harness symlinks the repo's extensions/ tree next to the vectors.",
+          "minItems": 1
+        },
+        "lace_config": {
+          "type": "string",
+          "description": "Inline TOML written to lace.config in the script's temp directory before the run. `{port}` is substituted with the mock server port."
+        },
+        "env": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Extra environment variables for the executor subprocess (e.g. LACE_ENV, values referenced by env: config)."
+        },
+        "cli_args": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Extra CLI arguments appended to the run invocation. `{port}` and `{script_dir}` are substituted."
         }
       }
     },
-
     "ExecuteExpected": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["result"],
+      "required": [
+        "result"
+      ],
       "properties": {
         "result": {
           "type": "object",
           "description": "Expected ProbeResult template. Intentionally typed as generic object rather than a strict ProbeResult — any path listed in `ignore` is stripped from the actual result before comparison, so the expected may contain placeholder values at those paths. The actual result emitted by the executor is validated against the full ProbeResult schema at test time."
         },
-        "ignore": { "$ref": "#/definitions/IgnorePaths" }
+        "ignore": {
+          "$ref": "#/definitions/IgnorePaths"
+        },
+        "no_default_ignores": {
+          "type": "boolean",
+          "default": false,
+          "description": "When true, the harness does not apply its default ignore paths (startedAt, endedAt, calls[*].startedAt, calls[*].endedAt, calls[*].response.bodyPath) — only the vector's own `ignore` list is stripped."
+        }
       }
     },
-
     "IgnorePaths": {
       "type": "array",
-      "items": { "type": "string" },
-      "description": "JSON-pointer-like paths to strip from the actual output before diffing. Supports `[*]` for array wildcards (e.g. 'calls[*].started_at'). Default ignores: 'started_at', 'ended_at', 'calls[*].started_at', 'calls[*].ended_at', 'calls[*].response.body_path' — the testkit applies these unconditionally; this field adds to them."
+      "items": {
+        "type": "string"
+      },
+      "description": "JSON-pointer-like paths to strip from the actual output before diffing. Supports `[*]` for array wildcards (e.g. 'calls[*].startedAt'). Default ignores: 'startedAt', 'endedAt', 'calls[*].startedAt', 'calls[*].endedAt', 'calls[*].response.bodyPath' — the testkit applies these unconditionally; this field adds to them."
     },
-
     "ExpectedError": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["code"],
+      "required": [
+        "code"
+      ],
       "properties": {
         "code": {
           "type": "string",
@@ -311,7 +497,13 @@
         },
         "chainMethod": {
           "type": "string",
-          "enum": ["expect", "check", "assert", "store", "wait"],
+          "enum": [
+            "expect",
+            "check",
+            "assert",
+            "store",
+            "wait"
+          ],
           "description": "Which chain method the error is on, if applicable."
         },
         "field": {

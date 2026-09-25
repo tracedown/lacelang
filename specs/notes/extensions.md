@@ -12,10 +12,11 @@ The `.laceext` file format is canonically defined by `schemas/laceext.json`.
 
 ### TOML table style
 
-TOML 1.0 requires inline tables to fit on a single line. All `.laceext`
-files use standard TOML sub-tables (`[parent.child]`) and arrays of
-sub-tables (`[[parent.child]]`) rather than multi-line inline tables.
-The spec (§2.1) codifies this constraint explicitly.
+TOML 1.0 requires inline tables to fit on a single line. The bundled
+`.laceext` files keep every inline table on one line; `one_of` lists are
+multi-line arrays of single-line inline tables, which is valid TOML 1.0.
+Structures that would need a multi-line inline table use sub-tables
+(`[parent.child]`) instead. The spec (§2.1) codifies this constraint.
 
 ### Inline `when` scope
 
@@ -40,6 +41,13 @@ extension processor parses these strings using its own grammar.
 syntactically invalid rule bodies. The extension processor rejects these
 at extension load time, before any rule executes.
 
+### Function parameters are bare identifiers
+
+`[functions.X].params` names are bound as bare identifiers in the body
+(`notif_cfg`, not `$notif_cfg`), exactly like hook context objects.
+`$`-prefixed names are reserved for `let` / `for` bindings
+(lace-extensions.md §6).
+
 ### Extension namespace prefix
 
 `lace-extensions.md §9` requires extension `runVars` keys to be prefixed
@@ -63,8 +71,9 @@ resolve hook registrations.
 
 ## Testing
 
-The bundled `laceNotifications.laceext` and `laceBaseline.laceext` files
-serve as test vectors for the laceext schema. Any change to the schema
+Every `.laceext` under `extensions/` — the bundled `laceNotifications`,
+`laceBaseline` and `laceEmitRecovery` plus the `extensions/test/` set —
+serves as a test vector for the laceext schema. Any change to the schema
 must keep these files valid; any change to the extensions must remain
 schema-conformant. The `make verify` target in `lacelang/specs/Makefile`
 runs this check.

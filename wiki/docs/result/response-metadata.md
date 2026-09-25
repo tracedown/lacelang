@@ -3,12 +3,18 @@
 Each response record includes structured metadata for DNS resolution, TLS session
 details, redirect tracking, and a full timing breakdown.
 
+Inside a chain method the same data is available on `this`: the `dns` and `tls`
+objects below are `this.dns` and `this.tls`, the timing scalars are `this.dnsMs`,
+`this.tlsMs`, `this.connect`, `this.ttfb`, `this.transfer`, `this.responseTime` and
+`this.size`, and the redirect list is `this.redirects`.
+
 ---
 
 ## DNS metadata
 
-The `dns` object is always present on a response record. It captures the addresses
-resolved for the call's hostname.
+The `dns` object (`this.dns` in a chain) is always present on a response record. It
+captures the addresses resolved for the call's hostname. It is metadata, not a timing:
+the DNS resolution time is the separate `dnsMs` scalar (`this.dnsMs`).
 
 | Field | Type | Description |
 |---|---|---|
@@ -29,7 +35,8 @@ The executor populates these fields and nothing more. It performs no interpretat
 
 ## TLS metadata
 
-The `tls` object is present for HTTPS calls and `null` for plain HTTP.
+The `tls` object (`this.tls` in a chain) is present for HTTPS calls and `null` for plain
+HTTP. The handshake time is the separate `tlsMs` scalar (`this.tlsMs`).
 
 | Field | Type | Description |
 |---|---|---|
@@ -93,6 +100,10 @@ expose the parsed certificate. In that case `certificate` is `null`, but `protoc
 `cipher`, and `alpn` are still populated. The `tls` object itself is never omitted for
 HTTPS calls -- only `certificate` within it may be `null`.
 
+The executor performs no interpretation of TLS metadata beyond surfacing it --
+certificate pinning, cipher allowlisting, expiry checks and similar policy belong to
+extensions.
+
 ### Plain HTTP
 
 For plain HTTP calls, `tls` is `null` and `tlsMs` is `0`:
@@ -103,7 +114,8 @@ For plain HTTP calls, `tls` is `null` and `tlsMs` is `0`:
     {
       "status": 200,
       "statusText": "OK",
-      "bodyPath": "/probe_runs/abc/call_0_response.txt",
+      "bodyPath": null,
+      "bodyNotCapturedReason": "notRequested",
       "responseTimeMs": 85,
       "tls": null
     }
@@ -118,7 +130,8 @@ For plain HTTP calls, `tls` is `null` and `tlsMs` is `0`:
       "headers": {
         "content-type": "text/plain"
       },
-      "bodyPath": "/probe_runs/abc/call_0_response.txt",
+      "bodyPath": null,
+      "bodyNotCapturedReason": "notRequested",
       "responseTimeMs": 85,
       "dnsMs": 8,
       "connectMs": 22,
@@ -140,21 +153,30 @@ For plain HTTP calls, `tls` is `null` and `tlsMs` is `0`:
 
 ## Redirect tracking
 
-The `redirects` field on each call record is an ordered array of URLs followed during
-the request. It is an empty array when the call issued no redirects.
+The `redirects` field on each call record (`this.redirects` inside the chain) is an
+ordered array of the redirect hops that were actually issued:
+
+- It contains the resolved URL of each redirect hop, in order.
+- It does **not** include the initial request URL (that is `request.url`), and it does
+  **not** include the final response's URL unless the final response was itself a
+  redirect.
+- It is an empty array when the call issued no redirects -- including when
+  `redirects.follow` is `false`.
+- It is populated even when the call hard-fails because it exceeded `redirects.max`: the
+  list shows the hops up to and including the one that triggered the limit, so you can
+  inspect the chain that led to the failure.
+
+Example: `get("$BASE_URL/a")` receiving `302 -> /b`, then `302 -> /c`, then `200` at `/c`
+produces:
 
 ```json
 {
   "redirects": [
-    "https://example.com/old-path",
-    "https://example.com/new-path",
-    "https://example.com/final"
+    "https://example.com/b",
+    "https://example.com/c"
   ]
 }
 ```
-
-The array is populated even when a `REDIRECTS_MAX_LIMIT` hard-fail occurs, so you
-can inspect the chain that led to the failure.
 
 Redirect following is controlled by the call config:
 
@@ -166,7 +188,13 @@ Redirect following is controlled by the call config:
 }
 ```
 
-When `follow` is `false`, no redirects are followed and the array is always empty.
+Hops can be asserted with the `redirects` scope, which takes a `match` of `first`, `last`
+or `any` (default) -- see the [Scope Reference](../reference/scope-reference.md#redirect-match-modes):
+
+```lace
+get("$BASE_URL/a")
+.expect(redirects: { value: "https://example.com/c", match: "last" })
+```
 
 ---
 
@@ -175,15 +203,15 @@ When `follow` is `false`, no redirects are followed and the array is always empt
 Every response record includes a set of timing fields that break down the total
 response time into phases. All values are integers in milliseconds.
 
-| Field | Description |
-|---|---|
-| `responseTimeMs` | Total response time from request start to response complete. |
-| `dnsMs` | Time spent on DNS resolution. |
-| `connectMs` | Time spent establishing the TCP connection. |
-| `tlsMs` | Time spent on TLS handshake. `0` for non-HTTPS calls. |
-| `ttfbMs` | Time to first byte -- from sending the request to receiving the first byte of the response. |
-| `transferMs` | Time spent transferring the response body. |
-| `sizeBytes` | Total response body size in bytes. |
+| Field | `this` field | Scope | Description |
+|---|---|---|---|
+| `responseTimeMs` | `this.responseTime` | `totalDelayMs` | Total response time from request start to response complete. |
+| `dnsMs` | `this.dnsMs` | `dns` | Time spent on DNS resolution. |
+| `connectMs` | `this.connect` | `connect` | Time spent establishing the TCP connection. |
+| `tlsMs` | `this.tlsMs` | `tls` | Time spent on TLS handshake. `0` for non-HTTPS calls (the `tls` scope is then skipped). |
+| `ttfbMs` | `this.ttfb` | `ttfb` | Time to first byte -- from sending the request to receiving the first byte of the response. |
+| `transferMs` | `this.transfer` | `transfer` | Time spent transferring the response body. |
+| `sizeBytes` | `this.size` | `size` | Total response body size in bytes. |
 
 ### Timing example
 
@@ -199,5 +227,6 @@ response time into phases. All values are integers in milliseconds.
 }
 ```
 
-These timing fields are also available as assertion scopes in the Lace language (e.g.
-`.expect(dns: 100)` asserts that DNS resolution took at most 100ms).
+These timing fields are also available as assertion scopes in the Lace language. Timing
+scopes default to the `lt` operator, so `.expect(dns: 100)` asserts that DNS resolution
+took less than 100ms; write `dns: { value: 100, op: "lte" }` for "at most".

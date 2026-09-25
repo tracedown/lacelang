@@ -13,9 +13,10 @@
  * are accepted by the parser; the validator (per spec §12) rejects
  * unknown function calls outside extension contexts.
  *
- * Variable interpolation inside string literals is recognised at the
- * lexer level. The parser treats the string body as a single token;
- * consumers re-scan the body for $var / $$var / ${...} interpolation.
+ * Variable interpolation inside string literals is not a lexer concern
+ * (spec §2.2). The lexer emits the whole string as a single token; the
+ * executor re-scans the body for $var / $$var / ${$var} / ${$$var}
+ * references at evaluation time (spec §3.5).
  */
 
 grammar lacelang;
@@ -111,8 +112,10 @@ chainMethod
 expectMethod : '.' KW_EXPECT '(' scopeList ')' ;
 checkMethod  : '.' KW_CHECK  '(' scopeList ')' ;
 
+// Empty lists are accepted by the parser so the validator can report
+// EMPTY_SCOPE_BLOCK / EMPTY_ASSERT_BLOCK / EMPTY_STORE_BLOCK (spec §12).
 scopeList
-    : scopeEntry (',' scopeEntry)* ','?
+    : (scopeEntry (',' scopeEntry)* ','?)?
     ;
 
 scopeEntry
@@ -172,7 +175,7 @@ assertMethod
     ;
 
 assertClause
-    : (KW_EXPECT | KW_CHECK) ':' '[' conditionItem (',' conditionItem)* ','? ']'
+    : (KW_EXPECT | KW_CHECK) ':' '[' (conditionItem (',' conditionItem)* ','?)? ']'
     ;
 
 conditionItem
@@ -186,7 +189,7 @@ condField
     ;
 
 storeMethod
-    : '.' KW_STORE '(' '{' storeEntry (',' storeEntry)* ','? '}' ')'
+    : '.' KW_STORE '(' '{' (storeEntry (',' storeEntry)* ','?)? '}' ')'
     ;
 
 storeEntry
@@ -428,8 +431,9 @@ INT     : [0-9]+ ;
 FLOAT   : [0-9]+ '.' [0-9]+ ;
 
 // String literal: double-quoted, with escape sequences.
-// Variable interpolation ($var, $$var, ${expr}) is part of the string
-// content — consumers re-scan the body to extract interpolation refs.
+// Variable interpolation ($var, $$var, ${$var}, ${$$var}) is part of the
+// string content — the executor re-scans the body at evaluation time
+// (spec §3.5); it is not a lexer concern.
 STRING
     : '"' (ESC_SEQ | ~["\\])* '"'
     ;

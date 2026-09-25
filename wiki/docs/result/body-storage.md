@@ -2,7 +2,8 @@
 
 When `result.bodies.dir` is set to a path, Lace executors write response bodies to that
 directory. The result JSON contains **absolute paths** to these files -- no body
-bytes appear in the result JSON itself.
+bytes appear in the result JSON itself. Only response bodies are saved: request bodies
+are never written to disk (they are already present in the script and its AST).
 
 By default, body saving is **disabled** (`result.bodies.dir = false`). Enable it in
 `lace.config` or with the `--save-body` / `--bodies-dir` CLI flags.
@@ -14,30 +15,30 @@ By default, body saving is **disabled** (`result.bodies.dir = false`). Enable it
 Body files follow the naming pattern:
 
 ```
-{run_base_dir}/call_{index}_response.{ext}
+{bodies_dir}/call_{index}_response.{ext}
 ```
 
 | Segment | Description |
 |---|---|
-| `run_base_dir` | Base directory for this probe run. Configured via `result.bodies.dir` in `lace.config`. |
+| `bodies_dir` | The body storage directory: `result.bodies.dir` in `lace.config`, or the directory set by `--save-body` / `--bodies-dir`. |
 | `index` | Zero-based call index matching `calls[n].index`. |
 | `ext` | File extension derived from the content type (e.g. `json`, `xml`, `txt`, `html`). |
 
 ### Examples
 
 ```
-/probe_runs/abc/call_0_response.json
-/probe_runs/abc/call_1_response.html
+/var/lace/bodies/call_0_response.json
+/var/lace/bodies/call_1_response.html
 ```
 
 ---
 
 ## Response bodyPath
 
-The response record includes a `bodyPath` field.
+Every response record includes a `bodyPath` field -- it is always present.
 
-**Response `bodyPath`:** absolute path to the response body file, or `null` when the
-body was not captured.
+**Response `bodyPath`:** absolute path to the response body file when body saving is
+enabled, or `null` otherwise (with `bodyNotCapturedReason` saying why).
 
 ```json
 {
@@ -47,7 +48,7 @@ body was not captured.
     "headers": {
       "content-type": "application/json"
     },
-    "bodyPath": "/probe_runs/abc/call_0_response.json",
+    "bodyPath": "/var/lace/bodies/call_0_response.json",
     "responseTimeMs": 145
   }
 }
@@ -61,7 +62,7 @@ When the response `bodyPath` is `null`, the `bodyNotCapturedReason` field explai
 
 | Value | Meaning |
 |---|---|
-| `"bodyTooLarge"` | The response body exceeded the configured size limit and was not written. |
+| `"bodyTooLarge"` | The response body exceeded the call's `bodySize` scope value and was not written. The `bodySize` assertion records the failure; the call's `error` stays `null`. |
 | `"notRequested"` | Body saving is disabled (`result.bodies.dir = false`, the default). |
 | `"timeout"` | The call timed out before the body could be fully received. |
 
@@ -93,7 +94,7 @@ When the response `bodyPath` is `null`, the `bodyNotCapturedReason` field explai
         "responseTimeMs": 320,
         "dnsMs": 5,
         "connectMs": 18,
-        "tlsMs": 25,
+        "tlsMs": 0,
         "ttfbMs": 100,
         "transferMs": 220,
         "sizeBytes": 52428800,

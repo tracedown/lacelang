@@ -37,15 +37,17 @@ Every executor implements three CLI subcommands:
 lacelang-executor parse probe.lace
 
 # Validate — check syntax + semantic rules
-lacelang-executor validate probe.lace --vars-list vars.json
+lacelang-executor validate probe.lace --vars-list declared.json
 
 # Run — execute the probe
 lacelang-executor run probe.lace --vars vars.json --pretty
 ```
 
-The `--vars` flag injects variables (`$var` references in the script).
-The `--prev-results` flag provides the previous run's result for
-cross-run comparisons via `prev`.
+The `--vars` flag injects variables (`$var` references in the script)
+from a JSON object. `--vars-list` on `validate` takes a JSON array of
+the declared variable *names* (e.g. `["BASE_URL", "API_KEY"]`), not
+their values. The `--prev-results` flag provides the previous run's
+result for cross-run comparisons via `prev`.
 
 ## Conformance
 
@@ -87,11 +89,11 @@ The maintainers will review your implementation and verify conformance.
 
 | Package | Language | Conformance | Spec Version | Repository |
 |---|---|---|---|---|
-| `lacelang-executor` | Python | **Canonical** | 0.9.6<!-- sv --> | [tracedown/lacelang-python-executor](https://github.com/tracedown/lacelang-python-executor) |
-| `@lacelang/executor` | TypeScript | **Conformant** | 0.9.6<!-- sv --> | [tracedown/lacelang-js-executor](https://github.com/tracedown/lacelang-js-executor) |
-| `lacelang-kt-executor` | Kotlin/JVM | **Conformant** | 0.9.6<!-- sv --> | [tracedown/lacelang-kotlin-executor](https://github.com/tracedown/lacelang-kotlin-executor) |
+| `lacelang-executor` | Python | **Canonical** | 0.9.7<!-- sv --> | [tracedown/lacelang-python-executor](https://github.com/tracedown/lacelang-python-executor) |
+| `@lacelang/executor` | TypeScript | **Conformant** | 0.9.7<!-- sv --> | [tracedown/lacelang-js-executor](https://github.com/tracedown/lacelang-js-executor) |
+| `dev.lacelang:lacelang-kotlin-executor` | Kotlin/JVM | **Conformant** | 0.9.7<!-- sv --> | [tracedown/lacelang-kotlin-executor](https://github.com/tracedown/lacelang-kotlin-executor) |
 
-All three implementations pass the full 199<!-- vc -->-vector conformance suite. The Python executor is the **canonical reference** — the spec is developed and verified against it. The TypeScript and Kotlin executors are fully interchangeable and target the same spec version.
+All three implementations pass the full 206<!-- vc -->-vector conformance suite. The Python executor is the **canonical reference** — the spec is developed and verified against it. The TypeScript and Kotlin executors are fully interchangeable and target the same spec version.
 
 Each implementation splits into a **validator** (parser + semantic checks, zero network dependencies) and an **executor** (HTTP runtime). See the [packaging rules](../../implementers/packaging.md) for why.
 
@@ -99,6 +101,6 @@ Each implementation splits into a **validator** (parser + semantic checks, zero 
 |---|---|---|
 | `lacelang-validator` | Python | [tracedown/lacelang-python-validator](https://github.com/tracedown/lacelang-python-validator) |
 | `@lacelang/validator` | TypeScript | [tracedown/lacelang-js-validator](https://github.com/tracedown/lacelang-js-validator) |
-| `lacelang-kt-validator` | Kotlin | [tracedown/lacelang-kotlin-validator](https://github.com/tracedown/lacelang-kotlin-validator) |
+| `dev.lacelang:kotlin-validator` | Kotlin | [tracedown/lacelang-kotlin-validator](https://github.com/tracedown/lacelang-kotlin-validator) |
 
 See the [Python Executor](python-executor.md), [TypeScript Executor](ts-executor.md), and [Kotlin Executor](kt-executor.md) pages for installation, CLI usage, and the programmatic API.

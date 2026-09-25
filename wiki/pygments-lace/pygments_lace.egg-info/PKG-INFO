@@ -1,0 +1,6 @@
+Metadata-Version: 2.4
+Name: pygments-lace
+Version: 0.1.1
+Summary: Pygments lexer for the Lace probe scripting language
+Requires-Python: >=3.11
+Requires-Dist: pygments>=2.21.0

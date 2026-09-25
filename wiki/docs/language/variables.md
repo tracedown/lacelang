@@ -13,12 +13,18 @@ get("$BASE_URL/api/users", {
 .expect(status: 200)
 ```
 
-From the CLI, inject variables with `--vars` (a JSON file) or `--var` (individual values):
+From the CLI, inject variables with `--vars` (a JSON object file) or `--var` (individual values):
 
 ```bash
-lace run script.lace --vars vars.json
-lace run script.lace --var BASE_URL=https://api.example.com --var api_key=abc123
+lacelang-executor run script.lace --vars vars.json
+lacelang-executor run script.lace --var BASE_URL=https://api.example.com --var api_key=abc123
 ```
+
+Multiple `--var` flags merge, and a `--var` overrides the same key from `--vars`.
+
+### Unknown variables
+
+When the validator is given a variable registry (the list of declared names, e.g. `--vars-list` on `validate`), a `$var` reference that is not in it is a validation error (`VARIABLE_UNKNOWN`), and so is a `schema($var)` argument. Without a registry, a missing `$var` simply resolves to `null` at runtime (see [Null Semantics](#null-semantics)).
 
 **Schema variables** are script variables whose value is a valid JSON Schema document. They are used only with `schema($var)` in body matching.
 
@@ -48,20 +54,27 @@ A `$$var` can be assigned **exactly once** across the entire script. A second as
 
 ```lace
 // INVALID --- $$token assigned twice
+get("$BASE_URL/token")
+.expect(status: 200)
 .store({ "$$token": this.body.token })
-// ... later ...
+
+get("$BASE_URL/token/refresh")
+.expect(status: 200)
 .store({ "$$token": this.body.new_token })   // validation error
 ```
 
 ## .store() Key Types
 
-`.store()` accepts three key formats that determine where the value goes:
+`.store()` accepts three key formats that determine where the value goes. Keys may be quoted strings or written bare:
 
 ```lace
+get("$BASE_URL/api/items")
+.expect(status: 200)
 .store({
   "$$token":    this.body.access_token,   // run-scope variable
   "$cursor":    this.body.next_cursor,    // write-back to backend
-  last_count:   this.body.count           // write-back to backend (same as $cursor)
+  last_count:   this.body.count,          // write-back to backend (same as $cursor)
+  $$page:       this.body.page            // bare form of "$$page"
 })
 ```
 
@@ -71,10 +84,33 @@ A `$$var` can be assigned **exactly once** across the entire script. A second as
 | `$name` | `actions.variables` in the result | The `$` is stripped from the key. The variable's in-memory value does **not** change during this run. The backend decides what to do with it. |
 | `plain_name` | `actions.variables` in the result | Equivalent to `$name`. The backend decides scope and persistence. |
 
+`actions.variables` is present in the result only when the script stores at least one write-back key.
+
 Values can be any JSON-serialisable type: string, integer, float, boolean, null, object, or array.
 
 !!! note
     `.store()` is skipped if a preceding chain method on the same call produced a hard fail (from `.expect()` or `.assert({ expect: [...] })`).
+
+## Path Access
+
+In expressions, a variable holding an object or array can be navigated with `.field` and `[n]` suffixes, the same way as `prev` (`this` takes `.field` suffixes only):
+
+```lace
+get("$BASE_URL/api/users")
+.expect(status: 200)
+.store({ "$$users": this.body.users })
+
+get("$BASE_URL/api/profile")
+.expect(status: 200)
+.assert({
+  expect: [
+    this.body.email eq $$users[0].email,
+    this.body.plan eq $$users[0].plan
+  ]
+})
+```
+
+The same suffixes are accepted on script variables (`$config.region`). Paths work in expressions only. String interpolation takes a bare variable name --- `"$$users.count"` interpolates `$$users` followed by the literal text `.count`.
 
 ## String Interpolation
 
@@ -86,13 +122,14 @@ Variables are interpolated inside quoted strings throughout the script --- in UR
 | `$$varname` | Run-scope variable value |
 | `${$varname}` | Disambiguated script variable |
 | `${$$varname}` | Disambiguated run-scope variable |
-| `\$` | Literal `$` character |
-
 Use the braced form when the variable name runs into surrounding text:
 
 ```lace
 get("$BASE_URL/api/${$resource_type}s/${$$item_id}")
+.expect(status: 200)
 ```
+
+There is no way to escape a reference. The string escape `\$` produces a `$` character, but interpolation is applied to the resulting text, so `"\$name"` still interpolates when `name` is a variable. Braced forms only control where a reference ends.
 
 ## Null Semantics
 

@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://lacelang.dev/schemas/result/0.9.1",
+  "$id": "https://lacelang.dev/schemas/result/0.9.7",
   "title": "Lace ProbeResult",
   "description": "Wire format returned by every Lace executor. Conforms to lace-spec.md §9. Extension-defined fields appear under `actions.{key}` (arrays) and `runVars` (scalars with `{extension_name}.` prefix). All other top-level fields are core.",
 
@@ -40,7 +40,7 @@
     },
     "actions": {
       "type": "object",
-      "description": "Free-form action map. `actions.variables` is the only typed mandatory section (writeback `.store()` entries). Other keys are extension-defined arrays.",
+      "description": "Free-form action map. `actions.variables` is the only core-typed key and is present when any write-back `.store()` target exists (spec §9.3). Other keys are extension-defined arrays. The whole object is absent only for executors declaring `omit: actions` (spec §16.1).",
       "additionalProperties": true,
       "properties": {
         "variables": {
@@ -106,7 +106,7 @@
         "redirects": {
           "type": "array",
           "items": { "type": "string" },
-          "description": "Ordered URLs followed (spec §3.7). Empty array when the call issued no redirects. Populated even on REDIRECTS_MAX_LIMIT hard-fail."
+          "description": "Ordered URLs followed (spec §3.7). Empty array when the call issued no redirects. Populated even on the `redirects.max` hop limit being exceeded hard-fail."
         },
         "assertions": {
           "type": "array",
@@ -121,14 +121,14 @@
         "warnings": {
           "type": "array",
           "items": { "type": "string" },
-          "description": "Warning strings (null interpolations, TLS warnings, skipped writes, etc.). Empty array if none."
+          "description": "Warning strings from this call: null interpolations, TLS errors under rejectInvalidCerts: false, rejected extension emits. Empty array if none."
         },
         "error": {
           "oneOf": [
             { "type": "string" },
             { "type": "null" }
           ],
-          "description": "Non-assertion failure detail (connection error, TLS, redirect limit, body too large). Null otherwise."
+          "description": "Non-assertion failure detail (connection error, TLS, redirect limit, timeout). Null otherwise. An oversize body is not an error: it is a bodySize assertion failure plus bodyNotCapturedReason: \"bodyTooLarge\"."
         }
       }
     },
@@ -170,12 +170,12 @@
             { "type": "string" },
             { "type": "null" }
           ],
-          "description": "Absolute path to response body file. Null when not captured (see body_not_captured_reason)."
+          "description": "Absolute path to response body file. Null when not captured (see bodyNotCapturedReason)."
         },
         "bodyNotCapturedReason": {
           "type": "string",
           "enum": ["bodyTooLarge", "notRequested", "timeout"],
-          "description": "Present when body_path is null."
+          "description": "Present when bodyPath is null."
         },
         "responseTimeMs": { "type": "integer", "minimum": 0 },
         "dnsMs":           { "type": "integer", "minimum": 0 },
@@ -220,7 +220,7 @@
       "type": "object",
       "additionalProperties": false,
       "required": ["protocol", "cipher", "alpn", "certificate"],
-      "description": "TLS session metadata (spec §3.4.2). null when rejectInvalidCerts: false leaves the certificate unparseable, but the rest of the object is always populated.",
+      "description": "TLS session metadata (spec §3.4.2). null only for plain HTTP. Under rejectInvalidCerts: false a runtime that cannot expose the parsed certificate sets `certificate` to null but still populates protocol / cipher / alpn.",
       "properties": {
         "protocol": { "type": "string", "description": "e.g. 'TLSv1.3'." },
         "cipher":   { "type": "string", "description": "Negotiated cipher suite name." },
@@ -271,7 +271,7 @@
     },
 
     "AssertionRecord": {
-      "description": "Discriminated by `method`. Scope assertions (.expect/.check) carry `scope`/`op`/`actual`/`expected`. Condition assertions (.assert) carry `kind`/`index`/`expression`/`actual_lhs`/`actual_rhs`.",
+      "description": "Discriminated by `method`. Scope assertions (.expect/.check) carry `scope`/`op`/`actual`/`expected`. Condition assertions (.assert) carry `kind`/`index`/`expression`/`actualLhs`/`actualRhs`.",
       "oneOf": [
         { "$ref": "#/definitions/ScopeAssertion" },
         { "$ref": "#/definitions/ConditionAssertion" }
@@ -331,7 +331,7 @@
         },
         "expression": {
           "type": "string",
-          "description": "Expression as written in source."
+          "description": "Condition rendered back to source form. Must re-parse: object-literal keys that are not bare identifiers are printed quoted (spec §9.2)."
         },
         "actualLhs": {
           "description": "Resolved left operand value. May be any JSON type or null."

@@ -1,0 +1,2 @@
+[pygments.lexers]
+lace = pygments_lace:LaceLexer

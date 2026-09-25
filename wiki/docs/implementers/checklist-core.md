@@ -4,14 +4,14 @@ An executor implementation is considered **Lace Core Compatible** when it satisf
 
 This checklist covers the core language only. Extension system compatibility is defined separately in the [Extension Checklist](checklist-extensions.md).
 
-Spec version: 0.9.6<!-- sv -->
+Spec version: 0.9.7<!-- sv -->
 
 ---
 
 ## 1. Parsing
 
-- [ ] Parses `.lace` source text against the formal grammar in section 2.1
-- [ ] Applies lexical rules from section 2.2: `$var`, `$$var` tokenisation, string escape sequences, comment stripping
+- [ ] Parses `.lace` source text against the formal grammar in §2.1
+- [ ] Applies lexical rules from §2.2: `$var`, `$$var` tokenisation, string escape sequences, comment stripping
 - [ ] Rejects source text that does not conform to the grammar with a structured parse error including line and column
 - [ ] Accepts trailing commas in all list and object positions where the grammar permits them
 - [ ] Parses all five HTTP methods: `get`, `post`, `put`, `patch`, `delete`
@@ -24,7 +24,7 @@ Spec version: 0.9.6<!-- sv -->
 - [ ] Parses `.assert()` with both `expect` and `check` clauses, shorthand and full condition forms
 - [ ] Parses `prev` dot-access and array-index expressions
 - [ ] Parses `this` dot-access expressions
-- [ ] Produces an internal AST from valid source -- the AST is an implementation detail and is never stored or transmitted
+- [ ] Produces an AST from valid source that serialises to `schemas/ast.json` -- the shape the testkit compares in `parse` conformance vectors
 
 ---
 
@@ -38,9 +38,10 @@ All validation rules from the specification (§12) must be enforced. The followi
 - [ ] Requires at least one chain method per call
 - [ ] Enforces chain method order: `.expect` -> `.check` -> `.assert` -> `.store` -> `.wait`
 - [ ] Rejects duplicate chain methods on the same call
-- [ ] Rejects `.expect()` and `.check()` with zero scopes
+- [ ] Rejects `.expect()` and `.check()` with zero scopes (`EMPTY_SCOPE_BLOCK`), `.store({})` (`EMPTY_STORE_BLOCK`) and `.assert()` with zero conditions (`EMPTY_ASSERT_BLOCK`) -- as validation errors, so the parser must accept the empty forms
 - [ ] Rejects `this.*` references outside a chain method body (cross-call references are not constructible -- each call's chain is its own parser-level scope)
-- [ ] Rejects function calls in expressions that are not `json`, `form`, or `schema`
+- [ ] Rejects function calls in expressions that are not `json`, `form`, or `schema` -- except `count`/`includes`, which are accepted only inside an `.assert()` condition
+- [ ] Rejects `count`/`includes` used outside an `.assert()` condition (`UNKNOWN_FUNCTION`), and either called with the wrong argument count (`FUNC_ARG_TYPE`: `count` takes 1, `includes` takes 2)
 - [ ] Validates all `$var` references against the provided variable registry -- rejects unknown references
 - [ ] Rejects `$$var` assigned more than once across the script
 - [ ] Rejects `schema($var)` where the variable is absent from the registry
@@ -49,7 +50,8 @@ All validation rules from the specification (§12) must be enforced. The followi
 - [ ] Rejects `timeout.ms` values exceeding the context system maximum
 - [ ] Rejects `timeout.retries` without `timeout.action: "retry"`
 - [ ] Rejects `clearCookies` when `cookieJar` is not a `selective_clear` variant
-- [ ] Rejects `cookieJar: "named:"` with an empty name
+- [ ] Rejects `cookieJar: "named:"` with an empty name, and any `cookieJar` value matching none of the §3.3 patterns (`COOKIE_JAR_FORMAT`)
+- [ ] Rejects `timeout.action` values other than `"fail"`, `"warn"`, `"retry"` (`TIMEOUT_ACTION_INVALID`)
 - [ ] Rejects `op` values not in: `lt`, `lte`, `eq`, `neq`, `gte`, `gt`
 - [ ] Rejects malformed `bodySize` size strings
 - [ ] Emits a warning for unknown fields when the registering extension is not active
@@ -84,7 +86,7 @@ All validation rules from the specification (§12) must be enforced. The followi
 - [ ] `null eq non_null_value` -> `false`
 - [ ] `null neq non_null_value` -> `true`
 - [ ] `null` as operand of `lt`, `gt`, `lte`, `gte` -> outcome `"indeterminate"` (no exception, no hard fail)
-- [ ] `null` as operand of `+`, `-`, `*`, `/` -> `null` result (no exception)
+- [ ] `null` as operand of `+`, `-`, `*`, `/`, `%` -> outcome `"indeterminate"` (no exception, no hard fail)
 - [ ] `schema($var)` where `$var` resolves to `null` -> hard fail
 - [ ] `null` stored via `.store()` -> valid; appears in `runVars` or `actions.variables` as JSON `null`
 
@@ -101,7 +103,9 @@ All validation rules from the specification (§12) must be enforced. The followi
 - [ ] Sets `tlsMs` to `0` for non-HTTPS calls
 - [ ] Parses response body as JSON when `Content-Type` is `application/json`; raw string otherwise
 - [ ] Lower-cases all response header keys
-- [ ] Enforces `redirects.max` -- hard fails when exceeded regardless of other config
+- [ ] Enforces `redirects.max` -- hard fails when exceeded regardless of other config; records the hops followed in `redirects` (§3.7) even on that failure
+- [ ] Sends a `User-Agent` header on every request: the script header, else `executor.user_agent`, else `lace-probe/<executor-version> (<implementation-name>)` (§3.6)
+- [ ] Populates `response.dns` (`resolvedIps`, `resolvedIp`) on every call and `response.tls` (`protocol`, `cipher`, `alpn`, `certificate` or `null`) on HTTPS calls, `tls: null` on plain HTTP (§3.4.1, §3.4.2)
 - [ ] When `security.rejectInvalidCerts: true`: hard fails on any TLS error
 - [ ] When `security.rejectInvalidCerts: false`: records TLS error as a warning, continues execution
 - [ ] Enforces `timeout.ms` per call
@@ -132,10 +136,13 @@ All validation rules from the specification (§12) must be enforced. The followi
 - [ ] Evaluates **all** scopes before triggering failure cascade -- does not stop at first failing scope
 - [ ] Records every failing scope in `assertions[]`
 - [ ] After all scopes evaluated: if any failed, triggers hard fail cascade
-- [ ] Applies default operator per scope name (section 4.4) when `op` is omitted
+- [ ] Applies default operator per scope name (specification §4.4) when `op` is omitted
 - [ ] Passes `options {}` object through to `assertions[].options` opaquely -- does not interpret it
 - [ ] `status` with array value passes when actual status matches any element
-- [ ] `tls` scope skipped (not evaluated) when `this.tls eq 0`
+- [ ] `tls` scope skipped (not evaluated) when `this.tlsMs eq 0`
+- [ ] `redirects` scope compares against `this.redirects` using `match: "first" | "last" | "any"` (default `any`), `op: "eq"` only
+- [ ] `body: { value: schema($var), mode: "strict" }` fails on any undeclared field at any level; `mode` is ignored for literal and variable body forms
+- [ ] After a failed `.expect()`, `.check()` and `.assert()` on the same call are still evaluated and recorded (§4.1)
 
 **`.check()`**
 
@@ -159,8 +166,10 @@ All validation rules from the specification (§12) must be enforced. The followi
 - [ ] Evaluates **all** `check` conditions regardless of outcome
 - [ ] Records each condition outcome (`"passed"`, `"failed"`, `"indeterminate"`) in `assertions[]`
 - [ ] Records `actualLhs` and `actualRhs` for each condition
-- [ ] Records `expression` string for each condition
+- [ ] Records `expression` for each condition as re-parseable source: object-literal keys that are not bare identifiers are quoted (§9.2)
 - [ ] Passes `options {}` per condition through to `assertions[].options` opaquely
+- [ ] Evaluates `count(x)` -> element count when `x` is an array, otherwise `1`
+- [ ] Evaluates `includes(search, x)` -> `true` when the raw-string form of `x` contains `search` as a substring (a string is used as-is; an array/object is serialised to compact JSON; `null` -> empty string)
 - [ ] Null operand in ordered comparison or arithmetic -> `"indeterminate"` outcome, no error, execution continues
 - [ ] Hard fail cascade triggers after all `expect` conditions evaluated, if any failed
 
@@ -194,7 +203,7 @@ All validation rules from the specification (§12) must be enforced. The followi
 
 ## 10. Failure Cascade
 
-- [ ] Hard fail on a call skips all remaining chain methods on that call (`.store()` included)
+- [ ] Hard fail on a call skips `.store()` and `.wait()` on that call; `.check()` / `.assert()` on the same call are still evaluated (§4.1, §7)
 - [ ] Hard fail on a call marks all subsequent calls as `"skipped"` in the result
 - [ ] Soft failures do not stop execution -- the next chain method runs
 - [ ] Notification events (if extension active) from soft failures in earlier calls are still included in the result even after a later hard fail
@@ -209,16 +218,16 @@ All validation rules from the specification (§12) must be enforced. The followi
 - [ ] `startedAt` is the timestamp before the first call begins; `endedAt` is after all chain methods complete or after cascade stops
 - [ ] `runVars` is a flat object containing all assigned `$$var` keys and their final values
 - [ ] `calls` contains one record per call in script order, including skipped calls
-- [ ] Each call record contains: `index`, `outcome`, `startedAt`, `endedAt`, `request`, `response`, `assertions`, `config`, `warnings`, `error`
+- [ ] Each call record contains: `index`, `outcome`, `startedAt`, `endedAt`, `request`, `response`, `redirects`, `assertions`, `config`, `warnings`, `error`
 - [ ] `request` contains: `url` (resolved), `method`, `headers` (resolved)
 - [ ] `response` is `null` for skipped, timeout (no response received), or connection failure
-- [ ] `response` contains: `status`, `statusText`, `headers`, `bodyPath`, and all timing fields
+- [ ] `response` contains: `status`, `statusText`, `headers`, `bodyPath`, `dns`, `tls`, and all timing fields
 - [ ] `assertions` contains one entry per evaluated scope and condition, in evaluation order
 - [ ] Each assertion entry contains: `method`, `outcome`, and type-appropriate fields (`scope`/`op`/`actual`/`expected` for scope assertions; `kind`/`index`/`expression`/`actualLhs`/`actualRhs` for assert conditions)
 - [ ] `assertions[].options` contains the raw `options {}` object from source -- `null` if no `options {}` was present
-- [ ] `config` contains the resolved call config (after defaults applied), including any extension-registered fields passed through
+- [ ] `config` contains the resolved call config (after defaults applied); extension-registered fields sit under `extensions` on the owning object (`config.timeout.extensions.*`, `config.extensions.*`)
 - [ ] `warnings` is an array of strings -- empty array when no warnings, never `null`
-- [ ] `error` is a string describing non-assertion failure (connection error, TLS, redirect limit, body too large) or `null`
+- [ ] `error` is a string describing non-assertion failure (connection error, TLS, redirect limit, timeout) or `null`; an oversize body is not an error -- it is a `bodySize` assertion plus `bodyNotCapturedReason: "bodyTooLarge"`
 - [ ] `actions` is always present, even if empty
 - [ ] `actions.variables` is present and contains all write-back `.store()` key-value pairs (`$name` and plain keys) when any write-back targets exist; `$` prefix stripped from `$name` keys; absent or empty object otherwise
 - [ ] All result values are JSON-serialisable
@@ -227,15 +236,15 @@ All validation rules from the specification (§12) must be enforced. The followi
 
 ## 12. Body Storage
 
-- [ ] When `result.bodies.dir` is a path string`, writes response body to a file on the shared filesystem volume after receiving the response
+- [ ] When `result.bodies.dir` is a path string, writes the response body to a file in that directory after receiving the response
 - [ ] When `result.bodies.dir` is `false` (default), no body files are written and `response.bodyPath` is always `null` with `bodyNotCapturedReason: "notRequested"`
-- [ ] File paths follow the convention: `{run_base_dir}/call_{index}_response.{ext}`
+- [ ] File paths follow the convention: `{bodies_dir}/call_{index}_response.{ext}`
 - [ ] Result JSON contains absolute file paths in `response.bodyPath` when body saving is enabled
 - [ ] No body bytes appear in the result JSON itself
 - [ ] `response.bodyPath` is `null` when a body was not captured
 - [ ] When `response.bodyPath` is `null`, `bodyNotCapturedReason` is present with value `"bodyTooLarge"`, `"notRequested"`, or `"timeout"`
-- [ ] Run base directory is taken from execution context (configured via `result.bodies.dir`)
-- [ ] `--save-body` CLI flag sets `result.bodies.dir to the result path` for a single run
+- [ ] The bodies directory is taken from execution context (configured via `result.bodies.dir`)
+- [ ] `--save-body` CLI flag sets `result.bodies.dir` to the result path for a single run; `--bodies-dir <path>` sets it to an explicit path
 
 ---
 
@@ -251,7 +260,8 @@ All validation rules from the specification (§12) must be enforced. The followi
 - [ ] `--save-to path` overrides `result.path` for this run
 - [ ] `env:VARNAME` config values resolved from environment at startup; error if variable unset
 - [ ] `env:VARNAME:default` resolved from environment; uses `default` if variable unset
-- [ ] `LACE_ENV` environment variable or `--env flag` selects the active `[lace.config.{env}]` section
+- [ ] `LACE_ENV` environment variable or `--env` flag selects the active `[lace.config.{env}]` section
+- [ ] `--enable-extension NAME` activates an extension for a single run (repeatable), equivalent to listing it in `executor.extensions`
 - [ ] Saves result JSON to `result.path` after execution (directory: timestamped filename; file path: overwrites)
 - [ ] `result.path = false` disables result saving
 
@@ -263,8 +273,8 @@ These are the core executor's obligations toward the extension system. Full exte
 
 - [ ] Loads `.laceext` files listed in `executor.extensions` at startup; fails with clear error if a file is not found
 - [ ] Passes `options {}` objects through to `assertions[].options` in the result without modification
-- [ ] Passes extension-registered call config fields through to `calls[n].config` in the result without modification
+- [ ] Passes extension-registered call config fields through to `calls[n].config` under the owning object's `extensions` sub-object, values resolved (interpolated) like core fields
 - [ ] Fires all twelve hook points at the correct moments: `on before script`, `on script`, `on before call`, `on call`, `on before expect`, `on expect`, `on before check`, `on check`, `on before assert`, `on assert`, `on before store`, `on store`
-- [ ] Provides the correct context object at each hook point as defined in the specification (§8)
+- [ ] Provides the correct context object at each hook point as defined in the extension specification (§8)
 - [ ] Enforces extension variable namespace: rejects `emit result.runVars` keys not prefixed with the extension name
 - [ ] Emits unknown-field warnings (not errors) for extension fields in source when the extension is not active

@@ -38,12 +38,12 @@ live in separate repositories and conform to this spec by passing the test suite
 
 | Package | Language | Conformance | Spec Version | Repository |
 |---|---|---|---|---|
-| [`lacelang-executor`](https://pypi.org/project/lacelang-executor/) | Python | Canonical | 0.9.6<!-- sv --> | [tracedown/lacelang-python-executor](https://github.com/tracedown/lacelang-python-executor) |
-| [`lacelang-validator`](https://pypi.org/project/lacelang-validator/) | Python | Canonical | 0.9.6<!-- sv --> | [tracedown/lacelang-python-validator](https://github.com/tracedown/lacelang-python-validator) |
-| [`@lacelang/executor`](https://www.npmjs.com/package/@lacelang/executor) | TypeScript | Conformant | 0.9.6<!-- sv --> | [tracedown/lacelang-js-executor](https://github.com/tracedown/lacelang-js-executor) |
-| [`@lacelang/validator`](https://www.npmjs.com/package/@lacelang/validator) | TypeScript | Conformant | 0.9.6<!-- sv --> | [tracedown/lacelang-js-validator](https://github.com/tracedown/lacelang-js-validator) |
-| `lacelang-kt-executor` | Kotlin | Conformant | 0.9.6<!-- sv --> | [tracedown/lacelang-kotlin-executor](https://github.com/tracedown/lacelang-kotlin-executor) |
-| `lacelang-kt-validator` | Kotlin | Conformant | 0.9.6<!-- sv --> | [tracedown/lacelang-kotlin-validator](https://github.com/tracedown/lacelang-kotlin-validator) |
+| [`lacelang-executor`](https://pypi.org/project/lacelang-executor/) | Python | Canonical | 0.9.7<!-- sv --> | [tracedown/lacelang-python-executor](https://github.com/tracedown/lacelang-python-executor) |
+| [`lacelang-validator`](https://pypi.org/project/lacelang-validator/) | Python | Canonical | 0.9.7<!-- sv --> | [tracedown/lacelang-python-validator](https://github.com/tracedown/lacelang-python-validator) |
+| [`@lacelang/executor`](https://www.npmjs.com/package/@lacelang/executor) | TypeScript | Conformant | 0.9.7<!-- sv --> | [tracedown/lacelang-js-executor](https://github.com/tracedown/lacelang-js-executor) |
+| [`@lacelang/validator`](https://www.npmjs.com/package/@lacelang/validator) | TypeScript | Conformant | 0.9.7<!-- sv --> | [tracedown/lacelang-js-validator](https://github.com/tracedown/lacelang-js-validator) |
+| `dev.lacelang:lacelang-kotlin-executor` | Kotlin | Conformant | 0.9.7<!-- sv --> | [tracedown/lacelang-kotlin-executor](https://github.com/tracedown/lacelang-kotlin-executor) |
+| `dev.lacelang:kotlin-validator` | Kotlin | Conformant | 0.9.7<!-- sv --> | [tracedown/lacelang-kotlin-validator](https://github.com/tracedown/lacelang-kotlin-validator) |
 
 The Python implementation is the **canonical reference** — the spec is developed and verified against it. The TypeScript and Kotlin implementations pass the same conformance vectors and are fully interchangeable.
 
@@ -55,7 +55,8 @@ Related tooling: [`kotlin-lacetest`](https://github.com/tracedown/kotlin-lacetes
 > (with complete headers, TLS metadata, DNS resolution, and timing
 > breakdowns) lives in [`examples/`](examples/). Each subdirectory
 > contains the `.lace` script and the anonymized `result.json` produced
-> by the Python reference executor.
+> by the Python reference executor with default config (no body saving);
+> `examples/README.md` has the regeneration command.
 
 ### Service status monitoring
 
@@ -67,19 +68,39 @@ get("https://www.google.com/")
 ```json
 {
   "outcome": "success",
-  "elapsedMs": 626,
+  "elapsedMs": 464,
   "calls": [
     {
-      "index": 0, "outcome": "success",
-      "request": { "url": "https://www.google.com/", "method": "get" },
+      "index": 0,
+      "outcome": "success",
+      "request": {
+        "url": "https://www.google.com/",
+        "method": "get"
+      },
       "response": {
-        "status": 200, "statusText": "OK",
-        "responseTimeMs": 625, "dnsMs": 18, "connectMs": 38,
-        "tlsMs": 48, "ttfbMs": 518, "transferMs": 87, "sizeBytes": 79192
+        "status": 200,
+        "statusText": "OK",
+        "responseTimeMs": 462,
+        "dnsMs": 5,
+        "connectMs": 19,
+        "tlsMs": 68,
+        "ttfbMs": 364,
+        "transferMs": 58,
+        "sizeBytes": 84704
       },
       "assertions": [
-        { "method": "expect", "scope": "status", "op": "eq",
-          "outcome": "passed", "actual": 200, "expected": [200, 301, 302] }
+        {
+          "method": "expect",
+          "scope": "status",
+          "op": "eq",
+          "outcome": "passed",
+          "actual": 200,
+          "expected": [
+            200,
+            301,
+            302
+          ]
+        }
       ]
     }
   ]
@@ -111,30 +132,78 @@ get("https://www.google.com/", {
 ```json
 {
   "outcome": "success",
-  "elapsedMs": 582,
+  "elapsedMs": 423,
   "calls": [
     {
-      "index": 0, "outcome": "success",
+      "index": 0,
+      "outcome": "success",
       "response": {
-        "status": 200, "statusText": "OK",
-        "responseTimeMs": 580, "dnsMs": 5, "connectMs": 34,
-        "tlsMs": 41, "ttfbMs": 488, "transferMs": 72
+        "status": 200,
+        "statusText": "OK",
+        "responseTimeMs": 421,
+        "dnsMs": 4,
+        "connectMs": 18,
+        "tlsMs": 57,
+        "ttfbMs": 326,
+        "transferMs": 57
       },
       "assertions": [
-        { "method": "expect", "scope": "status", "op": "eq",
-          "outcome": "passed", "actual": 200, "expected": 200 },
-        { "method": "expect", "scope": "totalDelayMs", "op": "lt",
-          "outcome": "passed", "actual": 580, "expected": 3000 },
-        { "method": "check", "scope": "dns", "op": "lt",
-          "outcome": "passed", "actual": 5, "expected": 80 },
-        { "method": "check", "scope": "connect", "op": "lt",
-          "outcome": "passed", "actual": 34, "expected": 150 },
-        { "method": "check", "scope": "tls", "op": "lt",
-          "outcome": "passed", "actual": 41, "expected": 200 },
-        { "method": "check", "scope": "ttfb", "op": "lt",
-          "outcome": "passed", "actual": 488, "expected": 500 },
-        { "method": "check", "scope": "transfer", "op": "lt",
-          "outcome": "passed", "actual": 72, "expected": 400 }
+        {
+          "method": "expect",
+          "scope": "status",
+          "op": "eq",
+          "outcome": "passed",
+          "actual": 200,
+          "expected": 200
+        },
+        {
+          "method": "expect",
+          "scope": "totalDelayMs",
+          "op": "lt",
+          "outcome": "passed",
+          "actual": 421,
+          "expected": 3000
+        },
+        {
+          "method": "check",
+          "scope": "dns",
+          "op": "lt",
+          "outcome": "passed",
+          "actual": 4,
+          "expected": 80
+        },
+        {
+          "method": "check",
+          "scope": "connect",
+          "op": "lt",
+          "outcome": "passed",
+          "actual": 18,
+          "expected": 150
+        },
+        {
+          "method": "check",
+          "scope": "tls",
+          "op": "lt",
+          "outcome": "passed",
+          "actual": 57,
+          "expected": 200
+        },
+        {
+          "method": "check",
+          "scope": "ttfb",
+          "op": "lt",
+          "outcome": "passed",
+          "actual": 326,
+          "expected": 500
+        },
+        {
+          "method": "check",
+          "scope": "transfer",
+          "op": "lt",
+          "outcome": "passed",
+          "actual": 57,
+          "expected": 400
+        }
       ]
     }
   ]
@@ -164,27 +233,63 @@ get("https://httpbin.org/get", {
 ```json
 {
   "outcome": "success",
-  "elapsedMs": 1614,
-  "runVars": { "origin": "203.0.113.1" },
+  "elapsedMs": 1253,
+  "runVars": {
+    "origin": "203.0.113.1"
+  },
   "calls": [
     {
-      "index": 0, "outcome": "success",
-      "request": { "url": "https://httpbin.org/post", "method": "post" },
-      "response": { "status": 200, "statusText": "OK", "responseTimeMs": 1039 },
+      "index": 0,
+      "outcome": "success",
+      "request": {
+        "url": "https://httpbin.org/post",
+        "method": "post"
+      },
+      "response": {
+        "status": 200,
+        "statusText": "OK",
+        "responseTimeMs": 710
+      },
       "assertions": [
-        { "method": "expect", "scope": "status", "op": "eq",
-          "outcome": "passed", "actual": 200, "expected": 200 }
+        {
+          "method": "expect",
+          "scope": "status",
+          "op": "eq",
+          "outcome": "passed",
+          "actual": 200,
+          "expected": 200
+        }
       ]
     },
     {
-      "index": 1, "outcome": "success",
-      "request": { "url": "https://httpbin.org/get", "method": "get" },
-      "response": { "status": 200, "statusText": "OK", "responseTimeMs": 558 },
+      "index": 1,
+      "outcome": "success",
+      "request": {
+        "url": "https://httpbin.org/get",
+        "method": "get"
+      },
+      "response": {
+        "status": 200,
+        "statusText": "OK",
+        "responseTimeMs": 539
+      },
       "assertions": [
-        { "method": "expect", "scope": "status", "op": "eq",
-          "outcome": "passed", "actual": 200, "expected": 200 },
-        { "method": "check", "scope": "totalDelayMs", "op": "lt",
-          "outcome": "passed", "actual": 558, "expected": 1000 }
+        {
+          "method": "expect",
+          "scope": "status",
+          "op": "eq",
+          "outcome": "passed",
+          "actual": 200,
+          "expected": 200
+        },
+        {
+          "method": "check",
+          "scope": "totalDelayMs",
+          "op": "lt",
+          "outcome": "passed",
+          "actual": 539,
+          "expected": 1000
+        }
       ]
     }
   ]
@@ -212,17 +317,36 @@ outcome is still `"success"` but the check is recorded as `"failed"`:
 ```json
 {
   "outcome": "success",
-  "elapsedMs": 637,
+  "elapsedMs": 570,
   "calls": [
     {
-      "index": 0, "outcome": "success",
+      "index": 0,
+      "outcome": "success",
       "assertions": [
-        { "method": "expect", "scope": "status", "op": "eq",
-          "outcome": "passed", "actual": 200, "expected": 200 },
-        { "method": "check", "scope": "totalDelayMs", "op": "lt",
-          "outcome": "passed", "actual": 635, "expected": 1000 },
-        { "method": "check", "scope": "ttfb", "op": "lt",
-          "outcome": "failed", "actual": 505, "expected": 200 }
+        {
+          "method": "expect",
+          "scope": "status",
+          "op": "eq",
+          "outcome": "passed",
+          "actual": 200,
+          "expected": 200
+        },
+        {
+          "method": "check",
+          "scope": "totalDelayMs",
+          "op": "lt",
+          "outcome": "passed",
+          "actual": 568,
+          "expected": 1000
+        },
+        {
+          "method": "check",
+          "scope": "ttfb",
+          "op": "lt",
+          "outcome": "failed",
+          "actual": 448,
+          "expected": 200
+        }
       ]
     }
   ]
@@ -260,24 +384,46 @@ contains only the resolved `template`:
 ```json
 {
   "outcome": "failure",
-  "elapsedMs": 905,
+  "elapsedMs": 602,
   "calls": [
     {
-      "index": 0, "outcome": "failure",
-      "response": { "status": 404, "statusText": "NOT FOUND" },
+      "index": 0,
+      "outcome": "failure",
+      "response": {
+        "status": 404,
+        "statusText": "NOT FOUND"
+      },
       "assertions": [
-        { "method": "expect", "scope": "status", "op": "eq",
-          "outcome": "failed", "actual": 404, "expected": 200,
-          "options": { "notification": { "tag": "op_map", "ops": { "...": "..." } } } }
+        {
+          "method": "expect",
+          "scope": "status",
+          "op": "eq",
+          "outcome": "failed",
+          "actual": 404,
+          "expected": 200,
+          "options": {
+            "notification": {
+              "tag": "op_map",
+              "ops": {
+                "...": "..."
+              }
+            }
+          }
+        }
       ]
     }
   ],
   "actions": {
     "notifications": [
       {
-        "callIndex": 0, "conditionIndex": -1,
-        "trigger": "expect", "scope": "status",
-        "notification": { "tag": "template", "name": "not_found_alert" }
+        "callIndex": 0,
+        "conditionIndex": -1,
+        "trigger": "expect",
+        "scope": "status",
+        "notification": {
+          "tag": "template",
+          "name": "not_found_alert"
+        }
       }
     ]
   }
@@ -319,15 +465,23 @@ lacelang/
 │
 ├── extensions/
 │   ├── default/               Default extensions, recommended to be bundled with every executor
-│   │   └── laceNotifications/
-│   │       ├── laceNotifications.laceext
-│   │       ├── laceNotifications.config
-│   │       ├── README.md      Notification types, backend contract
-│   │       └── vectors/       Extension-specific conformance vectors
+│   │   ├── laceNotifications/
+│   │   │   ├── laceNotifications.laceext
+│   │   │   ├── laceNotifications.config
+│   │   │   ├── README.md      Notification types, backend contract
+│   │   │   ├── examples/      Runnable example scripts
+│   │   │   └── vectors/       Extension-specific conformance vectors
+│   │   ├── laceEmitRecovery/
+│   │   │   ├── laceEmitRecovery.laceext
+│   │   │   ├── laceEmitRecovery.config
+│   │   │   ├── README.md      Recovery precedence, transition table
+│   │   │   ├── examples/
+│   │   │   └── vectors/
 │   │   └── laceBaseline/
 │   │       ├── laceBaseline.laceext
 │   │       ├── laceBaseline.config
 │   │       ├── README.md      Configuration, backend contract
+│   │       ├── examples/
 │   │       └── vectors/       Extension-specific conformance vectors
 │   └── test/                  Test-only extensions for the conformance suite
 │       ├── hookTrace/
@@ -364,7 +518,7 @@ lacelang/
 │   ├── mkdocs.yml             Site config and navigation
 │   ├── Dockerfile             Build + serve static site
 │   ├── railway.toml           Railway deployment config
-│   └── docs/                  47 wiki pages
+│   └── docs/                  51 wiki pages
 │       ├── getting-started/   Installation, examples, why Lace
 │       ├── language/          Script authoring guide
 │       ├── result/            ProbeResult format for backends
@@ -432,11 +586,15 @@ Default extensions that every conformant executor is recommended to bundle in th
   and call timeouts. See its `README.md` for the notification type
   system (`text`, `template`, `structured`, `op_map`) and the backend
   integration contract.
+- **`laceEmitRecovery/`** — Recovery notification: when the previous
+  run failed or timed out and this run succeeds, emits one notification
+  with trigger `recovered`. The message can be declared in the script
+  (`recovery` option) or in config. Depends on `laceNotifications`.
 - **`laceBaseline/`** — Response timing baseline monitoring and spike
   detection. Tracks rolling averages of timing metrics across runs via
-  `prev.runVars` and emits spike events when a metric exceeds the
-  baseline by a configurable multiplier. Depends on `laceNotifications`
-  for alert dispatch.
+  `prev.runVars` and pushes a `baseline_spike` notification when a
+  metric exceeds the baseline by a configurable multiplier. Depends on
+  `laceNotifications` for alert dispatch.
 
 Executor implementations are recommended to ship copies of these files and register
 them as `builtin:<name>` (e.g. `builtin:laceNotifications`). Executors should
@@ -483,9 +641,10 @@ Runs:
    `../testkit/vectors/` against the vector schema and cross-checks
    referenced error codes against the registry.
 
-Requires Java (JDK 11+) for the grammar tests and Node.js for the
-schema/vector checks. Both are downloaded/installed automatically into
-`build/` and `tools/node_modules/` respectively.
+Requires Java (JDK 11+) on `PATH` for the grammar tests and Node.js for
+the schema/vector checks. The ANTLR jar is downloaded into `build/` and
+the tools' dependencies are installed into `tools/node_modules/`
+automatically.
 
 ---
 
@@ -524,7 +683,7 @@ See `testkit/README.md` for architecture and current status.
 ## Versioning
 
 Spec, grammar, schemas, error codes, vectors, and the testkit all share
-a single version line — currently **0.9.6<!-- sv -->** (pre-release). Any change to
+a single version line — currently **0.9.7<!-- sv -->** (pre-release). Any change to
 the spec that requires executors to update is a version bump. Pre-1.0
 versions may break compatibility freely; from 1.0.0 onward, breaking
 changes follow semver (major bump).

@@ -9,6 +9,7 @@ Lace uses a TOML configuration file called `lace.config`. Every setting has a de
 extensions = []
 maxRedirects = 10
 maxTimeoutMs = 300000
+# user_agent = "acme-monitor/2026.09"
 
 [result]
 path = "./lace_results"
@@ -26,8 +27,9 @@ Controls runtime behaviour and limits.
 | Field | Default | Description |
 |---|---|---|
 | `extensions` | `[]` | List of extensions to activate (must have `.laceext` files) |
-| `maxRedirects` | `10` | System-wide redirect limit. Scripts cannot exceed this. |
-| `maxTimeoutMs` | `300000` | System-wide timeout limit (5 minutes). Scripts cannot exceed this. |
+| `maxRedirects` | `10` | System-wide redirect limit. A script `redirects.max` above it is a validation error. |
+| `maxTimeoutMs` | `300000` | System-wide timeout limit (5 minutes). A script `timeout.ms` above it is a validation error. |
+| `user_agent` | unset | Outgoing `User-Agent` for every request, used verbatim. Unset means the default `lace-probe/<executor-version> (<implementation-name>)`. A per-call `User-Agent` header still wins. See [Default Headers](http-calls.md#default-headers). |
 
 ### result
 
@@ -39,33 +41,36 @@ Controls where results are saved.
 
 ### result.bodies
 
-Controls where request/response body files are stored.
+Controls whether and where response body files are stored.
 
 | Field | Default | Description |
 |---|---|---|
-| `dir` | Same as `result.path` | Directory for body files |
+| `dir` | `false` | Directory for response body files. A path string saves bodies there; `false` does not save them. |
 
-Body files follow the naming convention: `{dir}/call_{index}_{request|response}.{ext}`
+Body files follow the naming convention `{dir}/call_{index}_response.{ext}`, and the call record's `response.bodyPath` holds the absolute path. Request bodies are never saved (they are already in the script).
+
+When bodies are not saved, `response.bodyPath` is `null` and `response.bodyNotCapturedReason` says why --- `"notRequested"` when body saving is off.
 
 ### extensions
 
-Each extension gets its own section under `[extensions.{name}]`:
+Activating an extension and configuring it are separate. An extension is activated by listing it in `[executor].extensions` (or with `--enable-extension NAME` for a single run). Each extension can then be configured in its own `[extensions.{name}]` section:
 
 ```toml
+[executor]
+extensions = ["laceNotifications", "myCustomExtension"]
+
 [extensions.laceNotifications]
 laceext = "builtin:laceNotifications"
-prev_results = false
-
-[extensions.laceLogging]
-laceext = "builtin:laceLogging"
-level = "warn"
-include_in_result = true
-stdout = false
+timeout_message = "Request timed out"
 
 [extensions.myCustomExtension]
 laceext = "./extensions/myExtension.laceext"
 api_key = "env:MY_EXT_API_KEY"
 ```
+
+`laceext` is the path to the `.laceext` file (default: the one bundled with the executor). The other keys are extension-specific and are read by the extension's rules as `config.<key>`. An `[extensions.{name}]` section for an extension that is not activated is silently ignored --- `laceext = "builtin:X"` on its own activates nothing.
+
+Extensions may ship a companion `{name}.config` file next to their `.laceext` file with default values for their config fields. Those defaults are the base; any key also set in `lace.config` overrides them, and keys absent from `lace.config` keep the extension's defaults.
 
 ## Defaults Table
 
@@ -74,8 +79,9 @@ api_key = "env:MY_EXT_API_KEY"
 | `executor.extensions` | `[]` |
 | `executor.maxRedirects` | `10` |
 | `executor.maxTimeoutMs` | `300000` |
+| `executor.user_agent` | unset |
 | `result.path` | `"."` |
-| `result.bodies.dir` | Same as `result.path` |
+| `result.bodies.dir` | `false` |
 
 ## Result Path
 
@@ -123,17 +129,33 @@ Select the active environment with:
 
 Settings are resolved with this precedence (highest first):
 
-1. **CLI flags** (`--vars`, `--prev-results`, `--save-to`, `--config`, `--env`)
+1. **CLI flags** (`--vars`, `--var`, `--prev-results`, `--save-to`, `--save-body`, `--bodies-dir`, `--enable-extension`, `--env`, `--config`)
 2. **`lace.config`** in the script's directory
 3. **`lace.config`** in the working directory
 4. **Built-in defaults**
 
+The flags that override config values for a single run:
+
+| Flag | Effect |
+|---|---|
+| `--save-to <path>` | Overrides `result.path`. |
+| `--save-body` | Turns body saving on, setting `result.bodies.dir` to the result path (or the system temp directory). |
+| `--bodies-dir <dir>` | Sets `result.bodies.dir` to `<dir>` (implies body saving). |
+| `--enable-extension <name>` | Activates an extension as if listed in `executor.extensions`. Repeatable. |
+| `--env <name>` | Selects the `[lace.config.<name>]` section. |
+| `--config <file>` | Loads this config file instead of discovering one. |
+
+The previous result (`--prev-results`) has no config-file equivalent; it is always supplied per run.
+
 ```bash
 # CLI flags override everything
-lace run script.lace --save-to ./output.json --vars production.json
+lacelang-executor run script.lace --save-to ./output.json --vars production.json
+
+# Save response bodies for this run
+lacelang-executor run script.lace --bodies-dir ./bodies
 
 # Specify a custom config file
-lace run script.lace --config ./configs/staging.toml
+lacelang-executor run script.lace --config ./configs/staging.toml
 ```
 
 !!! note "Config file is optional"

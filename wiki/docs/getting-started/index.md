@@ -9,9 +9,9 @@ You need a Lace executor -- a program that parses `.lace` files, runs the HTTP c
 
     - **Python** (canonical reference) -- [`lacelang-executor`](https://github.com/tracedown/lacelang-python-executor) + [`lacelang-validator`](https://github.com/tracedown/lacelang-python-validator)
     - **TypeScript** (conformant) -- [`@lacelang/executor`](https://github.com/tracedown/lacelang-js-executor) + [`@lacelang/validator`](https://github.com/tracedown/lacelang-js-validator)
-    - **Kotlin** (conformant) -- [`lacelang-kt-executor`](https://github.com/tracedown/lacelang-kotlin-executor) + [`lacelang-kt-validator`](https://github.com/tracedown/lacelang-kotlin-validator)
+    - **Kotlin** (conformant) -- [`dev.lacelang:lacelang-kotlin-executor`](https://github.com/tracedown/lacelang-kotlin-executor) + [`dev.lacelang:kotlin-validator`](https://github.com/tracedown/lacelang-kotlin-validator)
 
-    Any executor that passes the [conformance test suite](../implementers/checklist-core.md) is a valid Lace executor.
+    Any executor that passes the [conformance testkit](../implementers/index.md#4-pass-the-testkit) -- which verifies every item in the [core checklist](../implementers/checklist-core.md) -- is a valid Lace executor.
 
 ## Installing the Python reference executor
 
@@ -19,7 +19,7 @@ You need a Lace executor -- a program that parses `.lace` files, runs the HTTP c
 pip install lacelang-executor
 ```
 
-This installs the `lacelang-executor` CLI and the `lacelang-validator` dependency (parser + semantic checks, no network dependencies).
+This installs the `lacelang-executor` CLI and the `lacelang-validator` dependency (parser + semantic checks, no network dependencies), which provides the standalone `lacelang-validate` CLI. Python 3.11 or newer is required.
 
 See the [Python Executor](executors/python-executor.md) or [TypeScript Executor](executors/ts-executor.md) page for full installation options and the programmatic API.
 
@@ -37,7 +37,7 @@ This probe does three things:
 
 - Sends a GET request to `https://www.google.com/`
 - Hard-fails if the status is not 200
-- Soft-warns if the total response time exceeds 3 seconds
+- Soft-fails if the total response time reaches 3 seconds (the failure is recorded, the run continues)
 
 **2. Run it:**
 
@@ -45,7 +45,7 @@ This probe does three things:
 lacelang-executor run health.lace --pretty
 ```
 
-**3. See the result:**
+**3. See the result** (abridged -- the key fields only):
 
 ```json
 {
@@ -75,7 +75,7 @@ lacelang-executor run health.lace --pretty
 }
 ```
 
-The full result includes headers, TLS metadata, DNS resolution, body paths, and more. The `--pretty` flag formats the JSON for readability.
+The full result also includes request and response headers, DNS and TLS metadata, the resolved call config, redirects, and warnings. Response bodies are not saved by default -- each call records `bodyPath: null` with `bodyNotCapturedReason: "notRequested"`; pass `--save-body` or `--bodies-dir` to write them to disk. The `--pretty` flag formats the JSON for readability.
 
 ## CLI overview
 
@@ -107,11 +107,16 @@ Key flags:
 
 | Flag | Description |
 |---|---|
-| `--vars <file>` | JSON file with script variables (`$var` values). Can also use `--var KEY=VALUE` for individual values. |
-| `--prev-results <file>` | Previous result JSON, making `prev` available in expressions. |
+| `--vars <file>` | JSON file with script variables (`$var` values). |
+| `--var KEY=VALUE` | Inject a single variable. Repeatable; overrides the same key from `--vars`. |
+| `--prev-results <file>` | Previous result JSON, making `prev` available in expressions. `--prev` is a short alias. |
 | `--pretty` | Pretty-print the result JSON. |
-| `--save-to <path>` | Override the result save path for this run. |
+| `--save-to <path>` | Override the result save path for this run (directory, file path, or `false`). |
+| `--save-body` | Save response bodies for this run (to the result path). |
+| `--bodies-dir <dir>` | Save response bodies to this directory (implies body saving). |
+| `--enable-extension <name>` | Activate an extension for this run. Repeatable. |
 | `--config <file>` | Path to a `lace.config` TOML file. |
+| `--env <name>` | Select the `[lace.config.<name>]` environment section (overrides `LACE_ENV`). |
 
 **Example with variables:**
 
@@ -123,7 +128,7 @@ lacelang-executor run script.lace \
   --pretty
 ```
 
-Where `vars.json` might contain:
+Where `vars.json` (passed explicitly -- it is never loaded automatically) might contain:
 
 ```json
 {

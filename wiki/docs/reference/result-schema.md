@@ -1,26 +1,27 @@
 # Result Schema
 
-The `ProbeResult` is the wire format returned by every Lace executor. Extension-defined fields appear under `actions.{key}` (arrays) and `runVars` (scalars with `{extension_name}.` prefix).
+The `ProbeResult` is the wire format returned by every Lace executor (`specs/schemas/result.json`, specification §9). For a guided tour see [Result Format](../result/index.md). Extension-defined fields appear under `actions.{key}` (arrays) and `runVars` (scalars with `{extension_name}.` prefix).
 
-Spec version: 0.9.6<!-- sv -->
+Spec version: 0.9.7<!-- sv -->
 
 ## Top-Level Fields
 
 | Field | Type | Required | Description |
 |---|---|---|---|
-| `outcome` | `"success"` \| `"failure"` \| `"timeout"` | Yes | Overall run outcome. |
+| `outcome` | `"success"` \| `"failure"` \| `"timeout"` | Yes | Overall run outcome. `"timeout"` means a call timed out; there is no run-level timeout. |
 | `startedAt` | string (ISO 8601 UTC) | Yes | Timestamp before the first call begins. |
 | `endedAt` | string (ISO 8601 UTC) | Yes | Timestamp after all chain methods complete or after cascade stops. |
 | `elapsedMs` | integer (>= 0) | Yes | Wall-clock elapsed time in milliseconds. |
 | `runVars` | object | Yes | Final state of all `$$var` assignments plus extension-emitted variables. Each `$$var` key appears at most once (write-once rule). |
 | `calls` | array of [CallRecord](#callrecord) | Yes | Ordered call records including skipped calls. |
-| `actions` | object | Yes | Free-form action map. `actions.variables` is the only typed mandatory section (writeback `.store()` entries). Other keys are extension-defined. |
+| `actions` | object | Yes | Free-form action map. `actions.variables` is the only typed section (writeback `.store()` entries), present when any write-back target exists. Other keys are extension-defined arrays. Absent entirely from executors declaring `omit: actions`. |
+| `validationWarnings` | array of object | No | Structured validator diagnostics (`code`, `callIndex`, `chainMethod`) emitted during pre-execution validation. Present only when the validator produced warnings. Separate from per-call `warnings`, which are plain runtime strings. |
 
 ### actions.variables
 
 | Field | Type | Description |
 |---|---|---|
-| `variables` | object | Writeback variables from `.store()` (`$name` and plain keys). The `$` prefix is stripped. Values may be any JSON-serialisable shape. |
+| `variables` | object | Writeback variables from `.store()` (`$name` and plain keys). The `$` prefix is stripped. Values may be any JSON-serialisable shape. Present only when the script has write-back `.store()` targets. |
 
 ## CallRecord
 
@@ -32,11 +33,11 @@ Spec version: 0.9.6<!-- sv -->
 | `endedAt` | string (ISO 8601) \| null | Yes | Null for skipped calls. |
 | `request` | [RequestRecord](#requestrecord) \| null | Yes | Null for skipped calls. |
 | `response` | [ResponseRecord](#responserecord) \| null | Yes | Null for skipped, timeout (no response received), or connection failure. |
-| `redirects` | array of string | Yes | Ordered URLs followed. Empty array when no redirects. Populated even on `REDIRECTS_MAX_LIMIT` hard-fail. |
+| `redirects` | array of string | Yes | Ordered URLs followed. Empty array when no redirects. Populated even when the call hard-fails for exceeding `redirects.max` (see [Redirect tracking](../result/response-metadata.md#redirect-tracking)). |
 | `assertions` | array of [ScopeAssertion](#scopeassertion) or [ConditionAssertion](#conditionassertion) | Yes | All evaluated scopes and conditions in evaluation order. Empty for skipped calls. |
-| `config` | object | Yes | Resolved call config (after defaults applied), including extension-registered fields. |
-| `warnings` | array of string | Yes | Warning strings (null interpolations, TLS warnings, etc.). Empty array if none. |
-| `error` | string \| null | Yes | Non-assertion failure detail (connection error, TLS, redirect limit, body too large). Null otherwise. |
+| `config` | object | Yes | Resolved call config (after defaults applied). Extension-registered fields sit under an `extensions` sub-object of the owning object: `config.timeout.extensions.*`, `config.redirects.extensions.*`, `config.security.extensions.*`, and `config.extensions.*` for root-level fields. |
+| `warnings` | array of string | Yes | Warning strings from this call (null interpolations, TLS errors under `rejectInvalidCerts: false`, rejected extension emits). Empty array if none. |
+| `error` | string \| null | Yes | Non-assertion failure detail (connection error, TLS, redirect limit, timeout). Null otherwise. An oversize body is not an error: it is a `bodySize` assertion failure plus `bodyNotCapturedReason: "bodyTooLarge"`. |
 
 ## RequestRecord
 
@@ -53,7 +54,7 @@ Spec version: 0.9.6<!-- sv -->
 | `status` | integer (100-599) | Yes | HTTP status code. |
 | `statusText` | string | Yes | HTTP status text. |
 | `headers` | object (string or string[] values) | Yes | Lower-cased header names. Multi-value headers as string arrays. |
-| `bodyPath` | string \| null | Yes | Absolute path to response body file. Null when not captured. |
+| `bodyPath` | string \| null | Yes | Always present. Absolute path to the response body file when `result.bodies.dir` is a path; null otherwise. |
 | `bodyNotCapturedReason` | `"bodyTooLarge"` \| `"notRequested"` \| `"timeout"` | No | Present when `bodyPath` is null. |
 | `responseTimeMs` | integer (>= 0) | Yes | Total response time in ms. |
 | `dnsMs` | integer (>= 0) | Yes | DNS resolution time in ms. |
@@ -76,14 +77,14 @@ DNS resolution metadata. The core executor populates these fields; extensions ma
 
 ## TlsMeta
 
-TLS session metadata. Null when `rejectInvalidCerts: false` leaves the certificate unparseable, but the rest of the object is always populated.
+TLS session metadata, populated on every HTTPS call (`tls` is null only for plain HTTP). Under `rejectInvalidCerts: false` the runtime often cannot expose the peer certificate, so `certificate` may be null -- the rest of the object is still populated.
 
 | Field | Type | Required | Description |
 |---|---|---|---|
 | `protocol` | string | Yes | Negotiated TLS protocol version (e.g. `"TLSv1.3"`). |
 | `cipher` | string | Yes | Negotiated cipher suite name. |
 | `alpn` | string \| null | Yes | Negotiated ALPN protocol (e.g. `"h2"`) or null. |
-| `certificate` | [CertificateMeta](#certificatemeta) \| null | Yes | Peer certificate. Null when the runtime cannot expose it. |
+| `certificate` | [CertificateMeta](#certificatemeta) \| null | Yes | Peer certificate. Null when the runtime cannot expose it (common under `rejectInvalidCerts: false`). |
 
 ## CertificateMeta
 
@@ -120,7 +121,7 @@ Assertion record for `.assert()` conditions.
 | `kind` | `"expect"` \| `"check"` | Yes | Whether the condition is hard-fail or soft-fail. |
 | `index` | integer (>= 0) | Yes | Index within the assert array. |
 | `outcome` | `"passed"` \| `"failed"` \| `"indeterminate"` | Yes | |
-| `expression` | string | Yes | Expression as written in source. |
+| `expression` | string | Yes | Condition rendered back to source form. It must re-parse: object-literal keys that are not bare identifiers are printed quoted (`{"content-type": 1, "404": 2, ok: true}`), never bare. |
 | `actualLhs` | any | Yes | Resolved left operand value. |
 | `actualRhs` | any | Yes | Resolved right operand value. |
 | `options` | object \| null | Yes | The `options {}` object from source. Null if none. |

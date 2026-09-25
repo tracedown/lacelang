@@ -18,7 +18,7 @@ get("$BASE_URL/metrics/events", {
 .expect(status: 200)
 .assert({
   expect: [{
-    condition: $$count_after == $$count_before + 1,
+    condition: this.body.count eq $$count_before + 1,
     options: {
       silentOnRepeat: false,
       notification: {

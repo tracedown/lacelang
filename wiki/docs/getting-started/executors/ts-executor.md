@@ -1,7 +1,7 @@
 # TypeScript Executor
 
 Reference TypeScript implementation of Lace, conformant to spec version
-**0.9.6<!-- sv -->** (199<!-- vc -->/199<!-- vc --> conformance vectors). Passes the same test suite as the
+**0.9.7<!-- sv -->** (206<!-- vc -->/206<!-- vc --> conformance vectors). Passes the same test suite as the
 canonical Python executor and is fully interchangeable.
 
 The implementation is split into two packages following the
@@ -12,7 +12,7 @@ The implementation is split into two packages following the
 | `@lacelang/validator` | [tracedown/lacelang-js-validator](https://github.com/tracedown/lacelang-js-validator) | Lexer, parser, semantic validator. Zero runtime dependencies. |
 | `@lacelang/executor` | [tracedown/lacelang-js-executor](https://github.com/tracedown/lacelang-js-executor) | HTTP runtime, assertion evaluation, cookie jars, extension dispatch. Depends on the validator. |
 
-Requires Node.js **18+**.
+Requires Node.js **22.12+**.
 
 ---
 
@@ -51,12 +51,15 @@ Outputs the AST as JSON. Parsing is delegated to `@lacelang/validator`.
 
 ```bash
 lacelang-executor validate script.lace \
-    --vars-list vars.json \
+    --vars-list declared.json \
     --context context.json
 ```
 
 Runs the parser and semantic validator. Reports structured errors and
-warnings. No HTTP calls are made.
+warnings. No HTTP calls are made. `--vars-list` takes a JSON array of the
+declared variable names (e.g. `["BASE_URL", "API_KEY"]`), not their values;
+`--context` takes a JSON object with the validator context (e.g.
+`maxRedirects`, `maxTimeoutMs`).
 
 ### `run` -- full execution
 
@@ -79,9 +82,10 @@ Parses, validates, executes, and emits a
 | `--prev-results <file>` | Previous result JSON, making `prev` available in expressions. `--prev` is a short alias. |
 | `--config <file>` | Explicit path to a `lace.config` TOML file. |
 | `--env <name>` | Select `[lace.config.<name>]` section (overrides `LACE_ENV`). |
-| `--enable-extension <name>` | Activate a built-in extension (repeatable). |
+| `--enable-extension <name>` | Activate an extension for this run, as if listed in `[executor].extensions` (repeatable). |
 | `--save-to <path>` | Persist the result to disk. Directory: timestamped JSON. File: overwrite. `"false"`: skip. |
-| `--bodies-dir <path>` | Directory for request/response body files. |
+| `--save-body` | Save response bodies for this run (sets `result.bodies.dir` to the result path). |
+| `--bodies-dir <path>` | Directory for response body files (implies body saving). Request bodies are never saved. |
 | `--pretty` | Pretty-print the result JSON. |
 
 ---
@@ -98,8 +102,11 @@ import { LaceExecutor } from "@lacelang/executor";
 // Point to the lace/ directory -- config loaded once
 const executor = new LaceExecutor("lace");
 
-// Or override the config path directly
+// Or select an environment section of that config
 const executor = new LaceExecutor("lace", { env: "staging" });
+
+// Or override the config path directly
+const executor = new LaceExecutor(null, { config: "path/to/lace.config" });
 ```
 
 #### Constructor options
@@ -111,6 +118,9 @@ const executor = new LaceExecutor("lace", { env: "staging" });
 | `env` | `string \| null` | `null` | Selects `[lace.config.{env}]` section (overrides `LACE_ENV`). |
 | `extensions` | `string[] \| null` | `null` | Built-in extensions to activate (e.g. `["laceNotifications"]`). |
 | `trackPrev` | `boolean` | `true` | Auto-store last result as `prev` for next run on each probe. |
+| `saveBody` | `boolean` | `false` | Save response bodies. When the config sets no `result.bodies.dir`, bodies go to the result path. |
+
+`root` is the first positional argument; the rest are fields of the options object.
 
 ### `LaceProbe`
 
@@ -126,7 +136,26 @@ const result = await probe.run({ base_url: "https://api.example.com" });
 
 // Run again -- prev result from last run injected automatically
 const result2 = await probe.run();
+
+// All inputs accept file paths or objects; explicit prev overrides auto-tracking
+const result3 = await probe.run("lace/scripts/health/vars.staging.json", "results/last_run.json");
 ```
+
+#### `probe()` options
+
+| Option | Type | Default | Description |
+|---|---|---|---|
+| `alwaysReparse` | `boolean` | `false` | Re-read the script file on every `run()`. Useful during development. |
+
+#### `run()` parameters
+
+`probe.run(vars?, prev?, options?)`:
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `vars` | `string \| object \| null` | `null` | Script variables -- object or path to JSON. |
+| `prev` | `string \| object \| null` | `null` | Previous result -- object or path to JSON. Overrides auto-tracking. |
+| `options.reparse` | `boolean` | `false` | Re-read the script from disk for this run only. |
 
 #### Script resolution
 
@@ -183,7 +212,8 @@ import { runScript, loadConfig } from "@lacelang/executor";
 import * as fs from "node:fs";
 
 const ast = parse(fs.readFileSync("script.lace", "utf-8"));
-const config = loadConfig({ explicitPath: "lace.config" });
+// loadConfig(scriptPath?, explicitPath?, envSelector?)
+const config = loadConfig(null, "lace.config");
 
 const result = await runScript(ast, { key: "val" }, null, null, null, null, null, config);
 ```

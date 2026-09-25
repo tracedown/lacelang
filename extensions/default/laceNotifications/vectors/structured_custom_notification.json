@@ -1,0 +1,58 @@
+{
+  "id": "structured_custom_notification",
+  "description": "A custom `notification: structured({...})` option is emitted as-is on failure — it is a concrete notification_val like text() and template(), not a map to resolve.",
+  "spec_refs": [
+    "lace-extensions.md §12"
+  ],
+  "type": "extension",
+  "requires": [
+    "extensions",
+    "actions"
+  ],
+  "input": {
+    "source": "get(\"http://127.0.0.1:{port}/fail\").expect(status: { value: 200, options: { notification: structured({ why: \"health\" }) } })\n",
+    "variables": {},
+    "extensions": [
+      "laceNotifications"
+    ],
+    "http_mock": [
+      {
+        "callIndex": 0,
+        "outcome": "response",
+        "status": 503,
+        "headers": {},
+        "body": ""
+      }
+    ]
+  },
+  "expected": {
+    "result": {
+      "outcome": "failure",
+      "startedAt": "1970-01-01T00:00:00Z",
+      "endedAt": "1970-01-01T00:00:00Z",
+      "runVars": {},
+      "calls": "IGNORED",
+      "actions": {
+        "notifications": [
+          {
+            "callIndex": 0,
+            "conditionIndex": -1,
+            "trigger": "expect",
+            "scope": "status",
+            "notification": {
+              "tag": "structured",
+              "data": {
+                "why": "health"
+              }
+            }
+          }
+        ]
+      }
+    },
+    "ignore": [
+      "startedAt",
+      "endedAt",
+      "calls"
+    ]
+  }
+}

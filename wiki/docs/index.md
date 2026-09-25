@@ -18,7 +18,7 @@ structured JSON result.
 Lace defines the language. Executors implement it. Anyone can build an
 executor in any programming language — the [conformance test suite](getting-started/executors/index.md)
 ensures they all behave identically. Three reference implementations conform
-to spec version 0.9.6<!-- sv -->: [Python](getting-started/executors/python-executor.md)
+to spec version 0.9.7<!-- sv -->: [Python](getting-started/executors/python-executor.md)
 (canonical), [TypeScript](getting-started/executors/ts-executor.md), and
 [Kotlin/JVM](getting-started/executors/kt-executor.md).
 See [Executors](getting-started/executors/index.md) for how this works.
@@ -30,14 +30,14 @@ get("https://www.google.com/")
     .expect(status: [200, 301, 302])
 ```
 
-Run it and you get:
+Run it and you get (default configuration, so no response body is saved; IPs and timestamps anonymised):
 
 === "Compact"
 
     ```json
     {
       "outcome": "success",
-      "elapsedMs": 639,
+      "elapsedMs": 464,
       "calls": [
         {
           "index": 0,
@@ -45,13 +45,13 @@ Run it and you get:
           "response": {
             "status": 200,
             "statusText": "OK",
-            "responseTimeMs": 637,
-            "dnsMs": 8,
-            "connectMs": 31,
-            "tlsMs": 50,
-            "ttfbMs": 516,
-            "transferMs": 100,
-            "sizeBytes": 79243
+            "responseTimeMs": 462,
+            "dnsMs": 5,
+            "connectMs": 19,
+            "tlsMs": 68,
+            "ttfbMs": 364,
+            "transferMs": 58,
+            "sizeBytes": 84704
           },
           "assertions": [
             {
@@ -75,7 +75,7 @@ Run it and you get:
       "outcome": "success",
       "startedAt": "1970-01-01T00:00:00.000Z",
       "endedAt": "1970-01-01T00:00:00.000Z",
-      "elapsedMs": 639,
+      "elapsedMs": 464,
       "runVars": {},
       "calls": [
         {
@@ -87,48 +87,74 @@ Run it and you get:
             "url": "https://www.google.com/",
             "method": "get",
             "headers": {
-              "User-Agent": "lace-probe/0.1.0 (lacelang-python)"
-            },
-            "bodyPath": null
+              "User-Agent": "lace-probe/0.2.0 (lacelang-python)"
+            }
           },
           "response": {
             "status": 200,
             "statusText": "OK",
             "headers": {
-              "date": "Thu, 01 Jan 1970 00:00:00 GMT",
-              "expires": "-1",
-              "cache-control": "private, max-age=0",
               "content-type": "text/html; charset=ISO-8859-1",
+              "date": "Thu, 01 Jan 1970 00:00:00 GMT",
+              "cache-control": "private, max-age=0",
+              "content-security-policy-report-only": "object-src 'none';base-uri 'self';script-src 'nonce-_ICPX2zqmTa_NHGKLZ8IbQ' 'strict-dynamic' 'report-sample' 'unsafe-eval' 'unsafe-inline' https: http:;report-uri https://csp.withgoogle.com/csp/gws/other-hp",
+              "accept-ch": "Sec-CH-Prefers-Color-Scheme",
+              "p3p": "CP=\"This is not a P3P policy! See g.co/p3phelp for more info.\"",
               "server": "gws",
+              "x-xss-protection": "0",
               "x-frame-options": "SAMEORIGIN",
-              "alt-svc": "h3=\":443\"; ma=2592000,h3-29=\":443\"; ma=2592000",
+              "accept-ranges": "none",
               "vary": "Accept-Encoding",
               "transfer-encoding": "chunked"
             },
-            "bodyPath": "bodies/call_0_response.html",
-            "responseTimeMs": 637,
-            "dnsMs": 8,
-            "connectMs": 31,
-            "tlsMs": 50,
-            "ttfbMs": 516,
-            "transferMs": 100,
-            "sizeBytes": 79243,
+            "bodyPath": null,
+            "responseTimeMs": 462,
+            "dnsMs": 5,
+            "connectMs": 19,
+            "tlsMs": 68,
+            "ttfbMs": 364,
+            "transferMs": 58,
+            "sizeBytes": 84704,
             "dns": {
-              "resolvedIps": ["203.0.113.1", "203.0.113.2"],
-              "resolvedIp": "203.0.113.1"
+              "resolvedIps": [
+                "203.0.113.11",
+                "203.0.113.12",
+                "203.0.113.13",
+                "203.0.113.16",
+                "203.0.113.17",
+                "203.0.113.10",
+                "203.0.113.14",
+                "203.0.113.15",
+                "2001:4860:4826:7700::",
+                "2001:4860:4828:7700::",
+                "2001:4860:482a:7700::",
+                "2001:4860:482d:7700::",
+                "2001:4860:4829:7700::",
+                "2001:4860:482b:7700::",
+                "2001:4860:482c:7700::",
+                "2001:4860:4827:7700::"
+              ],
+              "resolvedIp": "203.0.113.11"
             },
             "tls": {
               "protocol": "TLSv1.3",
               "cipher": "TLS_AES_256_GCM_SHA384",
               "alpn": "http/1.1",
               "certificate": {
-                "subject": { "cn": "www.google.com" },
-                "subjectAltNames": ["DNS:www.google.com"],
-                "issuer": { "cn": "WR2" },
+                "subject": {
+                  "cn": "www.google.com"
+                },
+                "subjectAltNames": [
+                  "DNS:www.google.com"
+                ],
+                "issuer": {
+                  "cn": "WE2"
+                },
                 "notBefore": "1970-01-01T00:00:00.000Z",
                 "notAfter": "1970-01-01T00:00:00.000Z"
               }
-            }
+            },
+            "bodyNotCapturedReason": "notRequested"
           },
           "redirects": [],
           "assertions": [
@@ -138,11 +164,28 @@ Run it and you get:
               "op": "eq",
               "outcome": "passed",
               "actual": 200,
-              "expected": [200, 301, 302],
+              "expected": [
+                200,
+                301,
+                302
+              ],
               "options": null
             }
           ],
-          "config": {},
+          "config": {
+            "timeout": {
+              "ms": 30000,
+              "action": "fail",
+              "retries": 0
+            },
+            "redirects": {
+              "follow": true,
+              "max": 10
+            },
+            "security": {
+              "rejectInvalidCerts": true
+            }
+          },
           "warnings": [],
           "error": null
         }
@@ -159,7 +202,7 @@ Every call includes a full timing breakdown (DNS, connect, TLS, TTFB, transfer),
 - **Timing decomposition** -- assert on DNS, connect, TLS handshake, time to first byte, and transfer time individually.
 - **Request chaining** -- capture values with `.store()` and use them in subsequent requests. Run-scope variables (`$$var`) flow forward; write-back variables (`$var`) are emitted in the result for the backend to persist.
 - **Previous results** -- access the last run's data via `prev` for change detection, repeat suppression, and rolling baselines.
-- **Extensions** -- declarative `.laceext` files add schema fields, result actions, and hook-based rules without modifying the core executor. Ships with `laceNotifications` and `laceBaseline`.
+- **Extensions** -- declarative `.laceext` files add schema fields, result actions, and hook-based rules without modifying the core executor. Ships with `laceNotifications`, `laceEmitRecovery`, and `laceBaseline`.
 - **Backend-agnostic** -- the executor is side-effect-free. The result is a standardized JSON structure any platform can consume.
 - **Portable** -- the same `.lace` file runs identically on every conformant executor (Python, JavaScript, Kotlin).
 

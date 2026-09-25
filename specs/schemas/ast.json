@@ -1,8 +1,8 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://lacelang.dev/schemas/ast/0.9.1",
+  "$id": "https://lacelang.dev/schemas/ast/0.9.7",
   "title": "Lace internal AST",
-  "description": "Canonical in-memory representation produced by parsers from `.lace` source text. Conforms to lace-spec.md and the lacelang.g4 grammar. Although the spec calls the AST 'an implementation detail and never stored or transmitted', this schema is the canonical wire format used by the testkit's `parse` conformance tests — every executor's `parse` subcommand must serialise its internal AST to this shape for the testkit to compare against expected outputs.",
+  "description": "Canonical representation produced by parsers from `.lace` source text. Conforms to lace-spec.md and the lacelang.g4 grammar. This is the wire format between validator and executor and the shape the testkit compares in `parse` conformance vectors — every implementation's `parse` subcommand must serialise its AST to it. The `version` field is the AST format version: it changes only when this shape changes, independently of the spec version.",
 
   "type": "object",
   "additionalProperties": false,
@@ -10,8 +10,8 @@
   "properties": {
     "version": {
       "type": "string",
-      "const": "0.9.1",
-      "description": "AST schema version. Bumped on breaking changes to this schema."
+      "const": "0.9.4",
+      "description": "AST format version. Changes only when the shape described by this schema changes; independent of the spec version."
     },
     "calls": {
       "type": "array",
@@ -116,7 +116,7 @@
       "additionalProperties": false,
       "properties": {
         "follow":     { "type": "boolean" },
-        "max":        { "type": "integer", "minimum": 0, "maximum": 10 },
+        "max":        { "type": "integer", "minimum": 0, "description": "Validated against the context system maximum (executor.maxRedirects, default 10) — REDIRECTS_MAX_LIMIT." },
         "extensions": {
           "type": "object",
           "additionalProperties": { "$ref": "#/definitions/Expr" }
@@ -154,7 +154,7 @@
       "type": "object",
       "additionalProperties": false,
       "minProperties": 1,
-      "description": "Chain methods. At least one must be present (spec §2.3). Fixed order is enforced by the parser per spec §2.3: `.expect → .check → .assert → .store → .wait`. Each method appears at most once.",
+      "description": "Chain methods. At least one must be present (spec §2.3). Fixed order is enforced by the validator (CHAIN_ORDER) per spec §2.3: `.expect → .check → .assert → .store → .wait`. Each method appears at most once.",
       "properties": {
         "expect": { "$ref": "#/definitions/ScopeBlock" },
         "check":  { "$ref": "#/definitions/ScopeBlock" },

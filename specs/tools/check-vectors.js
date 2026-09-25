@@ -19,7 +19,7 @@ for (const f of fs.readdirSync(SCHEMA_DIR).filter(f => f.endsWith('.json'))) {
   ajv.addSchema(JSON.parse(fs.readFileSync(path.join(SCHEMA_DIR, f), 'utf8')));
 }
 
-const validate = ajv.getSchema('https://lacelang.dev/schemas/conformance-vector/1.0.0');
+const validate = ajv.getSchema(JSON.parse(fs.readFileSync(path.join(SCHEMA_DIR, 'conformance-vector.json'), 'utf8')).$id);
 if (!validate) {
   console.error('FAIL: conformance-vector schema not found');
   process.exit(1);

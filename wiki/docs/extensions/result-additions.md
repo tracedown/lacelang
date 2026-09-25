@@ -29,7 +29,7 @@ scope           = "string?"
 notification    = "notification_val"
 ```
 
-Types declared here follow the same type system as `[types]` (see [Schema Additions](schema-additions.md)) -- you can use built-in types, references to custom types defined in `[types]`, and nullable shorthand.
+A result type is a field record only: a `fields` table mapping each field name to a type name (no `one_of` or aliases -- those belong in the top-level `[types]` section). Field types use the same type system as `[types]` (see [Schema Additions](schema-additions.md)) -- built-in types, custom types defined in `[types]` (like `notification_val` above), and the nullable shorthand `string?`.
 
 ## Full example
 
@@ -70,7 +70,7 @@ The `emit` statement can target two kinds of paths:
 | `result.actions.<key>` | array | Appends an object to the array. The array is initialised to `[]` if not yet present. |
 | `result.runVars` | object | Merges a key-value pair into the `runVars` map. The key must be prefixed with the extension name. |
 
-Attempting to emit to any other path (e.g. `result.calls`, `result.outcome`) is a runtime error. The emit is rejected, a warning is recorded, and execution continues.
+Attempting to emit to any other path (e.g. `result.calls`, `result.outcome`) is rejected: the emit is dropped, a warning (`EXT_EMIT_FORBIDDEN_TARGET`) is recorded in the call's `warnings` array, and execution continues. Core result fields (`calls`, `outcome`, `startedAt`, `endedAt`, ...) are never writable.
 
 ## Namespace rules for runVars
 
@@ -82,6 +82,6 @@ emit result.runVars <- {
 }
 ```
 
-An emit where the key does not start with `{extension_name}.` is a runtime error. This prefix prevents collisions between extensions and with script-author `$$var` entries.
+An emit where the key does not start with `{extension_name}.` is rejected the same way -- the emit is dropped and a warning (`EXT_RUN_VAR_NAMESPACE`) is recorded. This prefix prevents collisions between extensions and with script-author `$$var` entries (which are always bare identifiers).
 
 See [Variables & Config](variables-and-config.md) for more on reading and writing extension variables.

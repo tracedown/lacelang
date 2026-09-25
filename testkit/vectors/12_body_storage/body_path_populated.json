@@ -1,5 +1,5 @@
 {
-  "id": "bodyPath_populated",
+  "id": "body_path_populated",
   "description": "When a response body is captured, response.bodyPath is a non-null file path and bodyNotCapturedReason is absent (spec §9.4, §15.12). The testkit normalises the actual path to a sentinel; this vector asserts the field is non-null by using a non-string placeholder in the expected.",
   "spec_refs": [
     "lace-spec.md §9.4",

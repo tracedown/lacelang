@@ -2,7 +2,7 @@
 
 Every Lace implementation **must** ship its language validator and its runtime executor as **two distinct, independently-installable packages**. One must not force-install the other.
 
-Spec version: 0.9.6<!-- sv -->
+Spec version: 0.9.7<!-- sv -->
 
 ## Package Roles
 
@@ -25,7 +25,7 @@ Spec version: 0.9.6<!-- sv -->
 
 - The validator's CLI **must** expose `parse` and `validate`, and **must not** expose `run`.
 
-- **Package naming:** the spec does not mandate a convention, but the canonical suggestion is `lacelang-validator-<lang>` and `lacelang-executor-<lang>` (e.g. `lacelang-validator` / `lacelang-executor` on PyPI, `@lacelang/validator` / `@lacelang/executor` on npm).
+- **Package naming:** the spec does not mandate a convention. The published packages are `lacelang-validator` / `lacelang-executor` (PyPI), `@lacelang/validator` / `@lacelang/executor` (npm) and `dev.lacelang:kotlin-validator` / `dev.lacelang:lacelang-kotlin-executor` (Maven Central); the Python and TypeScript packages install the `lacelang-validate` and `lacelang-executor` binaries.
 
 ## Rationale
 

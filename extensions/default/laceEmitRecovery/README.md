@@ -19,7 +19,7 @@ require = ["laceNotifications"]
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | `recovery_message` | string | `"Service recovered"` | Default text used when no custom `notification` is set |
-| `notification` | notification_val | *(unset)* | Optional override — set to `template("name")` or `text("custom message")` |
+| `notification` | notification_val | *(unset)* | Optional override, in TOML table form: `{ tag = "template", name = "…" }` or `{ tag = "text", value = "…" }` |
 
 Override in `lace.config`:
 
@@ -43,13 +43,15 @@ scope or assert condition, via the `recovery` option:
 ```lace
 get("$BASE_URL/health")
 .expect(status: { value: 200, options: {
-  notification: { "default": template("went-down") },
+  notification: template("went-down"),
   recovery: { notification: template("back-up") }
 } })
 ```
 
-`recovery.notification` takes the same values as `notification`
-(`template(...)`, `text(...)`); a bare string is shorthand for `text(...)`.
+`recovery.notification` takes a concrete notification value
+(`template(...)`, `text(...)`, `structured(...)`); a bare string is
+shorthand for `text(...)`. It is emitted as-is — `op_map` is not resolved
+here.
 
 Precedence for the recovery message:
 
@@ -63,8 +65,12 @@ The declared value is also surfaced in the run's `runVars` as
 
 ## Behavior
 
-The extension fires a single rule on the `script` hook (after all calls
-complete and the result outcome is finalized):
+Two capture rules (`capture_recovery_scope` on `expect`/`check`,
+`capture_recovery_condition` on `assert`) record a script-declared
+`recovery.notification` into `runVars["laceEmitRecovery.recoveryNotification"]`
+as scopes and conditions evaluate — on every run that declares one, not
+only on recovery runs. The `emit_recovery` rule then fires on the `script`
+hook (after all calls complete and the result outcome is finalized):
 
 1. **Skip if no previous result** — first runs have nothing to compare against.
 2. **Check previous outcome** — only proceeds if `prev.outcome` was `"failure"` or `"timeout"`.

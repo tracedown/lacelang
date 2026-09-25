@@ -1,6 +1,6 @@
-# Lace — Extension System v0.9.6<!-- sv -->
+# Lace — Extension System v0.9.7<!-- sv -->
 
-> Status: Initial release (v0.9.6<!-- sv -->)
+> Status: Initial release (v0.9.7<!-- sv -->)
 > Referenced by: lace-spec.md §10
 
 ---
@@ -35,6 +35,8 @@
 10. [Emit Targets](#10-emit-targets)
 11. [Configuration](#11-configuration)
 12. [Reference Extension: `laceNotifications`](#12-reference-extension-lacenotifications)
+    - 12.1 [`laceBaseline`](#121-reference-extension-lacebaseline)
+    - 12.2 [`laceEmitRecovery`](#122-reference-extension-laceemitrecovery)
 13. [Executor Compatibility Checklist](#13-executor-compatibility-checklist) → [checklist-extensions.md](./checklist-extensions.md)
 
 ---
@@ -48,22 +50,25 @@ Extensions add functionality to Lace without modifying the core language. An ext
 - Extensions are declarative. No imperative code runs in the executor from an extension — only the rule language defined here.
 - The rule language is the same across all three executor implementations. An extension written once runs identically in Python, JavaScript, and Kotlin executors.
 - Extensions are isolated. They may only write to their own namespace in `runVars`. They cannot modify `calls`, `outcome`, or `runVars` outside their prefix.
-- The core executor never depends on any specific extension. `laceNotifications` and `laceLogging` ship bundled with the executor as `.laceext` files but are inactive unless listed in `lace.config`.
+- The core executor never depends on any specific extension. `laceNotifications`, `laceEmitRecovery` and `laceBaseline` ship bundled with the executor as `.laceext` files but are inactive unless activated — `[executor].extensions` in `lace.config`, or `--enable-extension NAME` on the CLI. A `[extensions.<name>]` config table alone activates nothing (§11).
 
 ---
 
 ## 2. Extension File Format
 
-A `.laceext` file is a TOML document with four top-level sections:
+A `.laceext` file is a TOML document with six top-level sections:
 
 ```toml
 [extension]
-name    = "laceNotifications"    # camelCase identifier — see naming rule below
+name    = "myExtension"          # camelCase identifier — see naming rule below
 version = "1.0.0"
 require = []                     # optional — see §2.2
 
 [schema]
 # Schema additions — see §3
+
+[types]
+# Custom types used by schema and result additions — see §3.2
 
 [result]
 # Result additions — see §4
@@ -79,7 +84,7 @@ All sections except `[extension]` are optional. An extension with no rules but w
 
 **Extension name constraint.** `[extension].name` must match `[a-z][A-Za-z0-9]*` — a lowercase-leading camelCase identifier. No hyphens, underscores, or other punctuation. This keeps qualified function calls (`extName.fnName(...)`, §6.1) parseable as a single IDENT on each side of the dot without any adjacency heuristics.
 
-**Loading:** the executor loads `.laceext` files listed in `lace.config` at startup. If a listed extension file is not found, startup fails with a clear error message. Extensions are loaded in the order listed; rules from later extensions run after rules from earlier extensions at the same hook point.
+**Loading:** the executor loads the `.laceext` files of every extension activated via `[executor].extensions` (or `--enable-extension`) at startup. If an extension file is not found, startup fails with a clear error message. Load order carries no ordering semantics — the order in which rules run at a hook is resolved per §8.1.1.
 
 ### 2.2 Dependencies (`require`)
 
@@ -106,13 +111,13 @@ Semantics:
 
 An extension may ship a companion config file that declares default configuration values. The config file lives alongside the `.laceext` file and uses the naming convention `{extName}.config`.
 
-**Naming and location.** For an extension file `laceNotifications.laceext`, the config file is `laceNotifications.config` in the same directory. The loader automatically looks for a sibling `.config` file when loading a `.laceext` file. If no `.config` file is found, the extension has no defaults — this is fully backward compatible with extensions that predate config files.
+**Naming and location.** For an extension file `myExtension.laceext`, the config file is `myExtension.config` in the same directory. The loader automatically looks for a sibling `.config` file when loading a `.laceext` file. If no `.config` file is found, the extension has no defaults — this is fully backward compatible with extensions that predate config files.
 
 **Format.** The config file is a TOML document with two sections:
 
 ```toml
 [extension]
-name    = "laceNotifications"    # must match the .laceext file's name
+name    = "myExtension"          # must match the .laceext file's name
 version = "1.0.0"               # must match the .laceext file's version
 
 [config]
@@ -120,6 +125,8 @@ channel      = "general"
 max_retries  = 3
 include_body = true
 ```
+
+(The bundled `laceNotifications.config` declares a single key, `timeout_message`; the keys above are illustrative.)
 
 The `[extension]` header is validated at load time — if `name` or `version` differs from the `.laceext` file, the executor fails startup with a clear mismatch error.
 
@@ -141,7 +148,7 @@ let $retries = config.max_retries # 3 (from .config default)
 `.laceext` files **must** be parseable by any TOML 1.0-compliant parser. In particular:
 
 - Inline tables (`{ key = value, … }`) **must not span multiple lines** — TOML 1.0 explicitly forbids this (see [TOML 1.0 §inline-table](https://toml.io/en/v1.0.0#inline-table)).
-- Multi-line structured data must use **sub-tables** (`[parent.child]`) or **arrays of tables** (`[[parent.child]]`) instead.
+- Multi-line structured data must use **sub-tables** (`[parent.child]`) or **arrays of tables** (`[[parent.child]]`) instead. A multi-line *array* whose elements are each a single-line inline table is valid TOML 1.0 and is the form the bundled extensions use for `one_of` lists.
 
 **Rewriting patterns:**
 
@@ -162,7 +169,16 @@ payload = "string"
 ```
 
 ```toml
-# ❌ Invalid — array of multi-line inline tables
+# ❌ Invalid — an inline table broken across lines inside the array
+[types.notification_val]
+one_of = [
+  { tag = "template",
+    fields = { name = "string" } }
+]
+```
+
+```toml
+# ✅ Valid — each inline table on one line (the array may span lines)
 [types.notification_val]
 one_of = [
   { tag = "template", fields = { name = "string" } },
@@ -171,7 +187,7 @@ one_of = [
 ```
 
 ```toml
-# ✅ Valid — array of sub-tables
+# ✅ Also valid — array of sub-tables
 [[types.notification_val.one_of]]
 tag = "template"
 [types.notification_val.one_of.fields]
@@ -205,14 +221,14 @@ Schema additions declare new fields the extension registers on existing objects.
 ```toml
 [schema.scope_options]
 silentOnRepeat = { type = "bool", default = "true" }
-notification   = { type = "notification_val" }
+notification   = { type = "notification_expr" }
 
 [schema.condition_options]
 silentOnRepeat = { type = "bool", default = "true" }
-notification   = { type = "notification_val" }
+notification   = { type = "notification_expr" }
 
 [schema.timeout]
-notification = { type = "notification_val" }
+notification = { type = "notification_expr" }
 ```
 
 Field definitions:
@@ -220,8 +236,10 @@ Field definitions:
 | Key | Required | Description |
 |---|---|---|
 | `type` | Yes | Type name — either a built-in type or a name defined in `[types]` |
-| `default` | No | Default value as a string. If absent, field defaults to `null`. |
+| `default` | No | Documented default, as a string. Informational: executors do **not** inject it into `options` or `config` objects — a rule sees `null` for an absent field and must apply the default itself (`laceNotifications.is_silent` is the pattern). |
 | `required` | No | Bool. If `true`, validator emits error when field is absent and extension is active. Default `false`. |
+
+**Where registered fields land.** `scope_options` / `condition_options` fields appear directly in the `options {}` object (`scope.options.notification`). Fields registered on `timeout`, `redirects`, `security` and `call` are parsed into an `extensions` sub-object of the owning object and surface there in the resolved call config (lace-spec.md §3.2, §9.2): read them as `call.config.timeout?.extensions?.notification`, `call.config.extensions?.<field>` for root-level fields.
 
 ### 3.2 Type System
 
@@ -242,21 +260,29 @@ Field definitions:
 **Custom types** defined in `[types]`:
 
 ```toml
+# The resolved type that appears in the result.
 [types.notification_val]
 one_of = [
-  { tag = "template", fields = { name = "string" } },
-  { tag = "text",     fields = { value = "string" } },
-  { tag = "op_map",   fields = { ops = "map<op_key_or_value, notification_val>" } }
+  { tag = "template",   fields = { name  = "string" } },
+  { tag = "text",       fields = { value = "string" } },
+  { tag = "structured", fields = { data  = "any" } }
 ]
 
-[types.op_key_or_value]
-# Accepts: op literals (lt/lte/eq/neq/gte/gt),
-# arbitrary string (treated as eq to actual_value),
-# or "default" (fallback when no other key matches)
-type = "string"
+# The scripting-time superset: adds op_map, whose keys are the literal
+# actual value ("404"), a compare() relation ("lt" / "eq" / "gt" / "neq"),
+# or "default". Resolved to a notification_val before emission.
+[types.notification_expr]
+one_of = [
+  { tag = "template",   fields = { name  = "string" } },
+  { tag = "text",       fields = { value = "string" } },
+  { tag = "structured", fields = { data  = "any" } },
+  { tag = "op_map",     fields = { ops   = "map<string, notification_expr>" } }
+]
 ```
 
 `one_of` declares a tagged union — the value must match exactly one variant. The `tag` field identifies which variant. In the rule language, variants are accessed via their field names after checking the tag.
+
+**Tag constructors.** Every `one_of` variant declared in `[types]` is callable by its tag from `.lace` option values and from rule bodies: `text("…")`, `template("…")`, `structured({ … })`, `op_map({ … })`. The call takes the variant's fields as positional arguments and produces `{ tag: "<tag>", <field>: … }`.
 
 ---
 
@@ -356,16 +382,19 @@ return_stmt = "return" expr ;
 (* Expressions.
    Precedence (highest → lowest):
      - primary / access
-     - unary `not`
+     - unary `not`, unary `-`
      - arithmetic `*` `/`, then `+` `-`
-     - comparisons `eq` `neq` `lt` `lte` `gt` `gte` (non-chaining)
+     - ordered comparisons `lt` `lte` `gt` `gte` (non-chaining)
+     - equality `eq` `neq` (non-chaining)
      - logical `and`, then `or`
      - ternary `cond ? a : b` at the outermost level
+   There is no `%` operator in the rule language.
    The flat rendering below preserves structure for readability. *)
 expr        = ternary_expr
             | expr ("eq" | "neq" | "lt" | "lte" | "gt" | "gte") expr
             | expr ("and" | "or") expr
             | "not" expr
+            | "-" expr
             | expr ("+" | "-" | "*" | "/") expr
             | "(" expr ")"
             | access_expr
@@ -379,16 +408,20 @@ object_entry = (IDENT | STRING) ":" expr ;
 
 access_expr = base_access (access_op)* ;
 
-base_access = binding          (* $name — local binding or context field *)
+base_access = binding          (* $name — a `let` / `for` binding *)
+            | IDENT            (* hook context object (call, scope, condition,
+                                  entry, script) or a function parameter *)
             | "result"         (* root result object *)
             | "prev"           (* previous result *)
             | "this"           (* current response — available in scope hooks *)
+            | "config"         (* extension config, §11 *)
+            | "require"        (* required extensions' runVars, §9.1 *)
             | "null"
             | "true" | "false" ;
 
 access_op   = "." IDENT                          (* field access — null-safe *)
             | "?." IDENT                         (* explicit null-safe access *)
-            | "[" expr "]"                       (* array index *)
+            | "[" expr "]"                       (* array index, or map key when expr is a string *)
             | "[?" expr "]" ;                    (* array filter — first match or null *)
 
 ternary_expr = expr "?" expr ":" expr ;
@@ -415,7 +448,7 @@ Iterates over an array. `expr` must evaluate to an array or null. If null, the l
 for $call in result.calls:
   for $a in $call.assertions:
     when $a.outcome eq "failed"
-    // $call and $a both in scope here
+    # $call and $a both in scope here
 ```
 
 **`when expr` (inline guard)**
@@ -450,7 +483,7 @@ Multiple `when` guards chain by nesting — each successive `when` is itself ins
 when $a.outcome eq "failed"
 when $a.options neq null
 when not is_null($a.options.notification)
-// all three guards passed — this line runs only when all preceding whens are true
+# all three guards passed — this line runs only when all preceding whens are true
 ```
 
 is equivalent to:
@@ -459,7 +492,7 @@ is equivalent to:
 when $a.outcome eq "failed":
     when $a.options neq null:
         when not is_null($a.options.notification):
-            // all three guards passed
+            # all three guards passed
 ```
 
 This design makes the idiomatic "early-return with guard" pattern work naturally inside functions:
@@ -483,13 +516,15 @@ Explicit block form — when `expr` is false or null, the indented block is skip
 ```
 when $call.response neq null:
   let $status = $call.response.status
-  // $status only used here
-// execution continues here regardless
+  # $status only used here
+# execution continues here regardless
 ```
 
 **`let $binding = expr`**
 
-Binds a name to a value within the current scope. Immutable — the same name cannot be rebound in the same scope. A new `for` iteration starts a fresh scope.
+Binds a name to a value within the current scope. Immutable — the same name cannot be rebound in the current scope or in any enclosing scope (a `let` inside an inline-`when` block cannot shadow an outer binding of the same name; use a ternary instead — see §9.1). A new `for` iteration starts a fresh scope.
+
+Comments in rule and function bodies start with `#`. There is no `//` comment form.
 
 **`set $binding = expr`** *(function bodies only)*
 
@@ -521,17 +556,17 @@ Exits the current rule body immediately. Not valid in function bodies — functi
 **Field access** uses `.` notation. All field access is null-safe by default — accessing any field on `null` returns `null` rather than throwing. `?.` is an explicit null-safe marker for readability.
 
 ```
-$call.response.status          // null if response is null
-$call.response?.status         // identical — explicit null-safe
+$call.response.status          # null if response is null
+$call.response?.status         # identical — explicit null-safe
 ```
 
-**Array index** `[n]` returns the element at index n or null if out of bounds.
+**Array index** `[n]` returns the element at index n or null if out of bounds. With a string operand, `[ "key" ]` is map access: `prev.runVars["laceBaseline.stats"]`, `require["dep"]["dep.key"]`.
 
 **Array filter** `[? condition]` returns the first element for which the condition is true, or null. Within the condition, `$` refers to the current element.
 
 ```
-result.calls[? $.outcome eq "failed"]   // first failed call or null
-$call.assertions[? $.scope eq "status"] // first status assertion or null
+result.calls[? $.outcome eq "failed"]   # first failed call or null
+$call.assertions[? $.scope eq "status"] # first status assertion or null
 ```
 
 **Ternary** `expr ? expr : expr` — standard conditional expression.
@@ -600,7 +635,7 @@ return map_get(notif_cfg.ops, $rel)
 ```
 
 **Function rules:**
-- Parameters are bound as `$param_name` (do not write the `$` in the `params` list — the interpreter prefixes it)
+- Parameters are bound as bare identifiers — `notif_cfg`, not `$notif_cfg` — and are read like hook context fields. `$`-prefixed names are reserved for `let` / `for` bindings.
 - `return expr` exits the function and produces a value
 - A function that reaches the end without a `return` returns `null`
 - `exit` is not valid in functions — use `return null` for early null exit
@@ -677,29 +712,27 @@ Returns the op key describing the actual relationship between `a` and `b`.
 | Condition | Returns |
 |---|---|
 | `a lt b` | `"lt"` |
-| `a lte b` | `"lte"` |
 | `a eq b` | `"eq"` |
-| `a neq b` (and not ordered) | `"neq"` |
-| `a gte b` | `"gte"` |
 | `a gt b` | `"gt"` |
+| `a neq b` and not ordered (booleans) | `"neq"` |
 | Either operand is `null` | `null` |
-| Operands are incomparable types | `null` |
+| Operands of different or non-comparable types (int vs string, bool vs int, objects) | `null` |
 
-For numeric types, all six ordered relationships are possible. For strings, all six ordered relationships are possible (lexicographic). For booleans, only `eq` and `neq` are meaningful.
+`compare` describes one relationship, so it never returns `"lte"` or `"gte"` — an `op_map` keyed on those never matches. For numbers and strings (lexicographic) the result is `"lt"`, `"eq"` or `"gt"`; for booleans `"eq"` or `"neq"`.
 
 ### `map_get(map, key) → any | null`
 
 Looks up `key` in `map`. Falls back to `map["default"]` if `key` is absent. Returns `null` if neither `key` nor `"default"` is present. Returns `null` if `map` is null.
 
 ```
-map_get({ "lt": "a", "default": "b" }, "gt")  // → "b"
-map_get({ "lt": "a" }, "gt")                  // → null
-map_get({ "eq": "a" }, "eq")                  // → "a"
+map_get({ "lt": "a", "default": "b" }, "gt")  # → "b"
+map_get({ "lt": "a" }, "gt")                  # → null
+map_get({ "eq": "a" }, "eq")                  # → "a"
 ```
 
 ### `map_match(map, actual, expected, op) → any | null`
 
-Resolves the best matching key in a notification-style map for a validation failure. Tries the following in order, returning the first match:
+Resolves the best matching key in a notification-style map for a validation failure. The `op` argument is accepted for call-site symmetry with the scope context but is not consulted. Tries the following in order, returning the first match:
 
 1. The string representation of `actual` as a key (eq comparison — matches literal value keys like `"404"`)
 2. The result of `compare(actual, expected)` as a key (op key match)
@@ -708,16 +741,16 @@ Resolves the best matching key in a notification-style map for a validation fail
 Returns `null` if no key matches. Returns `null` if `map` is null.
 
 ```
-map_match({"404": t1, "gte": t2, "default": t3}, 404, 200, "eq")
-// → t1  (actual "404" matches literal key)
+map_match({"404": t1, "gt": t2, "default": t3}, 404, 200, "eq")
+# → t1  (actual "404" matches literal key)
 
-map_match({"gte": t2, "default": t3}, 1200, 500, "lt")
-// compare(1200, 500) = "gt" — no "gt" key
-// → t3  (default)
+map_match({"lt": t2, "default": t3}, 1200, 500, "lt")
+# compare(1200, 500) = "gt" — no "gt" key
+# → t3  (default)
 
 map_match({"lt": t4}, 100, 500, "lt")
-// compare(100, 500) = "lt" — matches "lt"
-// → t4
+# compare(100, 500) = "lt" — matches "lt"
+# → t4
 ```
 
 ### `is_null(v) → bool`
@@ -747,9 +780,9 @@ Converts any value to its string representation. Null returns `"null"`, booleans
 Returns a copy of `str` with all occurrences of `pattern` replaced by `replacement`. If `str` or `pattern` is null, returns `str` unchanged. The `replacement` value is converted to a string via `to_string()` before substitution.
 
 ```
-replace("hello $name", "$name", "world")    // → "hello world"
-replace("x=$val", "$val", 42)               // → "x=42"
-replace(null, "a", "b")                     // → null
+replace("hello $name", "$name", "world")    # → "hello world"
+replace("x=$val", "$val", 42)               # → "x=42"
+replace(null, "a", "b")                     # → null
 ```
 
 ---
@@ -861,7 +894,8 @@ Fires before/after all chain methods on a single HTTP call complete.
 | `call.outcome` | string | `"success"` \| `"failure"` \| `"timeout"` \| `"skipped"` |
 | `call.response` | object \| null | Full response or null |
 | `call.assertions` | array | All assertion records from this call |
-| `call.config` | object | Resolved call config |
+| `call.config` | object | Resolved call config (extension fields under `extensions`, §3.1) |
+| `call.error` | string \| null | Non-assertion failure detail (connection, TLS, redirect limit, timeout) — `null` otherwise |
 | `prev` | object \| null | |
 
 ### 8.4 `on before expect` / `on expect`
@@ -903,7 +937,7 @@ Fires before/after each condition in `.assert()` is evaluated.
 |---|---|---|
 | `condition.index` | int | Index within the assert array |
 | `condition.kind` | string | `"expect"` \| `"check"` |
-| `condition.expression` | string | Expression as written in source |
+| `condition.expression` | string | Condition rendered back to source form — re-parseable, non-identifier object keys quoted (lace-spec.md §9.2) |
 | `condition.options` | object \| null | The `options {}` object |
 | `call.index` | int | |
 | `this` | object | Current response |
@@ -960,7 +994,7 @@ emit result.runVars <- {
 - Extension variables are not readable from `.lace` scripts — they are for extension-internal state and backend consumption only
 - Extension variables appear in `runVars` alongside `$$var` entries from the script. The `{extension_name}.` prefix prevents collisions with script author keys (which are always bare identifiers).
 - Values may be any JSON-serialisable shape — scalar, object, or array (§4.6).
-- An extension **cannot read back its own runVars**. If it needs per-run state, it must accumulate it on a `let $name` binding inside the rule or via a dedicated array under `result.actions.{key}` and read from there.
+- An extension can read back what it has emitted to `result.runVars` only where `result` is in scope — the `on script` hook (§8.2), e.g. `map_get(result.runVars, "laceEmitRecovery.recoveryNotification")`. At every other hook, per-run state must be accumulated on a `let $name` binding inside the rule or under a dedicated array in `result.actions.{key}`.
 
 ### 9.1 Reading another extension's variables
 
@@ -975,10 +1009,9 @@ require = ["laceNotifications"]
 ```
 
 ```
-# Inside a B rule body: read A's live runVars
-let $suppressed = require["laceNotifications"]["laceNotifications.suppressedCount"]
-when is_null($suppressed)
-let $suppressed = 0
+# Inside a B rule body: read A's live runVars, defaulting to 0
+let $raw = require["laceNotifications"]["laceNotifications.suppressedCount"]
+let $suppressed = is_null($raw) ? 0 : $raw
 ```
 
 | Access | Resolves to |
@@ -1013,10 +1046,10 @@ Emitting to `result.calls`, `result.outcome`, `result.startedAt`, `result.endedA
 Each extension may declare a configuration section in `lace.config` under `[extensions.{name}]`. Extension config is accessible in rule bodies and functions as `config`:
 
 ```
-let $prev_path = config.prev_results
+let $msg = config.timeout_message
 ```
 
-Config values are strings by default. The extension's schema additions may declare typed config fields (not yet specified — extension config typing is a v2 concern). For now, all config values are strings or null.
+Config values keep their TOML types — string, integer, float, boolean, or a table (used for tagged values such as `{ tag = "template", name = "…" }`). A key absent from both the `.config` defaults and `lace.config` reads as `null`. The extension's schema additions may declare typed config fields (not yet specified — extension config typing is a v2 concern).
 
 `env:VARNAME` and `env:VARNAME:default` resolution applies to extension config values in `lace.config` — resolved at startup before any rule runs. It does **not** apply to `.config` file defaults (see §2.3).
 
@@ -1036,7 +1069,7 @@ When both a `.config` file (§2.3) and `lace.config` overrides exist for an exte
 
 ```toml
 [extension]
-name    = "laceNotifications"
+name    = "myExtension"
 version = "1.0.0"
 
 [config]
@@ -1048,8 +1081,11 @@ include_body = true
 And a `lace.config` override:
 
 ```toml
-[extensions.laceNotifications]
-laceext      = "builtin:laceNotifications"
+[executor]
+extensions = ["myExtension"]
+
+[extensions.myExtension]
+laceext      = "./extensions/myExtension.laceext"
 channel      = "env:NOTIFY_CHANNEL:alerts"
 ```
 
@@ -1078,9 +1114,10 @@ The full extension source, configuration defaults, notification type documentati
 
 **Key capabilities:**
 
-- Registers `notification` and `silentOnRepeat` options on scopes, conditions, and timeouts
-- Declares the `notification_val` tagged union type with four variants: `text`, `template`, `structured`, `op_map`
-- Emits `notification_event` entries into `result.actions.notifications` on assertion failures and timeouts
+- Registers `notification` and `silentOnRepeat` options on scopes and conditions, and `notification` on `timeout`
+- Declares `notification_val` (`text`, `template`, `structured` — what appears in the result) and `notification_expr` (adds `op_map`, resolved before emission; a bare `{ … }` map in a `notification` option is shorthand for `op_map({ … })`)
+- Emits `notification_event` entries into `result.actions.notifications` on assertion failures (`trigger` `expect` / `check` / `assert`), on timeouts (`timeout`), and on entry into a connection-level error state (`error`)
+- `silentOnRepeat` (default `true`, with or without an `options {}` block) suppresses a notification whose scope or condition also failed in the previous run; assert conditions are matched by `(method, index)` in the previous run's `assertions[]`
 - Exposes `pushNotification(event)` for peer extensions to inject notifications via qualified calls (§6.1)
 - Fires default `structured()` notifications when no custom notification option is set, giving the backend machine-readable failure data
 
@@ -1103,15 +1140,36 @@ The full extension source, configuration, and vectors live in `extensions/defaul
 
 **Key capabilities:**
 
-- Tracks rolling averages of 7 response timing metrics: `responseTimeMs`, `dnsMs`, `connectMs`, `tlsMs`, `ttfbMs`, `transferMs`, `sizeBytes`
+- Tracks rolling averages of 7 response metrics (six timings plus body size): `responseTimeMs`, `dnsMs`, `connectMs`, `tlsMs`, `ttfbMs`, `transferMs`, `sizeBytes`
 - Detects spikes when a metric exceeds `average * spike_multiplier` (configurable, default 3.0)
-- Emits `baseline_spike_event` entries into `result.actions.baseline` on spike detection
-- Pushes `structured()` notifications via `laceNotifications.pushNotification()` for each spike
+- Pushes one `structured()` notification (trigger `baseline_spike`, `scope` = metric name) via `laceNotifications.pushNotification()` for each spiking metric — it declares no `[result]` targets of its own
 - Accumulates stats across runs via `result.runVars["laceBaseline.stats"]` — the backend persists the result and passes it as `prev` on the next run
-- Exposes `check_spike(stats, metric_name, actual, call_index, multiplier)` for peer extensions to perform custom baseline checks
+- Exposes `check_spike(stats, metric_name, actual, call_index, multiplier)` for peer extensions; `metric_name` must be one of the seven tracked metrics, since only those have sums in `stats`
 - Uses the `set` statement (§5.2) in its `accumulate_stats` function for `for`-loop accumulation — demonstrating the mutable-binding pattern for data aggregation in the DSL
 
 See `extensions/default/laceBaseline/README.md` for the full stats model and configuration reference.
+
+---
+
+## 12.2 Reference Extension: `laceEmitRecovery`
+
+The `laceEmitRecovery` extension emits a notification when a probe transitions from a failing state (`failure` or `timeout` in `prev.outcome`) back to `success`. It complements `laceNotifications` (which covers the "went down" direction) and is the reference example of reading an extension's own `runVars` back in `on script` (§9).
+
+The full extension source, configuration, and vectors live in `extensions/default/laceEmitRecovery/`:
+
+| File | Purpose |
+|---|---|
+| `laceEmitRecovery.laceext` | Extension definition: `recovery` option, capture rules, recovery rule |
+| `laceEmitRecovery.config` | Default config (`recovery_message`, optional `notification`) |
+| `README.md` | Precedence rules, transition table, backend contract |
+| `vectors/` | Extension-specific conformance vectors |
+
+**Key capabilities:**
+
+- Registers a `recovery` option on scopes and conditions: `options: { recovery: { notification: template("back-up") } }` — a bare string is shorthand for `text(...)`
+- Captures the script-declared value while scopes and conditions evaluate (`capture_recovery_scope` on `expect`/`check`, `capture_recovery_condition` on `assert`) into `runVars["laceEmitRecovery.recoveryNotification"]`; when several declare one, the last evaluated wins
+- On `script`, when `prev.outcome` was `failure`/`timeout` and `result.outcome` is `success`, pushes one notification with trigger `recovered` via `laceNotifications.pushNotification()`. Precedence: script-declared `recovery` > config `notification` (TOML table form, e.g. `{ tag = "template", name = "…" }`) > `text(config.recovery_message)`
+- First runs (`prev` null) and runs that were already healthy emit nothing
 
 ---
 
@@ -1121,4 +1179,4 @@ Moved to **[checklist-extensions.md](./checklist-extensions.md)** for maintainab
 
 ---
 
-*End of Lace extension system v0.9.6<!-- sv -->*
+*End of Lace extension system v0.9.7<!-- sv -->*

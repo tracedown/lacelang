@@ -94,6 +94,8 @@ When `spike_action = "skip"`, calls where any metric would spike are excluded fr
 
 ### `check_spike(stats, metric_name, actual, call_index, multiplier)`
 
+`metric_name` must be one of the seven tracked metrics (`responseTimeMs`, `dnsMs`, `connectMs`, `tlsMs`, `ttfbMs`, `transferMs`, `sizeBytes`): the rolling sums in `stats` exist only for those, so any other name yields no baseline and never detects a spike.
+
 Checks a single metric against the baseline and dispatches a notification if triggered. Other extensions that `require` laceBaseline can call this to perform custom spike checks against the accumulated baseline.
 
 ## Notification Format

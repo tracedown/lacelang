@@ -1,5 +1,5 @@
 {
-  "id": "prev_runVars_readable",
+  "id": "prev_run_vars_readable",
   "description": "prev.runVars.key reads the named $$var from the previous run's result (spec \u00a76, \u00a715.9).",
   "spec_refs": [
     "lace-spec.md \u00a76",

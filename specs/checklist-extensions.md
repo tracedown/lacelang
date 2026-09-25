@@ -1,6 +1,6 @@
 # Extension System Compatibility Checklist
 
-> Spec version: 0.9.6<!-- sv -->
+> Spec version: 0.9.7<!-- sv -->
 > Companion to: [lace-extensions.md](./lace-extensions.md)
 
 An executor implementation is considered **Lace Extension Compatible** when it satisfies all items in this checklist. Partial compatibility must be documented — an executor may declare which sections it supports.
@@ -67,7 +67,7 @@ An executor implementation is considered **Lace Extension Compatible** when it s
 
 - [ ] Parses function definitions from `[functions]` section
 - [ ] Calls extension functions by name from rule bodies and other functions
-- [ ] Parameters bound as `$param_name`
+- [ ] Parameters bound as bare identifiers (`notif_cfg`, not `$notif_cfg`); `$`-names are `let` / `for` bindings only
 - [ ] `return expr` exits function and produces value
 - [ ] Function reaching end without `return` returns null
 - [ ] Rejects recursive calls (cycle detection at load time)

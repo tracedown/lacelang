@@ -10,7 +10,7 @@
 //     --enable-extension laceNotifications \
 //     --enable-extension laceBaseline \
 //     --prev spike_detection_mock_prev.json \
-//     --config spike_action_skip.config \
+//     --config spike_action_skip.lace.config \
 //     --pretty
 
 get("https://httpbin.org/delay/1")

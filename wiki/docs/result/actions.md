@@ -1,14 +1,18 @@
 # Actions
 
 The top-level `actions` object in a ProbeResult carries data that the backend should
-act on after the probe run completes. It is always present, even when empty.
+act on after the probe run completes. It is always present (`{}` when there is nothing to
+report), except from executors that declare the `omit: actions`
+[conformance level](../implementers/conformance-levels.md), which never emit it.
 
 ---
 
 ## actions.variables
 
 The `variables` key holds write-back values produced by `.store()` calls in the Lace
-script. This is the only typed, mandatory section of `actions`.
+script. It is the only typed section of `actions`, and it is present only when the
+script has write-back `.store()` targets (`$name` or plain keys). `$$name` keys go to
+`runVars` instead.
 
 ### How store works
 
@@ -43,18 +47,18 @@ Given a Lace script that stores a pagination cursor and a count:
 }
 ```
 
-### Empty variables
+### No write-back targets
 
-When no `.store()` calls executed (or none had write-back targets), the object is
-empty:
+When the script has no write-back `.store()` targets, `variables` is absent:
 
 ```json
 {
-  "actions": {
-    "variables": {}
-  }
+  "actions": {}
 }
 ```
+
+A write-back `.store()` on a call that hard-failed is skipped, as are the `.store()`
+blocks of every later (skipped) call.
 
 ---
 
@@ -68,20 +72,27 @@ The core executor passes these through without interpretation.
 
 ### Example: laceNotifications extension
 
-An extension called `laceNotifications` might produce alert actions:
+The bundled `laceNotifications` extension emits one item per failure into
+`actions.notifications`. Each item records where the failure happened and the
+notification to send: the script's own `text(...)` / `template(...)` value when the
+failing scope or condition declares one, otherwise a `structured` notification carrying
+the raw failure data.
 
 === "Compact"
 
     ```json
     {
       "actions": {
-        "variables": {
-          "lastStatus": 503
-        },
         "notifications": [
           {
-            "channel": "slack",
-            "message": "Health check returned 503"
+            "callIndex": 0,
+            "conditionIndex": -1,
+            "trigger": "expect",
+            "scope": "status",
+            "notification": {
+              "tag": "template",
+              "name": "not_found_alert"
+            }
           }
         ]
       }
@@ -98,23 +109,47 @@ An extension called `laceNotifications` might produce alert actions:
         },
         "notifications": [
           {
-            "channel": "slack",
-            "severity": "critical",
-            "message": "Health check returned 503"
+            "callIndex": 0,
+            "conditionIndex": -1,
+            "trigger": "expect",
+            "scope": "status",
+            "notification": {
+              "tag": "structured",
+              "data": {
+                "scope": "status",
+                "op": "eq",
+                "expected": 200,
+                "actual": 503
+              }
+            }
           },
           {
-            "channel": "email",
-            "severity": "warning",
-            "message": "Response time exceeded 2000ms"
+            "callIndex": 0,
+            "conditionIndex": -1,
+            "trigger": "check",
+            "scope": "totalDelayMs",
+            "notification": {
+              "tag": "text",
+              "value": "Response time exceeded 2000ms"
+            }
           }
         ]
       }
     }
     ```
 
+| Field | Description |
+|---|---|
+| `callIndex` | Index of the call that failed. |
+| `conditionIndex` | Index of the `.assert()` condition; `-1` for scope failures, timeouts and connection errors. |
+| `trigger` | What fired it: `"expect"`, `"check"`, `"assert"`, `"timeout"` or `"error"` (peer extensions add their own, e.g. `"recovered"`, `"baseline_spike"`). |
+| `scope` | Scope name for `expect` / `check` failures; absent or `null` for assert, timeout and error events. |
+| `notification` | A tagged value: `{ "tag": "text", "value": ... }`, `{ "tag": "template", "name": ... }` or `{ "tag": "structured", "data": {...} }`. |
+
 The `notifications` array here is entirely defined by the `laceNotifications` extension.
-The core executor creates the array and populates it based on extension rules, but the
-schema of each item is opaque to core.
+The executor creates the array and populates it from extension rules, but the shape of
+each item is opaque to core. See the [laceNotifications](../extensions/built-in/notifications.md)
+page for the rules that produce it.
 
 ### Conventions
 
@@ -128,8 +163,8 @@ schema of each item is opaque to core.
 
 ## Full example
 
-A complete `actions` object from a run that stored variables and triggered an
-extension-defined notification:
+A complete result from a run that stored variables on an earlier call and then failed,
+triggering an extension-defined notification:
 
 === "Compact"
 
@@ -144,8 +179,7 @@ extension-defined notification:
       ],
       "actions": {
         "variables": {
-          "responseCode": 503,
-          "cursor": null
+          "cursor": "eyJwYWdlIjozfQ=="
         }
       }
     }
@@ -160,28 +194,37 @@ extension-defined notification:
       "endedAt": "2024-01-15T14:23:03.891Z",
       "elapsedMs": 2657,
       "runVars": {
-        "responseCode": 503,
-        "laceNotifications.lastAlertTime": "2024-01-15T14:23:03.891Z"
+        "token": "abc123"
       },
       "calls": [
         "..."
       ],
       "actions": {
         "variables": {
-          "responseCode": 503,
-          "cursor": null
+          "cursor": "eyJwYWdlIjozfQ=="
         },
         "notifications": [
           {
-            "channel": "slack",
-            "severity": "critical",
-            "message": "Health check returned 503"
+            "callIndex": 1,
+            "conditionIndex": -1,
+            "trigger": "expect",
+            "scope": "status",
+            "notification": {
+              "tag": "structured",
+              "data": {
+                "scope": "status",
+                "op": "eq",
+                "expected": 200,
+                "actual": 503
+              }
+            }
           }
         ]
       }
     }
     ```
 
-Note that `runVars` contains both core `$$var` values (`responseCode`) and
-extension-namespaced values (`laceNotifications.lastAlertTime`), while `actions` contains
-the write-back variables and the extension action arrays.
+Note that `runVars` holds the run-scope `$$var` values (`$$token` -> `token`) -- and any
+extension-namespaced values an extension emits, such as
+`laceEmitRecovery.recoveryNotification` -- while `actions` holds the write-back variables
+(`$cursor` -> `cursor`) and the extension action arrays.

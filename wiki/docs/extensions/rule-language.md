@@ -31,7 +31,9 @@ emit result.actions.notifications <- {
 """
 ```
 
-The `on` array lists which [hooks](hooks.md) trigger this rule. A rule can fire on multiple hooks.
+The `on` array lists which [hooks](hooks.md) trigger this rule. A rule can fire on multiple hooks. After-hooks are named by the block (`"call"`, `"expect"`, `"script"`, ...); before-hooks take a `before ` prefix (`on = ["before call"]`). An entry may also carry ordering qualifiers such as `"call after laceNotifications"` -- see [Rule ordering](hooks.md#rule-ordering).
+
+**Comments** in rule and function bodies start with `#`. There is no `//` comment form.
 
 ## Statement reference
 
@@ -42,7 +44,7 @@ Iterates over an array. If the expression evaluates to `null`, the loop body is 
 ```
 for $call in result.calls:
   for $a in $call.assertions:
-    when $a.outcome eq "failed"
+    when $a.method eq "assert" and $a.outcome eq "failed"
     emit result.actions.notifications <- {
       callIndex: $call.index,
       conditionIndex: $a.index,
@@ -53,10 +55,33 @@ for $call in result.calls:
 
 ### `when expr` (inline guard)
 
-When the expression is false or null, the block of statements following the guard is skipped. A block runs from the next line up to the next blank line or the end of the enclosing scope.
+When the expression is false or null, the block of statements following the guard is skipped and execution continues after the block. A block runs from the next line up to (but not including) the next **blank line** or the end of the enclosing scope (function body, `for` body, `when` block, or rule body).
+
+Inline `when X` is sugar for the block form with the following non-blank lines as its body:
+
+```
+when X
+STMT_A
+STMT_B
+
+STMT_C
+```
+
+is equivalent to:
+
+```
+when X:
+    STMT_A
+    STMT_B
+
+STMT_C
+```
+
+The blank line closes the guard's block; `STMT_C` runs unconditionally.
 
 ```
 when scope.outcome eq "failed"
+let $notif_cfg = scope.options?.notification
 when not is_null($notif_cfg)
 let $notif = resolve_scope_notif($notif_cfg, scope.actual, scope.value, scope.op)
 ```
@@ -67,7 +92,7 @@ Multiple inline guards chain by nesting -- each successive `when` is inside the 
 when $a.outcome eq "failed"
 when $a.options neq null
 when not is_null($a.options.notification)
-// all three guards passed
+# all three guards passed
 ```
 
 ### `when expr:` (block form)
@@ -77,18 +102,24 @@ Explicit block form with an indented body. When the expression is false or null,
 ```
 when $call.response neq null:
   let $status = $call.response.status
-  // $status only used here
-// execution continues here regardless
+  # $status only used here
+# execution continues here regardless
 ```
 
 ### `let $binding = expr`
 
-Binds a name to a value. Immutable within the current scope -- the same name cannot be rebound.
+Binds a name to a value. Immutable -- the same name cannot be rebound in the current scope or in any enclosing scope (a `let` inside an inline-`when` block cannot shadow an outer binding; rebinding is a runtime error). Use a ternary to pick between values instead:
 
 ```
 let $prev_scope = prev?.calls[call.index]?.assertions[? $.scope eq scope.name]
 let $silent = is_silent(scope.options, $prev_scope?.outcome)
+let $raw = config.min_entries
+let $min = is_null($raw) ? 5 : $raw
 ```
+
+A new `for` iteration starts a fresh scope, so a `let` inside a loop body binds anew on each iteration.
+
+`$`-prefixed names are only for `let` / `for` bindings. Hook context objects (`call`, `scope`, `condition`, `entry`, `script`) and function parameters are bare identifiers.
 
 ### `set $binding = expr`
 
@@ -121,6 +152,22 @@ emit result.runVars <- {
 }
 ```
 
+### Call statement: `fn(...)` / `ext.fn(...)`
+
+A function call on its own line is a statement: the function runs for its side effects and its return value is discarded. The local form calls a function from the same extension; the qualified form calls an [exposed function](functions.md#local-vs-exposed-functions) of a `require`d extension -- typically one that `emit`s on behalf of its owner:
+
+```
+laceNotifications.pushNotification({
+  callIndex:      -1,
+  conditionIndex: -1,
+  trigger:        "recovered",
+  scope:          null,
+  notification:   $notif
+})
+```
+
+`laceBaseline` uses the local form to run one spike check per metric: `check_spike($stats, "dnsMs", $resp.dnsMs, call.index, $mult)`.
+
 ### `exit`
 
 **Rule bodies only.** Exits the current rule body immediately. Not valid in functions (use `return` there).
@@ -133,10 +180,10 @@ emit result.runVars <- {
 when is_null(notif_cfg)
 return null
 
-when notif_cfg.tag eq "template" or notif_cfg.tag eq "text"
+when is_concrete(notif_cfg)
 return notif_cfg
 
-return map_match(notif_cfg.ops, actual, expected, op)
+return map_match(notif_ops(notif_cfg), actual, expected, op)
 ```
 
 ## Statement availability summary
@@ -148,5 +195,6 @@ return map_match(notif_cfg.ops, actual, expected, op)
 | `let` | Yes | Yes |
 | `set` | No (parse error) | Yes |
 | `emit` | Yes | Only in exposed functions |
+| call statement (`fn(...)`, `ext.fn(...)`) | Yes | Yes |
 | `exit` | Yes | No (use `return`) |
 | `return` | No (parse error) | Yes |

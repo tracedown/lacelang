@@ -96,6 +96,26 @@ Conditions are full expressions supporting:
 !!! warning "Comparisons do not chain"
     `a eq b eq c` is a parse error. Write `(a eq b) and (b eq c)` instead.
 
+### Precedence and evaluation order
+
+From tightest to loosest binding:
+
+| Level | Operators |
+|---|---|
+| 1 | unary `not`, unary `-` |
+| 2 | `*`, `/`, `%` |
+| 3 | `+`, `-` |
+| 4 | `lt`, `lte`, `gt`, `gte` (at most one per operand pair) |
+| 5 | `eq`, `neq` (at most one per operand pair) |
+| 6 | `and` |
+| 7 | `or` |
+
+- Binary operators are left-associative: `1 - 2 - 3` is `(1 - 2) - 3`.
+- `and` and `or` short-circuit: `false and x` does not evaluate `x`; `true or x` does not evaluate `x`.
+- Parentheses are the only way to override precedence.
+
+So `$$a + 1 gt $$b and not $$done` reads as `(($$a + 1) gt $$b) and (not $$done)`.
+
 ### Available references in expressions
 
 - `this.*` --- current response fields
@@ -109,10 +129,12 @@ Conditions are full expressions supporting:
 
 Two functions are available inside `.assert()` conditions and nowhere else:
 
-- `count(x)` --- the number of elements when `x` is an array, otherwise `1`.
+- `count(x)` --- the number of elements when `x` is an array, otherwise `1`
+  (an object, string, number, boolean, or `null` all count as `1`).
 - `includes(search, x)` --- `true` when the raw-string form of `x` contains
-  `search` as a substring (a `LIKE %search%` test). A string is matched as-is;
-  an array or object is serialised to compact JSON first.
+  `search` as a substring (a `LIKE %search%` test). A string is matched as-is,
+  `null` becomes the empty string, and an array or object is serialised to
+  compact JSON first.
 
 ```lace
 .assert({
@@ -123,9 +145,9 @@ Two functions are available inside `.assert()` conditions and nowhere else:
 })
 ```
 
-Using either outside an `.assert()` condition is a validation error, and each
-must be called with its exact arguments --- `count` takes one, `includes` takes
-two.
+Using either outside an `.assert()` condition is a validation error
+(`UNKNOWN_FUNCTION`), and each must be called with its exact arguments ---
+`count` takes one, `includes` takes two (`FUNC_ARG_TYPE`).
 
 ## Complete Evaluation
 
@@ -134,8 +156,8 @@ Like `.expect()`, all `expect` conditions are evaluated before any hard fail tri
 ```lace
 .assert({
   expect: [
-    this.body.success eq true,       // evaluated even if the next one fails
-    $$count_after eq $$count_before + 1
+    this.body.success eq true,
+    $$count_after eq $$count_before + 1   // evaluated even if the line above fails
   ]
 })
 ```

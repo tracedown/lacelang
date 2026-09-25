@@ -7,11 +7,11 @@ Extensions add functionality to Lace without modifying the core language. An ext
 - **Declarative.** No imperative code runs from an extension -- only the rule language.
 - **Portable.** The rule language is identical across all executor implementations (Python, JavaScript, Kotlin). An extension written once runs the same everywhere.
 - **Isolated.** Extensions may only write to their own namespace in `runVars`. They cannot modify `calls`, `outcome`, or other extensions' data.
-- **Optional.** The core executor never depends on any specific extension. Built-in extensions like `laceNotifications` and `laceBaseline` ship as `.laceext` files but are inactive unless listed in `lace.config`.
+- **Optional.** The core executor never depends on any specific extension. The bundled extensions -- `laceNotifications`, `laceEmitRecovery` and `laceBaseline` -- ship as `.laceext` files but are inactive until activated in `lace.config` (`[executor] extensions`) or with `--enable-extension`.
 
 ## File structure
 
-A `.laceext` file has four top-level sections:
+A `.laceext` file has six top-level sections:
 
 ```toml
 [extension]
@@ -21,6 +21,9 @@ require = []                  # optional dependencies
 
 [schema]
 # Schema additions -- new fields on existing objects
+
+[types]
+# Custom types used by schema and result additions
 
 [result]
 # Result additions -- new entries in the run result
@@ -38,20 +41,26 @@ All sections except `[extension]` are optional. An extension with schema additio
 
 ## Loading
 
-Extensions are listed in `lace.config` under `executor.extensions`:
+Extensions are activated by listing them in `lace.config` under `[executor] extensions`:
 
 ```toml
-[extensions.laceNotifications]
-laceext = "builtin:laceNotifications"
+[executor]
+extensions = ["laceNotifications", "laceBaseline", "myCustomExt"]
 
-[extensions.laceBaseline]
-laceext = "builtin:laceBaseline"
-
+# Optional: configure an extension, or point a custom one at its file
 [extensions.myCustomExt]
-laceext = "./extensions/myCustomExt.laceext"
+laceext = "./extensions/myCustomExt/myCustomExt.laceext"
 ```
 
-The executor loads `.laceext` files at startup. If a listed file is not found, startup fails with an error. Extensions are loaded in the order listed; rules from later extensions run after rules from earlier extensions at the same hook point (unless explicit ordering overrides this).
+Or activate one for a single run with `--enable-extension NAME` (repeatable):
+
+```bash
+lacelang-executor run script.lace --enable-extension laceNotifications
+```
+
+Activation and configuration are separate. An `[extensions.<name>]` table only configures an extension (bundled extensions default to `laceext = "builtin:<name>"`); on its own it activates nothing, and a table for an extension that is not activated is silently ignored.
+
+The executor loads the `.laceext` files of every activated extension at startup. If a file is not found, startup fails with an error. Load order carries no ordering semantics -- the order in which rules run at a hook is resolved from `require` and explicit `after` / `before` qualifiers (see [Rule ordering](hooks.md#rule-ordering)).
 
 ## Dependencies
 
@@ -103,4 +112,4 @@ The `[extension]` header must match the `.laceext` file. Config values are acces
 | [Functions](functions.md) | Defining and exposing functions, primitives reference |
 | [Hook Points](hooks.md) | All 12 hooks, context objects, rule ordering |
 | [Variables & Config](variables-and-config.md) | Config files, merge order, `runVars` namespacing |
-| [Built-in Extensions](built-in/index.md) | laceNotifications and laceBaseline reference |
+| [Built-in Extensions](built-in/index.md) | laceNotifications, laceEmitRecovery and laceBaseline reference |

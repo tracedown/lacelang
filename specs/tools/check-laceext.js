@@ -18,7 +18,7 @@ for (const f of fs.readdirSync(SCHEMA_DIR).filter(f => f.endsWith('.json'))) {
   ajv.addSchema(JSON.parse(fs.readFileSync(path.join(SCHEMA_DIR, f), 'utf8')));
 }
 
-const validate = ajv.getSchema('https://lacelang.dev/schemas/laceext/1.0.0');
+const validate = ajv.getSchema(JSON.parse(fs.readFileSync(path.join(SCHEMA_DIR, 'laceext.json'), 'utf8')).$id);
 if (!validate) {
   console.error('FAIL: laceext schema not found in ../schemas/');
   process.exit(1);

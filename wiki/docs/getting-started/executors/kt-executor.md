@@ -1,7 +1,7 @@
 # Kotlin Executor
 
 Reference Kotlin/JVM implementation of Lace, conformant to spec version
-**0.9.6<!-- sv -->** (199<!-- vc -->/199<!-- vc --> conformance vectors). Passes the same test suite as the
+**0.9.7<!-- sv -->** (206<!-- vc -->/206<!-- vc --> conformance vectors). Passes the same test suite as the
 canonical Python executor and is fully interchangeable.
 
 The implementation is split into two packages following the
@@ -9,8 +9,8 @@ The implementation is split into two packages following the
 
 | Package | Repository | Description |
 |---|---|---|
-| `lacelang-kt-validator` | [tracedown/lacelang-kotlin-validator](https://github.com/tracedown/lacelang-kotlin-validator) | Lexer, parser, semantic validator. Single dependency (Gson). |
-| `lacelang-kt-executor` | [tracedown/lacelang-kotlin-executor](https://github.com/tracedown/lacelang-kotlin-executor) | HTTP runtime, assertion evaluation, cookie jars, extension dispatch. Depends on the validator. |
+| `dev.lacelang:kotlin-validator` | [tracedown/lacelang-kotlin-validator](https://github.com/tracedown/lacelang-kotlin-validator) | Lexer, parser, semantic validator. Single dependency (Gson). |
+| `dev.lacelang:lacelang-kotlin-executor` | [tracedown/lacelang-kotlin-executor](https://github.com/tracedown/lacelang-kotlin-executor) | HTTP runtime, assertion evaluation, cookie jars, extension dispatch. Depends on the validator. |
 
 Requires JDK **17+**.
 
@@ -37,7 +37,7 @@ To embed the executor in a JVM project, the artifacts are published under the
 ```kotlin
 // build.gradle.kts
 dependencies {
-    implementation("dev.lacelang:lacelang-kotlin-executor:0.1.3")
+    implementation("dev.lacelang:lacelang-kotlin-executor:0.1.9")
 }
 ```
 
@@ -48,15 +48,16 @@ and [`dev.lacelang:kotlin-validator`](https://central.sonatype.com/artifact/dev.
 ### From source
 
 ```bash
-git clone https://github.com/tracedown/lacelang-kotlin-validator.git
 git clone https://github.com/tracedown/lacelang-kotlin-executor.git
 cd lacelang-kotlin-executor
 ./gradlew shadowJar
 ```
 
-The executor uses a Gradle
-[composite build](https://docs.gradle.org/current/userguide/composite_builds.html)
-to resolve the validator. Both repos must be siblings on disk.
+The executor resolves the validator as a published artifact
+(`dev.lacelang:kotlin-validator`) from Maven Central. To build against a
+local validator checkout, run `./gradlew publishToMavenLocal` in
+`lacelang-kotlin-validator` first -- the executor build also resolves from
+the local Maven repository.
 
 ---
 
@@ -71,18 +72,21 @@ The executor CLI exposes three subcommands matching the
 java -jar lacelang-kt-executor.jar parse script.lace
 ```
 
-Outputs the AST as JSON. Parsing is delegated to `lacelang-kt-validator`.
+Outputs the AST as JSON. Parsing is delegated to the validator (`dev.lacelang:kotlin-validator`).
 
 ### `validate` — semantic checks
 
 ```bash
 java -jar lacelang-kt-executor.jar validate script.lace \
-    --vars-list vars.json \
+    --vars-list declared.json \
     --context context.json
 ```
 
 Runs the parser and semantic validator. Reports structured errors and
-warnings. No HTTP calls are made.
+warnings. No HTTP calls are made. `--vars-list` takes a JSON array of the
+declared variable names (e.g. `["BASE_URL", "API_KEY"]`), not their values;
+`--context` takes a JSON object with the validator context (e.g.
+`maxRedirects`, `maxTimeoutMs`).
 
 ### `run` — full execution
 
@@ -105,10 +109,10 @@ Parses, validates, executes, and emits a
 | `--prev-results <file>` | Previous result JSON, making `prev` available in expressions. `--prev` is a short alias. |
 | `--config <file>` | Explicit path to a `lace.config` TOML file. |
 | `--env <name>` | Select `[lace.config.<name>]` section (overrides `LACE_ENV`). |
-| `--enable-extension <name>` | Activate a built-in extension (repeatable). |
+| `--enable-extension <name>` | Activate an extension for this run, as if listed in `[executor].extensions` (repeatable). |
 | `--save-to <path>` | Persist the result to disk. Directory: timestamped JSON. File: overwrite. `"false"`: skip. |
-| `--bodies-dir <path>` | Directory for request/response body files. |
-| `--save-body` | Enable response body file writing. |
+| `--save-body` | Save response bodies for this run (sets `result.bodies.dir` to the result path). |
+| `--bodies-dir <path>` | Directory for response body files (implies body saving). Request bodies are never saved. |
 | `--pretty` | Pretty-print the result JSON. |
 
 ---

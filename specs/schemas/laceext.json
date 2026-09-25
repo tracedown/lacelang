@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://lacelang.dev/schemas/laceext/0.9.1",
+  "$id": "https://lacelang.dev/schemas/laceext/0.9.7",
   "title": "Lace extension file (.laceext)",
   "description": "TOML structure for Lace extensions. Conforms to lace-extensions.md. The TOML is parsed into JSON; this schema validates the resulting JSON shape. Rule body and function body content is opaque at this level — the extension processor parses those strings against the rule body grammar in lace-extensions.md §5.",
 
@@ -72,7 +72,7 @@
         },
         "default": {
           "type": "string",
-          "description": "Default value as a string (TOML stores defaults as strings; coerced to declared type at use)."
+          "description": "Documented default, as a string. Informational only: executors do not inject it into options or config — rules see null for an absent field and apply the default themselves (extensions §3.1)."
         },
         "required": {
           "type": "boolean",
@@ -181,11 +181,16 @@
             "type": "string",
             "pattern": "^[a-zA-Z_][a-zA-Z0-9_]*$"
           },
-          "description": "Parameter names (without leading $; the interpreter prefixes)."
+          "description": "Parameter names. Bound as bare identifiers in the body (`notif_cfg`, not `$notif_cfg`) — see extensions §6."
         },
         "body": {
           "type": "string",
           "description": "Function body in the rule body language (extensions §5). Opaque at this schema level; parsed by the extension processor."
+        },
+        "exposed": {
+          "type": "boolean",
+          "default": false,
+          "description": "When true, callable from dependents that `require` this extension as `<extName>.<fnName>(...)` (extensions §6.1)."
         }
       }
     },

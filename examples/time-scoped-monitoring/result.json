@@ -2,7 +2,7 @@
   "outcome": "success",
   "startedAt": "1970-01-01T00:00:00.000Z",
   "endedAt": "1970-01-01T00:00:00.000Z",
-  "elapsedMs": 716,
+  "elapsedMs": 423,
   "runVars": {},
   "calls": [
     {
@@ -15,42 +15,54 @@
         "method": "get",
         "headers": {
           "Accept": "text/html",
-          "User-Agent": "lace-probe/0.1.0 (lacelang-python)"
+          "User-Agent": "lace-probe/0.2.0 (lacelang-python)"
         }
       },
       "response": {
         "status": 200,
         "statusText": "OK",
         "headers": {
-          "date": "Thu, 01 Jan 1970 00:00:00 GMT",
-          "expires": "-1",
-          "cache-control": "private, max-age=0",
           "content-type": "text/html; charset=ISO-8859-1",
-          "content-security-policy-report-only": "object-src 'none';base-uri 'self';script-src 'nonce-REDACTED' 'strict-dynamic' 'report-sample' 'unsafe-eval' 'unsafe-inline' https: http:;report-uri https://csp.withgoogle.com/csp/gws/other-hp",
+          "date": "Thu, 01 Jan 1970 00:00:00 GMT",
+          "cache-control": "private, max-age=0",
+          "content-security-policy-report-only": "object-src 'none';base-uri 'self';script-src 'nonce-vd4jr41c-NVHgkYYwoMH1g' 'strict-dynamic' 'report-sample' 'unsafe-eval' 'unsafe-inline' https: http:;report-uri https://csp.withgoogle.com/csp/gws/other-hp",
           "accept-ch": "Sec-CH-Prefers-Color-Scheme",
           "p3p": "CP=\"This is not a P3P policy! See g.co/p3phelp for more info.\"",
           "server": "gws",
           "x-xss-protection": "0",
           "x-frame-options": "SAMEORIGIN",
-          "alt-svc": "h3=\":443\"; ma=2592000,h3-29=\":443\"; ma=2592000",
           "accept-ranges": "none",
           "vary": "Accept-Encoding",
           "transfer-encoding": "chunked"
         },
-        "bodyPath": "bodies/call_0_response.html",
-        "responseTimeMs": 715,
-        "dnsMs": 5,
-        "connectMs": 36,
-        "tlsMs": 48,
-        "ttfbMs": 533,
-        "transferMs": 161,
-        "sizeBytes": 79239,
+        "bodyPath": null,
+        "responseTimeMs": 421,
+        "dnsMs": 4,
+        "connectMs": 18,
+        "tlsMs": 57,
+        "ttfbMs": 326,
+        "transferMs": 57,
+        "sizeBytes": 84762,
         "dns": {
           "resolvedIps": [
-            "203.0.113.1",
-            "203.0.113.2"
+            "203.0.113.11",
+            "203.0.113.10",
+            "203.0.113.17",
+            "203.0.113.15",
+            "203.0.113.12",
+            "203.0.113.16",
+            "203.0.113.14",
+            "203.0.113.13",
+            "2001:4860:4829:7700::",
+            "2001:4860:4828:7700::",
+            "2001:4860:482c:7700::",
+            "2001:4860:4827:7700::",
+            "2001:4860:4826:7700::",
+            "2001:4860:482a:7700::",
+            "2001:4860:482d:7700::",
+            "2001:4860:482b:7700::"
           ],
-          "resolvedIp": "203.0.113.1"
+          "resolvedIp": "203.0.113.11"
         },
         "tls": {
           "protocol": "TLSv1.3",
@@ -64,12 +76,13 @@
               "DNS:www.google.com"
             ],
             "issuer": {
-              "cn": "WR2"
+              "cn": "WE2"
             },
             "notBefore": "1970-01-01T00:00:00.000Z",
             "notAfter": "1970-01-01T00:00:00.000Z"
           }
-        }
+        },
+        "bodyNotCapturedReason": "notRequested"
       },
       "redirects": [],
       "assertions": [
@@ -87,7 +100,7 @@
           "scope": "totalDelayMs",
           "op": "lt",
           "outcome": "passed",
-          "actual": 715,
+          "actual": 421,
           "expected": 3000,
           "options": null
         },
@@ -96,7 +109,7 @@
           "scope": "dns",
           "op": "lt",
           "outcome": "passed",
-          "actual": 5,
+          "actual": 4,
           "expected": 80,
           "options": null
         },
@@ -105,7 +118,7 @@
           "scope": "connect",
           "op": "lt",
           "outcome": "passed",
-          "actual": 36,
+          "actual": 18,
           "expected": 150,
           "options": null
         },
@@ -114,7 +127,7 @@
           "scope": "tls",
           "op": "lt",
           "outcome": "passed",
-          "actual": 48,
+          "actual": 57,
           "expected": 200,
           "options": null
         },
@@ -122,8 +135,8 @@
           "method": "check",
           "scope": "ttfb",
           "op": "lt",
-          "outcome": "failed",
-          "actual": 533,
+          "outcome": "passed",
+          "actual": 326,
           "expected": 500,
           "options": null
         },
@@ -132,7 +145,7 @@
           "scope": "transfer",
           "op": "lt",
           "outcome": "passed",
-          "actual": 161,
+          "actual": 57,
           "expected": 400,
           "options": null
         }
@@ -140,6 +153,18 @@
       "config": {
         "headers": {
           "Accept": "text/html"
+        },
+        "timeout": {
+          "ms": 30000,
+          "action": "fail",
+          "retries": 0
+        },
+        "redirects": {
+          "follow": true,
+          "max": 10
+        },
+        "security": {
+          "rejectInvalidCerts": true
         }
       },
       "warnings": [],

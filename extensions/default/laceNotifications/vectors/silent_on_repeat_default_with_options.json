@@ -1,0 +1,99 @@
+{
+  "id": "silent_on_repeat_default_with_options",
+  "description": "silentOnRepeat defaults to true even when an options block is present without the key: a scope that also failed in the previous run stays silent.",
+  "spec_refs": [
+    "lace-extensions.md §12"
+  ],
+  "type": "extension",
+  "requires": [
+    "extensions",
+    "actions"
+  ],
+  "input": {
+    "source": "get(\"http://127.0.0.1:{port}/fail\").expect(status: { value: 200, options: { notification: text(\"down\") } })\n",
+    "variables": {},
+    "extensions": [
+      "laceNotifications"
+    ],
+    "prev_results": {
+      "outcome": "failure",
+      "startedAt": "1970-01-01T00:00:00Z",
+      "endedAt": "1970-01-01T00:00:00Z",
+      "runVars": {},
+      "calls": [
+        {
+          "index": 0,
+          "outcome": "failure",
+          "request": {
+            "url": "http://127.0.0.1:9999/fail",
+            "method": "get",
+            "headers": {}
+          },
+          "response": {
+            "status": 503,
+            "headers": {},
+            "responseTimeMs": 100
+          },
+          "redirects": [],
+          "assertions": [
+            {
+              "method": "expect",
+              "scope": "status",
+              "op": "eq",
+              "outcome": "failed",
+              "actual": 503,
+              "expected": 200,
+              "options": {
+                "notification": {
+                  "tag": "text",
+                  "value": "down"
+                }
+              }
+            }
+          ],
+          "config": {},
+          "warnings": [],
+          "error": null
+        }
+      ],
+      "actions": {
+        "notifications": [
+          {
+            "callIndex": 0,
+            "conditionIndex": -1,
+            "trigger": "expect",
+            "scope": "status",
+            "notification": {
+              "tag": "text",
+              "value": "down"
+            }
+          }
+        ]
+      }
+    },
+    "http_mock": [
+      {
+        "callIndex": 0,
+        "outcome": "response",
+        "status": 503,
+        "headers": {},
+        "body": ""
+      }
+    ]
+  },
+  "expected": {
+    "result": {
+      "outcome": "failure",
+      "startedAt": "1970-01-01T00:00:00Z",
+      "endedAt": "1970-01-01T00:00:00Z",
+      "runVars": {},
+      "calls": "IGNORED",
+      "actions": {}
+    },
+    "ignore": [
+      "startedAt",
+      "endedAt",
+      "calls"
+    ]
+  }
+}

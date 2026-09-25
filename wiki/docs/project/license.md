@@ -1,7 +1,8 @@
 # License
 
-The entire canonical Lace stack is licensed under the
-**Apache License, Version 2.0**.
+The specification and source code of the entire canonical Lace stack are
+licensed under the **Apache License, Version 2.0** (the Lace name and logo
+are not -- see [Name & logo](#name-logo) below).
 
 | Repository | Description | License |
 |------------|-------------|---------|
@@ -10,8 +11,8 @@ The entire canonical Lace stack is licensed under the
 | [lacelang-python-validator](https://github.com/tracedown/lacelang-python-validator) | Reference Python validator (canonical) | Apache 2.0 |
 | [lacelang-js-executor](https://github.com/tracedown/lacelang-js-executor) | Reference TypeScript executor (conformant) | Apache 2.0 |
 | [lacelang-js-validator](https://github.com/tracedown/lacelang-js-validator) | Reference TypeScript validator (conformant) | Apache 2.0 |
-| [lacelang-kt-validator](https://github.com/tracedown/lacelang-kotlin-validator) | Reference Kotlin validator (conformant) | Apache 2.0 |
-| [lacelang-kt-executor](https://github.com/tracedown/lacelang-kotlin-executor) | Reference Kotlin executor (conformant) | Apache 2.0 |
+| [lacelang-kotlin-validator](https://github.com/tracedown/lacelang-kotlin-validator) | Reference Kotlin validator (conformant) | Apache 2.0 |
+| [lacelang-kotlin-executor](https://github.com/tracedown/lacelang-kotlin-executor) | Reference Kotlin executor (conformant) | Apache 2.0 |
 
 You may obtain a copy of the license at:
 [apache.org/licenses/LICENSE-2.0](https://www.apache.org/licenses/LICENSE-2.0)

@@ -2,7 +2,7 @@
   "outcome": "failure",
   "startedAt": "1970-01-01T00:00:00.000Z",
   "endedAt": "1970-01-01T00:00:00.000Z",
-  "elapsedMs": 551,
+  "elapsedMs": 602,
   "runVars": {},
   "calls": [
     {
@@ -14,7 +14,7 @@
         "url": "https://httpbin.org/api/orders",
         "method": "get",
         "headers": {
-          "User-Agent": "lace-probe/0.1.0 (lacelang-python)"
+          "User-Agent": "lace-probe/0.2.0 (lacelang-python)"
         }
       },
       "response": {
@@ -29,20 +29,26 @@
           "access-control-allow-origin": "*",
           "access-control-allow-credentials": "true"
         },
-        "bodyPath": "bodies/call_0_response.html",
-        "responseTimeMs": 550,
-        "dnsMs": 5,
-        "connectMs": 137,
-        "tlsMs": 247,
-        "ttfbMs": 529,
-        "transferMs": 1,
+        "bodyPath": null,
+        "responseTimeMs": 600,
+        "dnsMs": 25,
+        "connectMs": 184,
+        "tlsMs": 215,
+        "ttfbMs": 556,
+        "transferMs": 0,
         "sizeBytes": 233,
         "dns": {
           "resolvedIps": [
-            "203.0.113.1",
-            "203.0.113.2"
+            "203.0.113.2",
+            "203.0.113.3",
+            "203.0.113.9",
+            "203.0.113.5",
+            "203.0.113.7",
+            "203.0.113.8",
+            "203.0.113.4",
+            "203.0.113.6"
           ],
-          "resolvedIp": "203.0.113.1"
+          "resolvedIp": "203.0.113.2"
         },
         "tls": {
           "protocol": "TLSv1.2",
@@ -57,12 +63,13 @@
               "DNS:*.httpbin.org"
             ],
             "issuer": {
-              "cn": "Amazon RSA 2048 M03"
+              "cn": "Amazon RSA 2048 M01"
             },
             "notBefore": "1970-01-01T00:00:00.000Z",
             "notAfter": "1970-01-01T00:00:00.000Z"
           }
-        }
+        },
+        "bodyNotCapturedReason": "notRequested"
       },
       "redirects": [],
       "assertions": [
@@ -102,7 +109,20 @@
           }
         }
       ],
-      "config": {},
+      "config": {
+        "timeout": {
+          "ms": 30000,
+          "action": "fail",
+          "retries": 0
+        },
+        "redirects": {
+          "follow": true,
+          "max": 10
+        },
+        "security": {
+          "rejectInvalidCerts": true
+        }
+      },
       "warnings": [],
       "error": null
     }

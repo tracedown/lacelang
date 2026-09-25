@@ -1,6 +1,6 @@
-# Lace — Specification v0.9.6<!-- sv -->
+# Lace — Specification v0.9.7<!-- sv -->
 
-> Status: Initial release (v0.9.6<!-- sv -->)
+> Status: Initial release (v0.9.7<!-- sv -->)
 > Referenced by: api-monitoring-spec.md §3
 
 ## Table of Contents
@@ -61,10 +61,12 @@
 Lace is a purpose-built scripting microlanguage for defining API monitoring probes. A probe is a `.lace` file — plain text that can be written by hand, stored in version control, and run directly:
 
 ```bash
-lace run script.lace --vars vars.json
-lace run script.lace --vars vars.json --prev-results last_result.json
-lace validate script.lace
+lacelang-executor run script.lace --vars vars.json
+lacelang-executor run script.lace --vars vars.json --prev-results last_result.json
+lacelang-validate validate script.lace
 ```
+
+(`lacelang-executor` and `lacelang-validate` are the binaries installed by the Python and TypeScript packages; the Kotlin distribution exposes the same `parse` / `validate` / `run` subcommands from its jar — see §15.)
 
 **The language is backend-agnostic.** The executor receives a flat variable map, runs the script, and returns a structured result. The backend acts on that result however it sees fit.
 
@@ -141,7 +143,7 @@ scope_entry     = scope_name ":" scope_val ;
 
 scope_name      = "status" | "body" | "headers" | "bodySize"
                 | "totalDelayMs" | "dns" | "connect" | "tls"
-                | "ttfb" | "transfer" | "size" ;
+                | "ttfb" | "transfer" | "size" | "redirects" ;
 
 scope_val       = expr                    (* shorthand: value only, default op *)
                 | "{" scope_obj_field ("," scope_obj_field)* [","] "}" ;
@@ -165,7 +167,7 @@ op_key          = '"lt"' | '"lte"' | '"eq"' | '"neq"' | '"gte"' | '"gt"' ;
 
 store_method    = ".store" "(" "{" store_entry ("," store_entry)* [","] "}" ")" ;
 store_entry     = store_key ":" expr ;
-store_key       = run_var | IDENT | string ;
+store_key       = run_var | script_var | IDENT | string ;
 
 assert_method   = ".assert" "(" "{" assert_body "}" ")" ;
 assert_body     = assert_clause ("," assert_clause)* [","] ;
@@ -245,13 +247,28 @@ helper_call     = "json"   "(" object_lit ")"
    `count`/`includes` call inside an `.assert()` condition. *)
 
 size_string     = STRING matching /\d+(k|kb|m|mb|g|gb)?/i ;
+
+(* Notes on the EBNF vs. the ANTLR grammar (lacelang.g4, the authoritative
+   syntax — see notes/grammar.md):
+   - IDENT in object-key and path positions (object_entry, this_ref,
+     prev_ref, script_var, run_var, store_key) also admits keyword-shaped
+     words: `this.body`, `{ status: 1 }`, `.store({ size: … })` are valid.
+   - Extension-registered field values (the IDENT ":" expr fallthroughs)
+     accept any expr, including object and array literals.
+   - op_key, match_key, mode_key, timeout_action and the cookieJar patterns
+     are enforced by the validator; the parser accepts any string there.
+   - Empty `.expect()` / `.check()` / `.store({})` / `expect: []` blocks are
+     *validation* errors (EMPTY_SCOPE_BLOCK, EMPTY_STORE_BLOCK,
+     EMPTY_ASSERT_BLOCK, §12), not parse errors — parsers accept them. *)
 ```
 
 ### 2.2 Lexical Rules
 
 ```ebnf
-script_var  = "$"  IDENT ;
-run_var     = "$$" IDENT ;
+(* Variable tokens. The "." / "[n]" path suffixes are parsed at the
+   grammar level — see script_var / run_var in §2.1. *)
+SCRIPT_VAR  = "$"  IDENT ;
+RUN_VAR     = "$$" IDENT ;
 IDENT       = [a-zA-Z_][a-zA-Z0-9_]* ;
 
 string      = '"' string_char* '"' ;
@@ -284,6 +301,7 @@ Enforced by validator:
 - Each chain method appears at most once per call
 - A `$$var` is assigned at most once across the entire script (§5.3)
 - `clearCookies` only valid when `cookieJar` is a `selective_clear` variant
+- `cookieJar` omitted means `"inherit"` (§3.3)
 - `timeout.retries` requires `timeout.action: "retry"`
 - `prev` reference valid only when `--prev-results` is provided; validator emits warning if used without it
 
@@ -330,13 +348,16 @@ post("$BASE_URL/login", {
     // extension fields (e.g. notification) registered here by laceNotifications
   }
 })
+.expect(status: 200)
 ```
 
-**`redirects` defaults:** `follow: true`, `max: 10` (from `executor.maxRedirects`). Exceeding context system max for `max` is always a hard fail.
+**`redirects` defaults:** `follow: true`, `max: 10` (from `executor.maxRedirects`). A `max` above the context system maximum is a validation error (`REDIRECTS_MAX_LIMIT`, §12); exceeding `max` hops at runtime is a hard fail (§7).
 
 **`security` defaults:** `rejectInvalidCerts: true`. When `false`, TLS errors produce a warning in the call record and execution continues.
 
-**`timeout` defaults:** `ms` from execution context default, `action: "fail"`, `retries: 0`.
+**`timeout` defaults:** `ms` from execution context default, `action: "fail"`, `retries: 0`. An `ms` above `executor.maxTimeoutMs` is a validation error (`TIMEOUT_MS_LIMIT`, §12).
+
+**Extension fields.** Fields registered by an extension on `redirects`, `security`, `timeout` or the call root are parsed into an `extensions` sub-object of the owning object (AST schema) and surface at the same place in the call record's resolved `config` (§9.2) — the `notification` above is recorded as `config.timeout.extensions.notification`, a root-level extension field as `config.extensions.<name>`. Extension rules read them from there.
 
 **`timeout.action` values:**
 
@@ -356,11 +377,11 @@ post("$BASE_URL/login", {
 | `"named:{name}"` | Use or create isolated named jar. `{name}` non-empty alphanumeric. |
 | `"{name}:selective_clear"` | Clear `clearCookies` from named jar, then continue. |
 
-`"selective_clear"` without prefix = `"default:selective_clear"`. Named jars persist for run only.
+`"selective_clear"` without prefix = `"default:selective_clear"`. Named jars persist for run only. When `cookieJar` is omitted the call uses `"inherit"`.
 
 ### 3.4 Response Object (`this`)
 
-Valid only within chain methods of the same call. Read-only.
+Valid only within chain methods of the same call. Read-only. `this` paths are dot-access only (`this.body.user.id`); array indexing is not available on `this` (it is on `prev` and on variables).
 
 | Field | Type | Description |
 |---|---|---|
@@ -430,7 +451,7 @@ For plain HTTP, `this.tls` is `null`. The executor performs no interpretation of
 | `$varname` | Injected script variable |
 | `$$varname` | Run-scope variable |
 
-Disambiguation: `${$varname}`, `${$$varname}`. Use braced forms when a variable name is adjacent to other text (e.g. `${$host}name`). The `\$` escape sequence (§2.2) produces a literal `$` character but does not prevent interpolation — use braced forms for disambiguation instead. Missing variable → `null` (see §5.4).
+Disambiguation: `${$varname}`, `${$$varname}`. Use braced forms when a variable name is adjacent to other text (e.g. `${$host}name`). The `\$` escape sequence (§2.2) is a lexer-level escape: it yields a `$` character in the string body, and because interpolation is applied to that resulting text, `\$name` still interpolates when `name` is a variable. Braced forms control where a reference ends; there is no escape that suppresses a reference to an existing variable. Missing variable → `null` (see §5.4).
 
 Timestamps are available through the executor rather than the source language. The top-level result carries `startedAt` / `endedAt`; each call record carries its own `startedAt` / `endedAt`; extensions observing the `before script` hook see `script.startedAt` in context. Scripts that need a submit-time marker should inject one via `--var ts=...`.
 
@@ -461,7 +482,7 @@ Every executor **must** record the ordered list of URLs followed during a call o
 
 - The list contains the resolved URL of each redirect hop **that was actually issued**, in order. It does **not** include the initial request URL (already available as `calls[n].request.url`), and it does **not** include the final response's URL if the final response was not itself a redirect.
 - Empty array `[]` when the call issued no redirects (including when `redirects.follow = false`).
-- Populated even when the call hard-fails due to `REDIRECTS_MAX_LIMIT` — the list shows the hops up to and including the one that triggered the limit.
+- Populated even when the call hard-fails because `redirects.max` hops were exceeded — the list shows the hops up to and including the one that triggered the limit.
 
 Example: `get("/a")` receiving `302 → /b`, then `302 → /c`, then `200` at `/c` produces `redirects: ["/b", "/c"]`.
 
@@ -475,12 +496,12 @@ Redirect hops may be asserted via the `redirects` scope (§4.3) with a `match` o
 
 Validates response properties. **All scopes are evaluated before any failure triggers a hard fail.** This means all failing scopes are collected and recorded together — the author sees every problem at once, not just the first.
 
-After all scopes are evaluated: if any scope failed, execution hard-fails (subsequent chain methods on this call and all subsequent calls are skipped).
+After all scopes are evaluated: if any scope failed, the call is a hard fail. The remaining assertion blocks on the call (`.check()`, `.assert()`) are still evaluated and recorded — a probe reports every failing assertion at once — but `.store()` and `.wait()` on this call, and all subsequent calls, are skipped (§7).
 
 ```lace
 .expect(
   // shorthand — value only, default op, no options
-  dnsMs: 200,
+  dns: 200,
 
   // value with op override
   totalDelayMs: { value: 500, op: "lte" },
@@ -544,9 +565,9 @@ All three forms produce identical core behaviour. The `options` block is availab
 | `headers` | object | Each key-value must match. Keys case-insensitive. |
 | `bodySize` | size string | Body size threshold: `50`, `50k`, `50kb`, `10m`, `10mb`, `1g`, `1gb`. Default op `lt`. Also gates body capture — a response whose body exceeds this value is not captured to `bodyPath` and the call records `bodyNotCapturedReason: "bodyTooLarge"`. |
 | `totalDelayMs` | integer | `this.responseTime` threshold in ms. |
-| `dns` | integer | `this.dns` threshold in ms. |
+| `dns` | integer | `this.dnsMs` threshold in ms. |
 | `connect` | integer | `this.connect` threshold in ms. |
-| `tls` | integer | `this.tls` threshold in ms. Skipped when `this.tls eq 0`. |
+| `tls` | integer | `this.tlsMs` threshold in ms. Skipped when `this.tlsMs eq 0` (plain HTTP). |
 | `ttfb` | integer | `this.ttfb` threshold in ms. |
 | `transfer` | integer | `this.transfer` threshold in ms. |
 | `size` | integer | Exact `this.size` in bytes (default op `eq`). Use `bodySize` for threshold checks. |
@@ -704,7 +725,7 @@ Lace has no wait-duration ceiling — recurrence and pacing concerns belong to t
 
 ### 5.1 Script Variables (`$var`)
 
-Injected by the backend as a flat plaintext key-value map before execution. The language has no concept of scope, storage, or access rules.
+Injected by the backend as a flat key-value map before execution — one level of keys, whose values may be scalars or JSON structures (objects, arrays) addressed with `.field` / `[n]` paths (§2.1). The language has no concept of scope, storage, or access rules.
 
 Script variables are read-only during execution — their in-memory value never changes. However, `$var` keys may appear in `.store()` as write-back targets: the value goes to `actions.variables`, signalling the backend to update the variable for future runs. The current run still reads the originally injected value.
 
@@ -732,7 +753,7 @@ A `$$var` may be assigned **exactly once** across the entire script. A second as
 
 ### 5.5 Injection Model
 
-The backend resolves its own scoping and access rules then injects a flat plaintext map. The executor receives only resolved plaintext values.
+The backend resolves its own scoping and access rules then injects a flat map. The executor receives only resolved values.
 
 CLI: `--vars vars.json` (JSON object) or `--var KEY=VALUE`. Multiple `--var` flags merge.
 
@@ -740,7 +761,7 @@ CLI: `--vars vars.json` (JSON object) or `--var KEY=VALUE`. Multiple `--var` fla
 
 ## 6. Previous Results (`prev`)
 
-When `--prev-results path` is provided (or `prev_results` in config), the previous result JSON is loaded and made accessible via the `prev` reference in expressions.
+When `--prev-results path` is provided, the previous result JSON is loaded and made accessible via the `prev` reference in expressions. There is no config-file equivalent — the previous result is supplied per run.
 
 **Access syntax** mirrors the result structure (§9):
 
@@ -763,7 +784,7 @@ prev.calls[0].assertions[0].actualLhs        // previous assertion left operand
 
 | Type | Source | Behaviour |
 |---|---|---|
-| **Hard fail** | `.expect()` — after all scopes evaluated, ≥1 failed | Stop: skip remaining chain methods on this call and all subsequent calls |
+| **Hard fail** | `.expect()` — after all scopes evaluated, ≥1 failed | Stop: `.check()` / `.assert()` on this call still run (§4.1); `.store()` / `.wait()` on this call and all subsequent calls are skipped |
 | **Hard fail** | `.assert({ expect })` — after all conditions evaluated, ≥1 failed | Stop as above |
 | **Hard fail** | `redirects.max` exceeded | Stop — not overridable |
 | **Hard fail** | `security.rejectInvalidCerts: true` + TLS error | Stop — not overridable |
@@ -776,7 +797,7 @@ prev.calls[0].assertions[0].actualLhs        // previous assertion left operand
 | **Soft fail** | `security.rejectInvalidCerts: false` + TLS error | Record warning, continue |
 | **Indeterminate** | Null operand in ordered comparison or arithmetic | Record as `"indeterminate"`, continue |
 
-**Complete evaluation before cascade:** `.expect()` evaluates all scopes. `.assert({ expect })` evaluates all conditions. Only after full evaluation does the hard-fail cascade trigger. This ensures all failures are visible simultaneously.
+**Complete evaluation before cascade:** every assertion block on a call — `.expect()`, `.check()`, `.assert()` — is evaluated in full before the hard-fail cascade acts. The cascade then skips `.store()` and `.wait()` on the failing call and marks every subsequent call `"skipped"`. This ensures all failures on a call are visible simultaneously.
 
 **`.store()` skip:** skipped when any preceding chain method on the same call hard-failed — `.expect()` failure or `.assert({ expect: [...] })` failure.
 
@@ -841,7 +862,8 @@ validation error (`FUNC_ARG_TYPE`).
 | `elapsedMs` | Wall-clock elapsed time in milliseconds. |
 | `runVars` | Final state of all `$$vars`. Each key appears exactly once. |
 | `calls` | Ordered call records including skipped calls. |
-| `actions` | Free-form. `actions.variables` is the only typed mandatory section. Extensions add further fields. |
+| `actions` | Free-form. `actions.variables` is the only core-typed section and is present when any write-back `.store()` target exists (§9.3). Extensions add further fields. Absent altogether under `omit: actions` (§16.1). |
+| `validationWarnings` | Optional. Structured validator warnings (`{code, …}`) emitted before execution; present only when there were any. |
 
 ### 9.2 Call Record
 
@@ -854,20 +876,29 @@ validation error (`FUNC_ARG_TYPE`).
   "request": {
     "url":      "https://api.example.com/login",
     "method":   "post",
-    "headers":  { "content-type": "application/json" },
+    "headers":  { "Content-Type": "application/json", "User-Agent": "lace-probe/0.2.0 (lacelang-python)" }
   },
   "response": {
     "status":         200,
     "statusText":     "OK",
     "headers":        { "content-type": "application/json" },
-    "bodyPath":       "/probe_runs/abc/call_0_response.json",  // only present when result.bodies.dir is a path
+    "bodyPath":       null,
+    "bodyNotCapturedReason": "notRequested",
     "responseTimeMs": 145,
     "dnsMs":          12,
     "connectMs":      34,
     "tlsMs":          28,
     "ttfbMs":         98,
     "transferMs":     47,
-    "sizeBytes":      1024
+    "sizeBytes":      1024,
+    "dns": { "resolvedIps": ["93.184.216.34"], "resolvedIp": "93.184.216.34" },
+    "tls": {
+      "protocol": "TLSv1.3", "cipher": "TLS_AES_256_GCM_SHA384", "alpn": "h2",
+      "certificate": {
+        "subject": { "cn": "api.example.com" }, "subjectAltNames": ["DNS:api.example.com"],
+        "issuer": { "cn": "R3" }, "notBefore": "2026-01-01T00:00:00Z", "notAfter": "2026-04-01T00:00:00Z"
+      }
+    }
   },
   "redirects": [],
   "assertions": [
@@ -878,7 +909,7 @@ validation error (`FUNC_ARG_TYPE`).
       "outcome":  "passed",
       "actual":   200,
       "expected": 200,
-      "options":  { }
+      "options":  null
     },
     {
       "method":     "assert",
@@ -892,7 +923,7 @@ validation error (`FUNC_ARG_TYPE`).
     }
   ],
   "config": {
-    "timeout":   { "ms": 5000, "action": "fail", "retries": 0 },
+    "timeout":   { "ms": 5000, "action": "fail", "retries": 0, "extensions": { "notification": { "tag": "text", "value": "login timed out" } } },
     "redirects": { "follow": true, "max": 10 },
     "security":  { "rejectInvalidCerts": true }
   },
@@ -912,11 +943,11 @@ rendering must re-parse: object-literal keys that are not bare identifiers
 | `redirects` | Ordered URLs followed — see §3.7. Empty array when no redirects. |
 | `assertions[].outcome` | `"passed"` \| `"failed"` \| `"indeterminate"` |
 | `assertions[].options` | The `options {}` object from the source, passed through opaquely. Extensions read this. |
-| `config` | Resolved call config (after defaults applied). Extensions may read registered fields here. |
+| `config` | Resolved call config (after defaults applied). Extension-registered fields sit under an `extensions` sub-object of the owning object — `config.timeout.extensions.*`, `config.redirects.extensions.*`, `config.security.extensions.*`, `config.extensions.*` for root-level fields (§3.2). Extensions read registered fields from there. |
 | `response` | `null` for timeout, skipped, or connection failure. |
-| `response.bodyPath` | Absolute path to response body file. Requires `result.bodies.dir is a path`; otherwise always `null`. |
+| `response.bodyPath` | Always present. Absolute path to the response body file when `result.bodies.dir` is a path (§9.4); `null` otherwise. |
 | `response.bodyNotCapturedReason` | `"bodyTooLarge"` \| `"notRequested"` \| `"timeout"`. Present when `bodyPath` is null. |
-| `warnings` | Warning strings from this call (null interpolations, TLS warnings, skipped writes). |
+| `warnings` | Warning strings from this call (null interpolations, TLS errors under `rejectInvalidCerts: false`, rejected extension emits). |
 | `error` | Non-assertion failure detail. `null` otherwise. |
 
 ### 9.3 Actions
@@ -949,9 +980,9 @@ Lace has a declarative extension system. Extensions are `.laceext` files that ad
 
 - The `options {}` block on every scope in `.expect()`/`.check()` and on every condition in `.assert()` is a core syntactic placeholder. Its content is extension-defined. The core executor passes it through to the result opaquely in `assertions[].options`.
 - Extension-registered fields on call config sub-objects (`timeout`, `redirects`, `security`, call root) are passed through to `calls[n].config` in the result.
-- Five hook points fire during execution: `on before expect`, `on before check`, `on before store`, `on before assert`, `on before call`, and their post-execution counterparts `on expect`, `on check`, `on store`, `on assert`, `on call`. Extensions register rules against these hooks.
+- Twelve hook points fire during execution: `on before script` / `on script`, `on before call` / `on call`, `on before expect` / `on expect`, `on before check` / `on check`, `on before assert` / `on assert`, `on before store` / `on store`. Extensions register rules against these hooks (lace-extensions.md §8).
 - Extensions may write to `result.runVars` only under their own namespace: keys must be prefixed `{extension_name}.`. Extension variables in `runVars` are not readable from `.lace` scripts — they are for extension internal state and backend consumption only.
-- Unknown extension fields in a script when the extension is not active produce warnings (if `laceLogging` is active), not errors, unless they break core syntactic structure.
+- Extension-registered fields in a script whose extension is not active produce a validation warning (`EXT_FIELD_INACTIVE`), not an error, unless they break core syntactic structure.
 
 ## 11. Configuration (`lace.config`)
 
@@ -966,12 +997,16 @@ extensions = []
 maxRedirects = 10
 maxTimeoutMs = 300000
 
+# Outgoing User-Agent (§3.6). Omit for the default
+# `lace-probe/<executor-version> (<implementation-name>)`.
+# user_agent = "acme-monitor/2026.09"
+
 [result]
 # Where to save the result JSON.
 # Directory: saves {dir}/{YYYY-MM-DD_HH-MM-SS}.json (sortable, no collisions)
 # Full path: always overwrites that file
 # false: do not save
-path = "./lace_results"
+path = "."
 
 [result.bodies]
 # Where to write response body files.
@@ -982,24 +1017,17 @@ dir = false
 [extensions.laceNotifications]
 # Path to .laceext file (default: bundled with executor)
 laceext = "builtin:laceNotifications"
-
-# Previous results file for silentOnRepeat evaluation
-# Overridden by --prev-results flag
-# Omit this key to leave it unset (the extension sees null for the field)
-prev_results = false
-
-[extensions.laceLogging]
-laceext = "builtin:laceLogging"
-level   = "warn"           # "info" | "warn" | "error"
-include_in_result = true
-stdout = false
+# Extension-specific config fields (free-form, read by extension rules as
+# `config.<key>`; see lace-extensions.md §11)
+timeout_message = "Request timed out"
 
 [extensions.myCustomExtension]
 laceext = "./extensions/myExtension.laceext"
-# Extension-specific config fields (free-form, read by extension rules)
 api_key = "env:MY_EXT_API_KEY"
 api_key_with_default = "env:MY_EXT_API_KEY:fallback_value"
 ```
+
+Activation and configuration are separate: `[executor].extensions` (or the `--enable-extension NAME` CLI flag, repeatable) activates an extension; `[extensions.<name>]` only configures it. A `[extensions.<name>]` table for an extension that is not activated is silently ignored.
 
 Extensions may ship a companion `{extName}.config` file alongside their `.laceext` file, declaring default values for their config fields (see `lace-extensions.md §2.3`). When both files exist, the `.config` defaults serve as the base and `lace.config` overrides take precedence for any key present in both. Keys absent from `lace.config` retain the extension's declared defaults.
 
@@ -1010,6 +1038,7 @@ Extensions may ship a companion `{extName}.config` file alongside their `.laceex
 | `executor.extensions` | `[]` | No extensions active |
 | `executor.maxRedirects` | `10` | System redirect limit |
 | `executor.maxTimeoutMs` | `300000` | System timeout limit (5 minutes) |
+| `executor.user_agent` | unset | Outgoing `User-Agent` override (§3.6) |
 | `result.path` | `"."` | Current directory |
 | `result.bodies.dir` | `false` | Body storage directory. Path string to save, `false` to skip. |
 
@@ -1018,7 +1047,7 @@ Extensions may ship a companion `{extName}.config` file alongside their `.laceex
 - `"env:VARNAME:default"` — resolves to `VARNAME` if set, `default` otherwise
 
 **Config resolution order** (highest priority first):
-1. CLI flags (`--vars`, `--prev-results`, `--save-to`, `--save-body`, `--config`)
+1. CLI flags (`--vars`, `--var`, `--prev-results`, `--save-to`, `--save-body`, `--bodies-dir`, `--enable-extension`, `--env`, `--config`)
 2. `lace.config` in script directory
 3. `lace.config` in working directory
 4. Built-in defaults
@@ -1028,6 +1057,10 @@ Extensions may ship a companion `{extName}.config` file alongside their `.laceex
 **`--save-body` flag:** sets `result.bodies.dir` to the result path (or system temp) for a single run, enabling response body file writing.
 
 **`--bodies-dir` flag:** sets `result.bodies.dir` to the given path (implies body saving).
+
+**`--enable-extension NAME` flag:** activates an extension for a single run, as if listed in `executor.extensions`. Repeatable.
+
+**`--prev-results path` flag:** loads the previous result JSON for `prev` access (§6). There is no config-file equivalent; the previous result is always supplied per run.
 
 **`lace.config.{env}` usage:** the `{env}` suffix is also supported in config section names for environment-specific config:
 
@@ -1062,14 +1095,19 @@ Errors prevent enabling. Warnings allow saving and enabling.
 | Variable existence | **Error** | All `$var` references in registry |
 | `$$var` write-once | **Error** | Same `$$` key assigned > once |
 | `schema()` argument | **Error** | Variable must exist in registry |
-| Expression syntax | **Error** | `.assert()` expressions parse without error; also emitted for `.wait()` when its argument is not an integer literal |
+| Expression syntax | **Error** | `.assert()` expressions parse without error (`EXPRESSION_SYNTAX`). A non-integer `.wait()` argument is a grammar error (`PARSE_ERROR`) |
+| `.assert()` non-empty | **Error** | `.assert()` with zero conditions (`EMPTY_ASSERT_BLOCK`) |
+| `.store()` non-empty | **Error** | `.store({})` with zero entries (`EMPTY_STORE_BLOCK`) |
+| Helper arity / argument type | **Error** | `json`/`form` take an object literal, `schema` a `$var`, `count` one argument, `includes` two (`FUNC_ARG_TYPE`) |
 | `redirects.max` limit | **Error** | Value > context system max |
 | `timeout.ms` limit | **Error** | Value > context system max |
 | `timeout.retries` requires action | **Error** | `retries` without `timeout.action: "retry"` |
+| `timeout.action` value | **Error** | Not one of `"fail"`, `"warn"`, `"retry"` (`TIMEOUT_ACTION_INVALID`) |
 | `clearCookies` jar mode | **Error** | `clearCookies` without `selective_clear` mode |
 | `named:` empty name | **Error** | Empty name in `"named:"` jar mode |
+| `cookieJar` format | **Error** | Value matches none of the §3.3 patterns (`COOKIE_JAR_FORMAT`) |
 | `op` value | **Error** | `op` not in: `lt`, `lte`, `eq`, `neq`, `gte`, `gt` |
-| `bodySize` format | **Error** | Invalid size string |
+| `bodySize` format | **Error** | Invalid size string (`MAX_BODY_FORMAT`) |
 | Unknown field (extension inactive) | **Warning** | Extension-registered field present, extension not active |
 | `prev` without `--prev-results` | **Warning** | `prev.*` reference without previous results |
 | High call count | **Warning** | > 10 calls |
@@ -1123,11 +1161,11 @@ get("$BASE_URL/api/search", {
     value: 200,
     options: {
       silentOnRepeat: true,
-      notification: {
-        "neq":  template("wrong_status"),
+      notification: op_map({
         "404":  template("not_found"),
+        "503":  template("unavailable"),
         "default": template("unexpected_status")
-      }
+      })
     }
   },
   totalDelayMs: {
@@ -1136,31 +1174,33 @@ get("$BASE_URL/api/search", {
       notification: template("too_slow")
     }
   },
-  dnsMs: 100    // shorthand — extension generates default error text on failure
+  dns: 100    // shorthand — extension emits a default structured() notification on failure
 )
 .check(
   ttfb: {
     value: 200,
     options: {
       silentOnRepeat: true,
-      notification: { "gte": template("ttfb_degraded") }
+      notification: op_map({ "gt": template("ttfb_degraded") })
     }
   }
 )
 .assert({
   expect: [{
-    condition: $$count_after eq $$count_before + 1,
+    condition: this.body.count eq $$count_before + 1,
     options: {
       silentOnRepeat: false,
-      notification: {
+      notification: op_map({
         "lt":     template("count_decreased"),
         "eq":     template("count_unchanged"),
         "default": template("count_wrong")
-      }
+      })
     }
   }]
 })
 ```
+
+`op_map` keys are matched in order: the literal actual value (`"404"`), then the relation between actual and expected as reported by `compare()` — one of `"lt"`, `"eq"`, `"gt"`, `"neq"` — then `"default"`. A bare `{ … }` object in `notification` is accepted as shorthand for `op_map({ … })`.
 
 ### Auth chain with cookie isolation
 
@@ -1211,24 +1251,26 @@ get("$BASE_URL/metrics/events", {
   headers: { Authorization: "Bearer $metrics_key" }
 })
 .expect(status: 200)
+.assert({
+  expect: [{
+    condition: this.body.count eq $$count_before + 1,
+    options: {
+      silentOnRepeat: false,
+      notification: op_map({
+        "lt":     template("event_count_decreased"),
+        "eq":     template("event_count_unchanged"),
+        "default": template("event_count_unexpected")
+      })
+    }
+  }]
+})
 .store({
   "$$count_after": this.body.count,
   last_event_count: this.body.count
 })
-.assert({
-  expect: [{
-    condition: $$count_after eq $$count_before + 1,
-    options: {
-      silentOnRepeat: false,
-      notification: {
-        "lt":     template("event_count_decreased"),
-        "eq":     template("event_count_unchanged"),
-        "default": template("event_count_unexpected")
-      }
-    }
-  }]
-})
 ```
+
+(`.assert()` precedes `.store()` in the chain order, so the condition reads `this.body.count` directly — `$$count_after` is only assigned afterwards.)
 
 ---
 
@@ -1257,7 +1299,7 @@ Every Lace implementation **must** ship its language validator and its runtime e
 - Both may share a monorepo or live in separate repositories. The choice is an implementation detail; the **package** separation is mandatory.
 - The executor's CLI **must** expose all three conformance subcommands (`parse`, `validate`, `run`) so the testkit harness can drive it end-to-end with a single `-c <cmd>` flag.
 - The validator's CLI **must** expose `parse` and `validate`, and **must not** expose `run`.
-- Package naming: the spec does not mandate a convention, but the canonical suggestion is `lacelang-validator-<lang>` and `lacelang-executor-<lang>` (e.g. `lacelang-validator` / `lacelang-executor` on PyPI, `@lacelang/validator` / `@lacelang/executor` on npm).
+- Package naming: the spec does not mandate a convention. The published packages are `lacelang-validator` / `lacelang-executor` (PyPI), `@lacelang/validator` / `@lacelang/executor` (npm) and `dev.lacelang:kotlin-validator` / `dev.lacelang:lacelang-kotlin-executor` (Maven Central); the Python and TypeScript packages install the `lacelang-validate` and `lacelang-executor` binaries.
 
 ### 15.2 Rationale
 
@@ -1334,4 +1376,4 @@ Process exit code: `0` for `compliant` and `compliant-partial`, `1` for `non-com
 
 ---
 
-*End of Lace specification v0.9.6<!-- sv -->*
+*End of Lace specification v0.9.7<!-- sv -->*

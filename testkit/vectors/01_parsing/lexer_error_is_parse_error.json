@@ -1,0 +1,20 @@
+{
+  "id": "lexer_error_is_parse_error",
+  "description": "A character the lexer does not recognise (here `==`, which is not a Lace operator — use `eq`) is reported as PARSE_ERROR with the offending line, not as a crash or an internal error.",
+  "spec_refs": [
+    "lace-spec.md §2.2",
+    "lace-spec.md §12"
+  ],
+  "type": "parse",
+  "input": {
+    "source": "get(\"$x\")\n.assert({ expect: [ this.status == 200 ] })\n"
+  },
+  "expected": {
+    "errors": [
+      {
+        "code": "PARSE_ERROR",
+        "line": 2
+      }
+    ]
+  }
+}

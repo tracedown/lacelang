@@ -18,7 +18,7 @@ Testing tools typically keep each run isolated -- which is correct for tests. Bu
 
 ### Hard fails and soft fails
 
-`.expect()` is a hard fail -- if it fails, subsequent calls are skipped. `.check()` is a soft fail -- the failure is recorded but execution continues. A probe that checks five timing metrics should report all five, not stop at the first failure.
+`.expect()` is a hard fail -- if it fails, the call's `.store()` and `.wait()` are skipped and so are all subsequent calls (the same call's `.check()` and `.assert()` still run and are recorded). `.check()` is a soft fail -- the failure is recorded but execution continues. A probe that checks five timing metrics should report all five, not stop at the first failure.
 
 Both methods evaluate all scopes completely before cascading, so the result always shows the full picture of what failed.
 
@@ -37,7 +37,7 @@ For monitoring, knowing *why* a request was slow is as important as knowing *tha
 
 The `.laceext` format lets you add schema fields, result actions, and hook-based rules without modifying the core executor. Extensions are TOML files with a formal rule body language -- the same file runs identically on every executor implementation.
 
-Built-in extensions include `laceNotifications` (assertion failure alerting with custom templates and repeat suppression) and `laceBaseline` (rolling average monitoring with spike detection).
+Built-in extensions include `laceNotifications` (assertion failure alerting with custom templates and repeat suppression), `laceEmitRecovery` (a notification when a failing probe recovers), and `laceBaseline` (rolling average monitoring with spike detection).
 
 ### Backend-agnostic by design
 

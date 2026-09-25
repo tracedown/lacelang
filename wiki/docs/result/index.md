@@ -11,7 +11,7 @@ field-by-field definition.
 
 ## Top-level fields
 
-All seven fields are **required** and always present.
+These seven fields are **required** and always present, with one exception: an executor declaring `omit: actions` ([conformance levels](../implementers/conformance-levels.md)) never emits `actions`. An optional eighth field, `validationWarnings`, appears only when pre-execution validation produced warnings.
 
 | Field | Type | Description |
 |---|---|---|
@@ -21,7 +21,8 @@ All seven fields are **required** and always present.
 | `elapsedMs` | `integer` | Wall-clock elapsed time in milliseconds (`endedAt - startedAt`). |
 | `runVars` | `object` | Final state of all `$$var` assignments. Each key appears at most once (write-once rule). Extension-emitted variables use a `{extension_name}.` prefix. |
 | `calls` | `array` | Ordered [call records](call-record.md), including skipped calls. |
-| `actions` | `object` | Action map. `actions.variables` is always present. Extensions may add additional arrays. See [Actions](actions.md). |
+| `actions` | `object` | Action map. `actions.variables` is present when the script has write-back `.store()` targets; extensions may add additional arrays. `{}` when there is nothing to report. See [Actions](actions.md). |
+| `validationWarnings` | `array` | *Optional.* Structured validator diagnostics (`code`, `callIndex`, `chainMethod`) from pre-execution validation. Present only when the validator produced warnings. Separate from each call's `warnings` strings. |
 
 ---
 
@@ -29,9 +30,9 @@ All seven fields are **required** and always present.
 
 | Value | Meaning |
 |---|---|
-| `"success"` | Every call completed and all hard assertions (`.expect()`) passed. |
-| `"failure"` | At least one hard assertion failed or a non-assertion error occurred (connection refused, body too large, redirect limit exceeded). |
-| `"timeout"` | The run exceeded the configured timeout before completing. |
+| `"success"` | Every call completed and no hard assertion (`.expect()` or `.assert({ expect })`) failed. |
+| `"failure"` | At least one hard assertion failed or a non-assertion error occurred (connection refused, TLS error, redirect limit exceeded). An oversize body is a failed `bodySize` assertion, not an error. |
+| `"timeout"` | A call timed out (its `timeout.ms` elapsed) and hard-failed the run. There is no run-level timeout. |
 
 ---
 
@@ -70,9 +71,7 @@ A probe with a single GET call, one status assertion, and no stored variables:
           ]
         }
       ],
-      "actions": {
-        "variables": {}
-      }
+      "actions": {}
     }
     ```
 
@@ -95,7 +94,7 @@ A probe with a single GET call, one status assertion, and no stored variables:
             "url": "https://api.example.com/health",
             "method": "get",
             "headers": {
-              "user-agent": "Lace/0.9"
+              "User-Agent": "lace-probe/0.2.0 (lacelang-python)"
             }
           },
           "response": {
@@ -105,7 +104,8 @@ A probe with a single GET call, one status assertion, and no stored variables:
               "content-type": "application/json",
               "x-request-id": "req-78f3a"
             },
-            "bodyPath": "/probe_runs/abc/call_0_response.json",
+            "bodyPath": null,
+            "bodyNotCapturedReason": "notRequested",
             "responseTimeMs": 145,
             "dnsMs": 12,
             "connectMs": 34,
@@ -152,7 +152,7 @@ A probe with a single GET call, one status assertion, and no stored variables:
           ],
           "config": {
             "timeout": {
-              "ms": 5000,
+              "ms": 30000,
               "action": "fail",
               "retries": 0
             },
@@ -168,9 +168,7 @@ A probe with a single GET call, one status assertion, and no stored variables:
           "error": null
         }
       ],
-      "actions": {
-        "variables": {}
-      }
+      "actions": {}
     }
     ```
 
@@ -182,5 +180,5 @@ A probe with a single GET call, one status assertion, and no stored variables:
 |---|---|
 | [Call Record](call-record.md) | Per-call fields, request/response records, assertions. |
 | [Response Metadata](response-metadata.md) | DNS, TLS, redirect tracking, and timing breakdown. |
-| [Body Storage](body-storage.md) | How request/response bodies are stored as files. |
+| [Body Storage](body-storage.md) | How response bodies are saved as files when enabled. |
 | [Actions](actions.md) | Write-back variables and extension-defined action arrays. |

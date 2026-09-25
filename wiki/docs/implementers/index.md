@@ -16,7 +16,7 @@ See [Packaging](packaging.md) for the separation rules and rationale.
 ### 1. Implement the Parser
 
 - Parse `.lace` source text against the formal grammar (`lacelang.g4` is the authoritative ANTLR4 grammar).
-- Produce an internal AST matching the [AST schema](../reference/ast-schema.md).
+- Produce an AST that serialises to the [AST schema](../reference/ast-schema.md) -- the shape the testkit compares in `parse` conformance vectors.
 - See [Grammar Notes](notes/grammar.md) for intentional divergences between the ANTLR4 grammar and the spec EBNF.
 
 ### 2. Implement the Validator
@@ -31,7 +31,7 @@ See [Packaging](packaging.md) for the separation rules and rationale.
 - Execute calls sequentially, evaluate chain methods, apply the failure cascade.
 - Produce a [ProbeResult](../reference/result-schema.md) matching the result schema.
 - Implement all core features: variables, null semantics, cookie jars, body storage, `prev` access.
-- Implement the [extension interface](../reference/primitives.md) (hook dispatch, schema additions, rule body language) for full conformance -- or declare `omit: extensions` for partial conformance.
+- Implement the [extension interface](../extensions/index.md) ([hook dispatch](../extensions/hooks.md), schema additions, rule body language, [primitives](../reference/primitives.md)) for full conformance -- or declare `omit: extensions` for partial conformance.
 
 ### 4. Pass the Testkit
 

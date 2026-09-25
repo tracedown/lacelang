@@ -69,17 +69,18 @@ get("$BASE_URL/api/metrics", {
   headers: { Authorization: "Bearer $api_key" }
 })
 .expect(status: 200)
-.store({ "$$count_after": this.body.event_count })
 .assert({
   expect: [
-    $$count_after eq $$count_before + 1
+    this.body.event_count eq $$count_before + 1
   ]
 })
 ```
 
+The comparison reads `this.body.event_count` directly: `.assert()` runs before `.store()` in the chain, so a `$$count_after` stored on the same call would not be set yet.
+
 ## Cookie-Based Chaining
 
-Cookies persist automatically between calls by default (using the `"inherit"` jar mode). Use named jars to isolate cookie state for different sessions:
+Cookies persist automatically between calls by default: a call without `cookieJar` uses the `"inherit"` jar mode. Use named jars to isolate cookie state for different sessions:
 
 ```lace
 // Admin session
@@ -105,7 +106,7 @@ get("$BASE_URL/admin/dashboard", {
 
 ## Delays with .wait()
 
-`.wait()` pauses execution for a specified number of milliseconds after all other chain methods complete. It is always the last chain method.
+`.wait()` pauses execution for a specified number of milliseconds after all other chain methods complete. It is always the last chain method, and its argument must be an integer literal (anything else is a parse error).
 
 ```lace
 post("$BASE_URL/api/jobs", {
@@ -121,5 +122,5 @@ get("$BASE_URL/api/jobs/latest")
 })
 ```
 
-!!! note "Hard fail stops everything"
-    If a call's `.expect()` or `.assert({ expect: [...] })` fails, all remaining chain methods on that call **and all subsequent calls** are skipped. The script stops at the point of failure.
+!!! note "Hard fail stops everything after the call"
+    If a call's `.expect()` or `.assert({ expect: [...] })` fails, that call's `.store()` and `.wait()` **and all subsequent calls** are skipped. The call's own `.check()` and `.assert()` still run, so every failing assertion on it is recorded. Skipped calls still appear in the result's `calls` array with `outcome: "skipped"`.

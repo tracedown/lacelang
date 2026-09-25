@@ -1,14 +1,15 @@
 // laceNotifications example: silentOnRepeat (default behavior).
 //
-// silentOnRepeat defaults to true — even without explicit options.
+// silentOnRepeat defaults to true — with or without an options block.
 // When the same assertion also failed in the previous run, the
 // notification is suppressed to prevent alert storms.
 //
-// Step 1 — first run (no prev): notification fires.
+// Step 1 — first run (no prev): notification fires. Save the result to
+// use as the next run's prev.
 //
 //   lacelang-executor run silent_on_repeat.lace \
 //     --enable-extension laceNotifications \
-//     --save-to first_run.json --pretty
+//     --save-to silent_on_repeat_prev.json --pretty
 //
 // Step 2 — second run (with prev): notification is silenced.
 //

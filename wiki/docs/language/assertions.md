@@ -2,7 +2,7 @@
 
 `.expect()` and `.check()` validate response properties using **scopes** --- named checks against parts of the response like status code, timing, body, and headers.
 
-The only difference between them: `.expect()` failures are **hard** (execution stops), `.check()` failures are **soft** (recorded, execution continues).
+The only difference between them: `.expect()` failures are **hard**, `.check()` failures are **soft** (recorded, execution continues). A hard fail skips the call's `.store()` and `.wait()` and every later call; the same call's `.check()` and `.assert()` still run and are recorded. See [Failure Semantics](failure-semantics.md).
 
 ## Complete Evaluation
 
@@ -72,15 +72,15 @@ All three forms produce the same core behaviour. The full form exists so extensi
 | `status` | integer or integer[] | HTTP status code. Array means "any of these". |
 | `body` | body match | Body content or schema validation. See [Body Matching](#body-matching). |
 | `headers` | object | Each key-value pair must match. Keys are case-insensitive. |
-| `bodySize` | size string | Body size threshold (e.g. `"50kb"`, `"10m"`). Also gates body capture. |
+| `bodySize` | size string | Body size threshold (e.g. `"50kb"`, `"10m"`). Also gates body capture: a body over the limit is not saved and the call records `bodyNotCapturedReason: "bodyTooLarge"`. |
 | `totalDelayMs` | integer | Total response time threshold in ms. |
 | `dns` | integer | DNS resolution time threshold in ms. |
 | `connect` | integer | TCP connection time threshold in ms. |
-| `tls` | integer | TLS handshake time threshold in ms. Skipped when TLS time is 0. |
+| `tls` | integer | TLS handshake time threshold in ms. Skipped when `this.tlsMs` is 0 (plain HTTP). |
 | `ttfb` | integer | Time to first byte threshold in ms. |
 | `transfer` | integer | Body transfer time threshold in ms. |
 | `size` | integer | Exact response body size in bytes. |
-| `redirects` | string | URL match against redirect chain. See [Redirects Scope](#redirects-scope). |
+| `redirects` | string | URL match against the redirect hops (`this.redirects`). See [Redirects Scope](#redirects-scope). |
 
 **Size string format** for `bodySize`: a number optionally followed by a unit --- `50`, `50k`, `50kb`, `10m`, `10mb`, `1g`, `1gb`.
 
@@ -123,10 +123,15 @@ The variable must contain a valid JSON Schema document. If the variable is `null
 
 ```lace
 // Loose (default): schema fields must be present and valid, extra fields allowed
+get("$BASE_URL/api/user")
 .expect(body: schema($user_schema))
+
+// The same, with the mode written out
+get("$BASE_URL/api/user")
 .expect(body: { value: schema($user_schema), mode: "loose" })
 
 // Strict: no extra fields allowed at any level
+get("$BASE_URL/api/user")
 .expect(body: { value: schema($user_schema), mode: "strict" })
 ```
 
@@ -135,7 +140,7 @@ The variable must contain a valid JSON Schema document. If the variable is `null
 | `loose` (default) | All schema fields must be present and valid. Additional fields are ignored. |
 | `strict` | All schema fields must be present and valid. Any extra field at any level fails. |
 
-When a schema check fails, the assertion record includes the first validation error path and message (e.g. `{ path: ".user.id", detail: "expected integer, got string" }`).
+When a schema check fails, the assertion record's `actual` carries the first validation error path and message (e.g. `{ path: ".user.id", detail: "expected integer, got string" }`). A strict-mode extra field is reported with path `.<field>` and detail `"unexpected field"`.
 
 ### Literal string
 
@@ -158,16 +163,19 @@ The raw response body must equal the runtime value of the variable:
 
 ## Redirects Scope
 
-The `redirects` scope asserts against the chain of redirect URLs followed during the call. It uses a `match` field to select which redirect to compare:
+The `redirects` scope asserts against the redirect hops followed during the call (`this.redirects`, see [Redirect Tracking](http-calls.md#redirect-tracking)). It uses a `match` field to select which hop to compare:
 
 ```lace
 // Shorthand --- defaults to match: "any"
+get("$BASE_URL/account")
 .expect(redirects: "/login")
 
 // Full form --- explicit match type
+get("$BASE_URL/account")
 .expect(redirects: { value: "/login", match: "first" })
-.expect(redirects: { value: "/final", match: "last" })
-.expect(redirects: { value: "/somewhere", match: "any" })
+
+get("$BASE_URL/old-home")
+.check(redirects: { value: "/final", match: "last" })
 ```
 
 | `match` | Behaviour |
@@ -175,6 +183,8 @@ The `redirects` scope asserts against the chain of redirect URLs followed during
 | `first` | Compare against the first redirect hop. Fails if no redirects occurred. |
 | `last` | Compare against the last redirect hop. Fails if no redirects occurred. |
 | `any` (default) | Pass if the value matches any redirect in the chain. |
+
+`eq` is the only operator `redirects` accepts --- ordered comparisons are not meaningful for URLs.
 
 ## Combining .expect() and .check()
 

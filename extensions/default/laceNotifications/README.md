@@ -4,7 +4,8 @@ Notification dispatch extension for Lace. Recommended to be bundled with every e
 `builtin:laceNotifications`.
 
 When enabled, this extension emits `notification_event` entries into
-`result.actions.notifications` whenever assertions fail or calls time out.
+`result.actions.notifications` whenever assertions fail, calls time out,
+or a call fails with a connection-level error.
 The **backend** (the system that invokes the Lace executor) is responsible
 for actually delivering notifications — Lace provides the interface, not
 the transport.
@@ -96,11 +97,19 @@ at evaluation time and **never appears in the result**.
 
 #### `op_map(ops)`
 
-A map from comparison-outcome keys to `notification_expr` values. When
-an assertion fails, the extension determines the relationship between
-actual and expected (`"lt"`, `"gt"`, `"eq"`, `"neq"`), looks up the
-matching entry, and emits the resolved `notification_val`. An optional
-`"default"` key serves as a fallback when no key matches.
+A map from keys to `notification_expr` values. When an assertion fails,
+the extension resolves the map in this order and emits the first match:
+
+1. the literal actual value as a key — `"404"`, `"503"` (scope
+   assertions only);
+2. the relationship between actual and expected as reported by
+   `compare()` — `"lt"`, `"eq"`, `"gt"`, or `"neq"` (never `"lte"` /
+   `"gte"`; those keys can never match);
+3. `"default"`.
+
+A bare object literal in a `notification` option — `notification: {
+"404": template("x"), "default": text("y") }` — is accepted as shorthand
+for `op_map({ ... })` and resolves identically.
 
 ```
 notification: op_map({
@@ -126,17 +135,28 @@ The extension registers rules on the `expect`, `check`, `assert`, and
 
 1. If the scope/condition **passed**, no notification is emitted.
 2. If it **failed** and a custom `notification` option is set on the
-   scope or condition, that value is used (after `op_map` resolution
-   if applicable).
+   scope or condition, that value is used (`text` / `template` /
+   `structured` as-is; `op_map` or a bare map resolved as above).
 3. If it **failed** and no custom `notification` is set, the extension
    emits a default `structured()` notification containing the failure
    details.
-4. For **timeouts**, the extension emits a `text()` notification using
-   `config.timeout_message`.
+4. For **timeouts**, the extension emits the call's `timeout.notification`
+   when the script declares one (a map form resolves to its `"default"`
+   entry), otherwise a `text()` notification using
+   `config.timeout_message`. Timeout notifications fire on every
+   timed-out run — `silentOnRepeat` does not apply to them.
+5. For **connection-level errors** (DNS failure, refused connection, TLS
+   error — anything that sets `call.error` without a timeout), the
+   extension emits a `structured({ error })` notification with trigger
+   `"error"` when the same call had no error in the previous run (or
+   there is no previous run), and stays silent while the error persists.
 
-The `silentOnRepeat` option (default `true`) suppresses notifications
-when the same scope or condition also failed in the previous run. This
-prevents alert storms on persistent failures.
+The `silentOnRepeat` option suppresses a notification when the same
+scope or condition also failed in the previous run. It defaults to
+`true` whether or not the scope has an `options {}` block; only an
+explicit `silentOnRepeat: false` turns it off. Assert conditions are
+matched to the previous run by `(method: "assert", index)`, so scope
+records earlier in `assertions[]` do not shift the lookup.
 
 ---
 
@@ -169,8 +189,8 @@ The backend receives `result.actions.notifications` — an array of
 |---|---|---|
 | `callIndex` | int | Which call triggered the notification (-1 for script-level) |
 | `conditionIndex` | int | Condition index within `.assert()` (-1 for scope-level) |
-| `trigger` | string | `"expect"`, `"check"`, `"assert"`, or `"timeout"` |
-| `scope` | string? | Scope name for scope-level failures (null for assert/timeout) |
+| `trigger` | string | `"expect"`, `"check"`, `"assert"`, `"timeout"`, or `"error"` from this extension; peers add their own (`"recovered"` from laceEmitRecovery, `"baseline_spike"` from laceBaseline) |
+| `scope` | string? | Scope name for scope-level failures (absent or null for assert/timeout/error) |
 | `notification` | notification_val | The resolved notification — always `text`, `template`, or `structured` (never `op_map`) |
 
 The backend should:
